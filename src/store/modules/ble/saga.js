@@ -1,36 +1,35 @@
-import { runSaga, channel } from 'redux-saga';
+import { channel } from 'redux-saga';
 import {
   fork,
   call,
   put,
   take,
-  takeLatest,
   select,
-  cancel,
-  cancelled
 } from 'redux-saga/effects';
 import {
   bleStart,
   bleStop,
   bleScanStart,
   bleScanStop,
-  bleDeviceFound,
-  bleDeviceSelected,
+  bleUpdateState,
 } from './actions';
 import { BleWrapper } from './BleWrapper';
 
-const GARAGE_SERVICE_UUIDS = ["11968E9E-D881-4502-A2ED-50FBC71968A0"];
+const GARAGE_SERVICE_UUIDS = ["321CCACA-29A6-4D46-B2DB-9B5639948751"];
 
-const getBleState = ( state ) => state.ble.on;
+const getBleState = state => state.ble.on;
+const getKnownDevices = state => state.ble.knownDevices;
 
-// pipe ble channel messages into the root saga
+// pipe ble channel messages
+// HACK? is there a better way?
 function* handleFromBleChannel(channel) {
   while (true) {
     const action = yield take(channel);
+    yield put(action);
+
     if(action.type !== 'jg/ble/DEVICE_FOUND_SUCCESS') {
       console.log(`handleFromBleChannel piping ${JSON.stringify(action)}`);
     }
-    yield put(action);
   }
 }
 
@@ -57,13 +56,15 @@ function* stopBluetoothSaga(bleWrapper) {
 function* scanningSaga(bleWrapper) {
   //wait for a start scan request
   while (yield take(bleScanStart.REQUEST)) {
-    const on = yield select(getBleState);
+    const on = yield select(getBleState); // check to see if bluetooth is actually on
 
-    if(on) {
+    if(!on) {
+      yield put(bleScanStart.failure());
+    } else {
       yield put(bleScanStart.success());
       // start scanning
       console.log(`scanningWorker: starting scanning`);
-      yield call(bleWrapper.startScan, GARAGE_SERVICE_UUIDS, 5); // returns immediately
+      yield call(bleWrapper.startScan, GARAGE_SERVICE_UUIDS, 10); // returns immediately
       console.log(`scanningWorker: started scanning for 5 seconds...`);
       // let the scanning run until a scan stop request or timed out
       const action = yield take([bleScanStop.REQUEST, bleScanStop.SUCCESS]);
@@ -75,15 +76,28 @@ function* scanningSaga(bleWrapper) {
         yield call(console.log, 'scanningSaga: cancelled scanningTask');
         yield put(bleScanStop.success());
       }
-    } else {
-      yield put(bleScanStart.failure());
     }
   }
 }
 
-// inspect a devices details
+// inspect a device's details
 function* inspectDeviceSaga(bleWrapper) {
 
+}
+
+function* connectKnownDevice(bleWrapper, device) {
+
+}
+
+function* connectKnownDevices(bleWrapper) {
+  // after every start
+  while(true) {
+    const state = yield take(bleUpdateState.SUCCESS);
+    if(state === 'on') { //TODO: remove magic string
+      const devices = yield select(getKnownDevices);
+      devices.map(device => yield call(connectKnownDevice, bleWrapper, device));
+    }
+  }
 }
 
 export function* saga() {
@@ -95,7 +109,7 @@ export function* saga() {
 
   yield fork(scanningSaga, bleWrapper);
   yield fork(inspectDeviceSaga, bleWrapper);
-  //...
+  yield fork(connectKnownDevices, bleWrapper);
 
   // finally start bluetooth
   yield fork(stopBluetoothSaga, bleWrapper);

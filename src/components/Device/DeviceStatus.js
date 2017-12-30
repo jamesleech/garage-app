@@ -13,13 +13,13 @@ class DeviceStatus extends Component {
         return (
           <StyledText>Connected</StyledText>
         );
-      case 'unconnected':
+      case 'notConnected':
         return (
-          <StyledText>Unconnected</StyledText>
+          <StyledText>Not connected</StyledText>
         );
       case 'connecting':
         return (
-          <StyledText>Connecting</StyledText>
+          <StyledText>Connecting...</StyledText>
         );
       default:
         return (

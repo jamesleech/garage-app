@@ -1,6 +1,9 @@
 import {
-  bleDeviceFound, bleScanStop,
   bleUpdateState,
+  bleScanStop,
+  bleDeviceConnected,
+  bleDeviceDisconnected,
+  bleDeviceFound,
 } from './actions';
 
 import {
@@ -90,7 +93,7 @@ export class BleWrapper {
     }
   };
 
-  retrieveConnected = async () =>  {
+  retrieveConnectedDevices = async () =>  {
     const results = BleManager.getConnectedPeripherals([]);
     console.log(results);
     //TODO: message each connected peripheral
@@ -100,7 +103,7 @@ export class BleWrapper {
     return await BleManager.connect(id);
   };
 
-  retrieveServices = async (id) => {
+  retrieveServicesForDeviceId = async (id) => {
     return await BleManager.retrieveServices(id);
   };
 
@@ -129,11 +132,13 @@ export class BleWrapper {
   };
 
   handleConnectPeripheral = (data) => {
-    console.log('Connected to ' + data.peripheral.id);
+    console.log(`Connected to ${JSON.stringify(data)}`);
+    this.channel.put(bleDeviceConnected.success());
   };
 
   handleDisconnectedPeripheral = (data) => {
-    console.log('Disconnected from ' + data.peripheral.id);
+    console.log(`Disconnected from ${JSON.stringify(data)}`);
+    this.channel.put(bleDeviceDisconnected.success());
     // TODO: message that peripheral disconnected
   };
 

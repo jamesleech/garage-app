@@ -35,7 +35,7 @@ class LinkDeviceScreen extends React.Component {
       <RowView>
         <RowText>Device</RowText>
         <RowRightItem>
-          <DeviceStatus status='unconnected' />
+          <DeviceStatus status='notConnected' />
         </RowRightItem>
       </RowView>
       <DeviceScanButton scanning={scanning} startScanning={startScan} stopScanning={stopScan} />
