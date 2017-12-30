@@ -11,8 +11,8 @@ class HomeScreen extends React.Component {
   constructor() {
     super();
     HomeScreenNavigator = TabNavigator({
-      Link: { screen: LinkDeviceScreen },
       Open: { screen: OpenDoorScreen },
+      Link: { screen: LinkDeviceScreen },
     });
     HomeScreenNavigator.router = HomeScreen.router;
   }

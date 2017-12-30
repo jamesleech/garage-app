@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import styled from 'styled-components/native';
+import { RowView } from '../index';
 
 const StyledText = styled.Text`
   color: white;
 `;
-
 
 class DeviceStatus extends Component {
   renderGraphic = () => {
@@ -31,7 +31,9 @@ class DeviceStatus extends Component {
 
   render() {
     return (
-      this.renderGraphic()
+      <RowView>
+        {this.renderGraphic()}
+      </RowView>
     );
   }
 }

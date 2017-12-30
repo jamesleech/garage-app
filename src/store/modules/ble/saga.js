@@ -4,6 +4,7 @@ import {
   call,
   put,
   take,
+  takeEvery,
   select,
 } from 'redux-saga/effects';
 import {
@@ -11,7 +12,7 @@ import {
   bleStop,
   bleScanStart,
   bleScanStop,
-  bleUpdateState,
+  bleUpdateState, bleDeviceConnect,
 } from './actions';
 import { BleWrapper } from './BleWrapper';
 
@@ -85,17 +86,22 @@ function* inspectDeviceSaga(bleWrapper) {
 
 }
 
-function* connectKnownDevice(bleWrapper, device) {
-
+function* connectDevice(bleWrapper, action) {
+  const { id } = action.payload;
+  yield console.log(`connectDevice ${JSON.stringify(id)}`);
+  // yield call(bleWrapper.connect, id);
 }
 
-function* connectKnownDevices(bleWrapper) {
+function* connectKnownDevices() {
   // after every start
   while(true) {
-    const state = yield take(bleUpdateState.SUCCESS);
-    if(state === 'on') { //TODO: remove magic string
+    const { payload } = yield take(bleUpdateState.SUCCESS);
+    if(payload === 'on') { //TODO: remove magic string
+      yield call(console.log, 'connectKnownDevices: try to connect all known devices...');
       const devices = yield select(getKnownDevices);
-      devices.map(device => yield call(connectKnownDevice, bleWrapper, device));
+      for (let device of devices.valueSeq()) {
+        yield put(bleDeviceConnect.request( { id: device.get('id') }));
+      }
     }
   }
 }
@@ -109,7 +115,8 @@ export function* saga() {
 
   yield fork(scanningSaga, bleWrapper);
   yield fork(inspectDeviceSaga, bleWrapper);
-  yield fork(connectKnownDevices, bleWrapper);
+  yield fork(connectKnownDevices);
+  yield takeEvery(bleDeviceConnect.REQUEST, connectDevice, bleWrapper);
 
   // finally start bluetooth
   yield fork(stopBluetoothSaga, bleWrapper);

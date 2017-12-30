@@ -4,8 +4,9 @@ import { View } from 'react-native';
 import {
   RowView,
   RowText,
-  DeviceSignalStrength
+  DeviceStatus
 } from '../index';
+import {DeviceSignalStrength} from './DeviceSignalStrength';
 
 const StyledTouchableOpacity = styled.TouchableOpacity`
   display: flex;
@@ -28,7 +29,7 @@ const ItemDivider = styled.View`
   align-self: center;
 `;
 
-const DeviceListItem = ({ item, onPress }) => {
+const DeviceKnownListItem = ({item, onPress}) => {
   const pressed = () => {
     onPress(item);
   };
@@ -39,21 +40,11 @@ const DeviceListItem = ({ item, onPress }) => {
         <ItemView>
           <RowText>{item.name}</RowText>
         </ItemView>
-        <ItemView>
-          <RowText>{item.id}</RowText>
-        </ItemView>
+        <DeviceStatus status={item.status}/>
         <DeviceSignalStrength strength = {item.rssi}/>
-        { item.serviceUUIDs
-        ? <ItemView>
-            <RowText>Services:</RowText>
-            <RowText>{item.serviceUUIDs.length}</RowText>
-          </ItemView>
-        : <View/>
-        }
       </View>
-      <ItemDivider />
     </StyledTouchableOpacity>
   );
 };
 
-export { DeviceListItem };
+export { DeviceKnownListItem };

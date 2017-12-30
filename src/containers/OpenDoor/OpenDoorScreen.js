@@ -9,6 +9,7 @@ import {
   RowText,
   RowRightItem,
   DeviceStatus,
+  DeviceKnownList,
   RowBluetooth,
   GarageStatus
 } from '../../components';
@@ -18,24 +19,16 @@ const StyledSwitch = styled.Switch`
 `;
 
 class OpenDoorScreen extends React.Component {
+  onPressDevice = (device) => {
+    console.log(`onPressDevice: ${device.id} - ${device.name}`);
+  };
+
   render() {
-    const { bluetoothPower } = this.props;
+    const { bluetoothPower, devices } = this.props;
     return (
       <TabContainer>
         <RowBluetooth on={ bluetoothPower }/>
-        <RowView>
-          <RowText>Device</RowText>
-          <RowRightItem>
-            <DeviceStatus status='connected' />
-          </RowRightItem>
-        </RowView>
-        <RowView>
-          <RowText>Garage</RowText>
-          <RowRightItem>
-            <GarageStatus status='occupied' />
-          </RowRightItem>
-        </RowView>
-        <RowSwitch text='Control Door' />
+        <DeviceKnownList devices={devices} onPressDevice={this.onPressDevice}/>
     </TabContainer>)
   }
 }
@@ -43,7 +36,7 @@ class OpenDoorScreen extends React.Component {
 function mapStateToProps(state) {
   return {
     bluetoothPower: state.ble.on,
-    devices: state.ble.devices.toList().toJS(),
+    devices: state.ble.knownDevices.toList().toJS(),
   }
 }
 

@@ -3,7 +3,7 @@ import {
   bleScanStop,
   bleUpdateState,
   bleDeviceFound,
-  bleDeviceSelected,
+  bleDeviceSelected, bleDeviceConnect,
 } from './actions';
 import { List, Map } from 'immutable';
 
@@ -14,12 +14,20 @@ const initialState = {
     [
       [
         '4C9AE077-E60A-9E90-7F09-C2064B7D36A5',
-        {
-          id: '4C9AE077-E60A-9E90-7F09-C2064B7D36A5',
-          name: '**GarageOpener**',
-          isConnected: false,
-        }
+        Map([
+          ['id', '4C9AE077-E60A-9E90-7F09-C2064B7D36A5'],
+          ['name', '**GarageOpener**'],
+          ['status', 'notConnected' ]
+          ])
       ],
+      [
+        '1C9AE077-E60A-9E90-7F09-C2064B7D36A5',
+        Map([
+          ['id', '1C9AE077-E60A-9E90-7F09-C2064B7D36A5'],
+          ['name', '**SomeOtherNotFound**'],
+          ['status', 'notConnected' ]
+        ])
+      ]
     ]),
   selectedDevice: undefined,
   devices: Map(
@@ -82,6 +90,22 @@ export const reducer = (state = initialState, action) => {
       return {
         ...state,
         selectedDevice: state.devices.get(action.payload),
+      };
+    case bleDeviceConnect.REQUEST:
+      const { id } = action.payload;
+      return {
+        ...state,
+        knownDevices: state.knownDevices.setIn([id, 'status'], 'connecting'),
+      };
+    case bleDeviceConnect.SUCCESS:
+      return {
+        ...state,
+        knownDevices: state.knownDevices.setIn([id, 'status'], 'connected'),
+      };
+    case bleDeviceConnect.FAILURE:
+      return {
+        ...state,
+        knownDevices: state.knownDevices.setIn([id, 'status'], 'notConnected'),
       };
     default:
       return state

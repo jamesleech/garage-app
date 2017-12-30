@@ -1,8 +1,8 @@
 import {
   bleUpdateState,
   bleScanStop,
-  bleDeviceConnected,
-  bleDeviceDisconnected,
+  bleDeviceConnect,
+  bleDeviceDisconnect,
   bleDeviceFound,
 } from './actions';
 
@@ -133,12 +133,12 @@ export class BleWrapper {
 
   handleConnectPeripheral = (data) => {
     console.log(`Connected to ${JSON.stringify(data)}`);
-    this.channel.put(bleDeviceConnected.success());
+    this.channel.put(bleDeviceConnect.success());
   };
 
   handleDisconnectedPeripheral = (data) => {
     console.log(`Disconnected from ${JSON.stringify(data)}`);
-    this.channel.put(bleDeviceDisconnected.success());
+    this.channel.put(bleDeviceDisconnect.success());
     // TODO: message that peripheral disconnected
   };
 
