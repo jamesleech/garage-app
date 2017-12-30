@@ -13,6 +13,7 @@ import {
   RowBluetooth,
   GarageStatus
 } from '../../components';
+import { bleToggleDoor } from '../../store/modules/ble';
 
 const StyledSwitch = styled.Switch`
   margin-left: auto;
@@ -20,7 +21,8 @@ const StyledSwitch = styled.Switch`
 
 class OpenDoorScreen extends React.Component {
   onPressDevice = (device) => {
-    console.log(`onPressDevice: ${device.id} - ${device.name}`);
+    const { toggleDoor } = this.props;
+    toggleDoor({ id: device.id });
   };
 
   render() {
@@ -41,7 +43,10 @@ function mapStateToProps(state) {
 }
 
 OpenDoorScreen = connect(
-  mapStateToProps
+  mapStateToProps,
+  {
+    toggleDoor: bleToggleDoor
+  }
 )(OpenDoorScreen);
 
 export { OpenDoorScreen };

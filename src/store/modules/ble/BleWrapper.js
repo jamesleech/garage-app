@@ -93,18 +93,17 @@ export class BleWrapper {
     }
   };
 
-  retrieveConnectedDevices = async () =>  {
-    const results = BleManager.getConnectedPeripherals([]);
-    console.log(results);
-    //TODO: message each connected peripheral
-  };
-
   connect = async (id) => {
     return await BleManager.connect(id);
   };
 
-  retrieveServicesForDeviceId = async (id) => {
+  getServicesForDeviceId = async (id) => {
     return await BleManager.retrieveServices(id);
+  };
+
+  write = async (id, serviceUUID, characteristicUUID, data) => {
+    //TODO: convert data to byte array
+    return await BleManager.write(id, serviceUUID, characteristicUUID, data);
   };
 
   handleUpdateState = ( { state } ) => {
@@ -132,13 +131,13 @@ export class BleWrapper {
   };
 
   handleConnectPeripheral = (data) => {
-    console.log(`Connected to ${JSON.stringify(data)}`);
-    this.channel.put(bleDeviceConnect.success());
+    console.log(`handleConnectPeripheral: Connected to ${JSON.stringify(data)}`);
+    this.channel.put(bleDeviceConnect.success({ id: data.peripheral }));
   };
 
   handleDisconnectedPeripheral = (data) => {
     console.log(`Disconnected from ${JSON.stringify(data)}`);
-    this.channel.put(bleDeviceDisconnect.success());
+    this.channel.put(bleDeviceDisconnect.success({ id: data.peripheral }));
     // TODO: message that peripheral disconnected
   };
 

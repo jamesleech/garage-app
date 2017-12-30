@@ -1,22 +1,29 @@
 import { channel } from 'redux-saga';
 import {
+  put,
   fork,
   call,
-  put,
   take,
-  takeEvery,
   select,
+  throttle,
+  takeEvery,
+  takeLatest,
 } from 'redux-saga/effects';
 import {
-  bleStart,
   bleStop,
-  bleScanStart,
+  bleStart,
   bleScanStop,
-  bleUpdateState, bleDeviceConnect,
+  bleScanStart,
+  bleToggleDoor,
+  bleUpdateState,
+  bleDeviceConnect,
+  bleDeviceGetServices,
+  bleDeviceConnectKnown,
 } from './actions';
 import { BleWrapper } from './BleWrapper';
 
-const GARAGE_SERVICE_UUIDS = ["321CCACA-29A6-4D46-B2DB-9B5639948751"];
+const GARAGE_SERVICE_UUIDS = "321CCACA-29A6-4D46-B2DB-9B5639948751";
+const GARAGE_DOOR_CHARACTERISTIC_UUID = "a3ab3644-1832-4eb2-87f6-777b9845f5ea";
 
 const getBleState = state => state.ble.on;
 const getKnownDevices = state => state.ble.knownDevices;
@@ -64,59 +71,110 @@ function* scanningSaga(bleWrapper) {
     } else {
       yield put(bleScanStart.success());
       // start scanning
-      console.log(`scanningWorker: starting scanning`);
-      yield call(bleWrapper.startScan, GARAGE_SERVICE_UUIDS, 10); // returns immediately
-      console.log(`scanningWorker: started scanning for 5 seconds...`);
+      yield call(bleWrapper.startScan, [GARAGE_SERVICE_UUIDS], 10); // returns immediately
       // let the scanning run until a scan stop request or timed out
       const action = yield take([bleScanStop.REQUEST, bleScanStop.SUCCESS]);
-      yield call(console.log, `scanningSaga: took action ${action}`);
       // if a stop request, cancel the scanning task.
       if(action.type === bleScanStop.REQUEST) {
-        yield call(console.log, 'scanningSaga: attempting to cancel scanningTask');
         yield call(bleWrapper.stopScan);
-        yield call(console.log, 'scanningSaga: cancelled scanningTask');
         yield put(bleScanStop.success());
       }
     }
   }
 }
 
-// inspect a device's details
-function* inspectDeviceSaga(bleWrapper) {
-
-}
-
-function* connectDevice(bleWrapper, action) {
+// device connect
+function* connectDeviceWorker(bleWrapper, action) {
   const { id } = action.payload;
-  yield console.log(`connectDevice ${JSON.stringify(id)}`);
-  // yield call(bleWrapper.connect, id);
-}
-
-function* connectKnownDevices() {
-  // after every start
-  while(true) {
-    const { payload } = yield take(bleUpdateState.SUCCESS);
-    if(payload === 'on') { //TODO: remove magic string
-      yield call(console.log, 'connectKnownDevices: try to connect all known devices...');
-      const devices = yield select(getKnownDevices);
-      for (let device of devices.valueSeq()) {
-        yield put(bleDeviceConnect.request( { id: device.get('id') }));
-      }
-    }
+  yield console.log(`connectDeviceWorker ${JSON.stringify(id)}`);
+  try {
+    yield call(bleWrapper.connect, id);
+  } catch (error) {
+    yield put(bleDeviceConnect.failure({ id, error }));
+    yield call(console.log, error);
   }
 }
 
+function* connectedDeviceWorker(bleWrapper, action) {
+  const { id } = action.payload;
+  yield console.log(`connectedDeviceWorker: ${JSON.stringify(id)}`);
+  yield put(bleDeviceGetServices.request({ id }));
+}
+
+function* getDeviceServicesWorker(bleWrapper, action) {
+  const { id } = action.payload;
+  yield console.log(`getDeviceServicesWorker: ${JSON.stringify(id)}`);
+  try {
+    const services = yield call(bleWrapper.getServicesForDeviceId, id);
+    yield call(console.log, `getDeviceServicesWorker: ${JSON.stringify(services)}`);
+  } catch (error){
+    yield put(bleDeviceGetServices.failure({ id, error }));
+    yield call(console.log, error);
+  }
+}
+
+function* updateStateWorker(action) {
+  const { payload } = action;
+  if(payload === 'on') { //TODO: remove magic string
+    yield put(bleDeviceConnectKnown.request());
+  }
+}
+
+function* connectKnownDevicesWorker() {
+  yield call(console.log, 'connectKnownDevices: try to connect all known devices...');
+
+  const devices = yield select(getKnownDevices);
+
+  for (let device of devices.valueSeq()) {
+    if(device.get('status') !== 'connected') { //TODO: remove magic string
+      yield put(bleDeviceConnect.request({id: device.get('id')}));
+    }
+  }
+
+  yield put(bleDeviceConnectKnown.success());
+}
+
+function* toggleDoorWorker(bleWrapper, action) {
+  const { id } = action.payload;
+  yield call(console.log, `toggleDoorWorker: ${id}`);
+  try {
+    yield call(
+      bleWrapper.write,
+      id,
+      GARAGE_SERVICE_UUIDS,
+      GARAGE_DOOR_CHARACTERISTIC_UUID,
+      [0x31] // TODO: toggle door command, currently send the char '1'
+    );
+    yield put(bleToggleDoor.success({ id }));
+  } catch (error) {
+    yield put(bleToggleDoor.failure({ id, error }));
+    yield call(console.log, error);
+  }
+}
+
+// ble saga
 export function* saga() {
   // create a channel onto which the bleWrapper will emit actions
   const fromBleChannel = yield call(channel);
   yield fork(handleFromBleChannel, fromBleChannel);
 
+  // pass the channel to the bleWrapper
   const bleWrapper = new BleWrapper(fromBleChannel);
 
+  // setup listener sagas
+  yield takeEvery(bleDeviceConnect.REQUEST, connectDeviceWorker, bleWrapper);
+  yield takeEvery(bleDeviceConnect.SUCCESS, connectedDeviceWorker, bleWrapper);
+  yield takeEvery(bleDeviceGetServices.REQUEST, getDeviceServicesWorker, bleWrapper);
+
+  // connect known devices, every time bluetooth is turned on (at start up) and also every request
+  yield takeLatest(bleDeviceConnectKnown.REQUEST, connectKnownDevicesWorker);
+  yield takeLatest(bleUpdateState.SUCCESS, updateStateWorker);
+
+  // only allow door toggle once per second
+  yield throttle(1000, bleToggleDoor.REQUEST, toggleDoorWorker, bleWrapper);
+
+  // fork saga's
   yield fork(scanningSaga, bleWrapper);
-  yield fork(inspectDeviceSaga, bleWrapper);
-  yield fork(connectKnownDevices);
-  yield takeEvery(bleDeviceConnect.REQUEST, connectDevice, bleWrapper);
 
   // finally start bluetooth
   yield fork(stopBluetoothSaga, bleWrapper);

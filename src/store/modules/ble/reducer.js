@@ -3,7 +3,7 @@ import {
   bleScanStop,
   bleUpdateState,
   bleDeviceFound,
-  bleDeviceSelected, bleDeviceConnect,
+  bleDeviceSelected, bleDeviceConnect, bleDeviceDisconnect,
 } from './actions';
 import { List, Map } from 'immutable';
 
@@ -92,20 +92,24 @@ export const reducer = (state = initialState, action) => {
         selectedDevice: state.devices.get(action.payload),
       };
     case bleDeviceConnect.REQUEST:
-      const { id } = action.payload;
       return {
         ...state,
-        knownDevices: state.knownDevices.setIn([id, 'status'], 'connecting'),
+        knownDevices: state.knownDevices.setIn([action.payload.id, 'status'], 'connecting'),
       };
     case bleDeviceConnect.SUCCESS:
       return {
         ...state,
-        knownDevices: state.knownDevices.setIn([id, 'status'], 'connected'),
+        knownDevices: state.knownDevices.setIn([action.payload.id, 'status'], 'connected'),
       };
     case bleDeviceConnect.FAILURE:
       return {
         ...state,
-        knownDevices: state.knownDevices.setIn([id, 'status'], 'notConnected'),
+        knownDevices: state.knownDevices.setIn([action.payload.id, 'status'], 'notConnected'),
+      };
+    case bleDeviceDisconnect.SUCCESS:
+      return {
+        ...state,
+        knownDevices: state.knownDevices.setIn([action.payload.id, 'status'], 'notConnected'),
       };
     default:
       return state

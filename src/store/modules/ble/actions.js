@@ -2,6 +2,7 @@ import {createAction} from '../../createAction';
 
 const ActionPrefix = 'jg/ble/';
 
+export const bleToggleDoor = createAction(ActionPrefix + 'TOGGLE_DOOR');
 
 export const bleStart = createAction(ActionPrefix + 'START');
 export const bleStop = createAction(ActionPrefix + 'STOP');
@@ -16,3 +17,7 @@ export const bleDeviceSelected = createAction(ActionPrefix + 'DEVICE_SELECTED');
 
 export const bleDeviceConnect = createAction(ActionPrefix + 'DEVICE_CONNECT');
 export const bleDeviceDisconnect = createAction(ActionPrefix + 'DEVICE_DISCONNECT');
+
+export const bleDeviceGetServices = createAction(ActionPrefix + 'DEVICE_GET_SERVICES');
+
+export const bleDeviceConnectKnown = createAction(ActionPrefix + 'DEVICE_CONNECT_KNOWN');
