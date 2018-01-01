@@ -21,9 +21,10 @@ import {
   bleDeviceConnectKnown,
 } from './actions';
 import { BleWrapper } from './BleWrapper';
+import { createCommand } from './bleCommands';
 
 const GARAGE_SERVICE_UUIDS = "321CCACA-29A6-4D46-B2DB-9B5639948751";
-const GARAGE_DOOR_CHARACTERISTIC_UUID = "a3ab3644-1832-4eb2-87f6-777b9845f5ea";
+const GARAGE_DOOR_CHARACTERISTIC_UUID = "D7C7B570-EEDA-11E7-BD5D-FB4762172F1A";
 
 const getBleState = state => state.ble.on;
 const getKnownDevices = state => state.ble.knownDevices;
@@ -126,24 +127,35 @@ function* connectKnownDevicesWorker() {
   const devices = yield select(getKnownDevices);
 
   for (let device of devices.valueSeq()) {
-    if(device.get('status') !== 'connected') { //TODO: remove magic string
+    // if(device.get('status') !== 'connected') { //TODO: remove magic string
       yield put(bleDeviceConnect.request({id: device.get('id')}));
-    }
+    // }
   }
 
   yield put(bleDeviceConnectKnown.success());
 }
 
+
 function* toggleDoorWorker(bleWrapper, action) {
   const { id } = action.payload;
   yield call(console.log, `toggleDoorWorker: ${id}`);
+
   try {
+
+    const command = createCommand(4294967295,1024,0x0A);
+
     yield call(
       bleWrapper.write,
       id,
       GARAGE_SERVICE_UUIDS,
       GARAGE_DOOR_CHARACTERISTIC_UUID,
-      [0x31] // TODO: toggle door command, currently send the char '1'
+      command
+      // [
+      //   bytes.getUint8(0),bytes.getUint8(1),bytes.getUint8(2),bytes.getUint8(3),
+      //   bytes.getUint8(4),bytes.getUint8(5),bytes.getUint8(6),bytes.getUint8(7),
+      //   0x09,
+      //   0x30,0x31,0x32,0x33
+      // ]
     );
     yield put(bleToggleDoor.success({ id }));
   } catch (error) {

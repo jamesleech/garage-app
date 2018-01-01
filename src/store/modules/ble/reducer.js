@@ -24,7 +24,7 @@ const initialState = {
         '1C9AE077-E60A-9E90-7F09-C2064B7D36A5',
         Map([
           ['id', '1C9AE077-E60A-9E90-7F09-C2064B7D36A5'],
-          ['name', '**SomeOtherNotFound**'],
+          ['name', '**Dummy**'],
           ['status', 'notConnected' ]
         ])
       ]
@@ -52,13 +52,27 @@ const initialState = {
   ),
 };
 
+const bleUpdateStateReducer = (state, payload) => {
+  const on = payload === 'on'; //TODO: remove magic string
+
+  let knownDevices;
+  if(!on) {
+    knownDevices = state.knownDevices.map(device => device.setIn(['status'], 'notConnected'));
+  } else {
+    knownDevices = state.knownDevices;
+  }
+
+  return {
+    ...state,
+    on,
+    knownDevices
+  };
+};
+
 export const reducer = (state = initialState, action) => {
   switch (action.type) {
     case bleUpdateState.SUCCESS:
-      return {
-        ...state,
-        on: action.payload === 'on', //TODO: remove magic string
-      };
+      return bleUpdateStateReducer(state, action.payload);
     case bleScanStart.REQUEST:
       return {
         ...state,

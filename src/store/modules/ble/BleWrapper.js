@@ -97,6 +97,10 @@ export class BleWrapper {
     return await BleManager.connect(id);
   };
 
+  disconnect = async (id) => {
+    return await BleManager.disconnect(id);
+  };
+
   getServicesForDeviceId = async (id) => {
     return await BleManager.retrieveServices(id);
   };
