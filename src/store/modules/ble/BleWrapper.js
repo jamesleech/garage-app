@@ -106,7 +106,6 @@ export class BleWrapper {
   };
 
   write = async (id, serviceUUID, characteristicUUID, data) => {
-    //TODO: convert data to byte array
     return await BleManager.write(id, serviceUUID, characteristicUUID, data);
   };
 

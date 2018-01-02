@@ -21,7 +21,7 @@ import {
   bleDeviceConnectKnown,
 } from './actions';
 import { BleWrapper } from './BleWrapper';
-import { createCommand } from './bleCommands';
+import { createCommand, encryptCommand } from './commands';
 
 const GARAGE_SERVICE_UUIDS = "321CCACA-29A6-4D46-B2DB-9B5639948751";
 const GARAGE_DOOR_CHARACTERISTIC_UUID = "D7C7B570-EEDA-11E7-BD5D-FB4762172F1A";
@@ -142,7 +142,10 @@ function* toggleDoorWorker(bleWrapper, action) {
 
   try {
 
-    const command = createCommand(4294967295,1024,0x0A);
+    //TODO: get a serial number
+    //TODO: manage rolling counter
+    //TODO: create a list of commands
+    const command = encryptCommand(createCommand(4294967295,1024,0x0A));
 
     yield call(
       bleWrapper.write,
@@ -150,12 +153,6 @@ function* toggleDoorWorker(bleWrapper, action) {
       GARAGE_SERVICE_UUIDS,
       GARAGE_DOOR_CHARACTERISTIC_UUID,
       command
-      // [
-      //   bytes.getUint8(0),bytes.getUint8(1),bytes.getUint8(2),bytes.getUint8(3),
-      //   bytes.getUint8(4),bytes.getUint8(5),bytes.getUint8(6),bytes.getUint8(7),
-      //   0x09,
-      //   0x30,0x31,0x32,0x33
-      // ]
     );
     yield put(bleToggleDoor.success({ id }));
   } catch (error) {
