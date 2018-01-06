@@ -52,7 +52,7 @@ function* loadUserWorker() {
     console.log(`loadUserWorker: gotItem ${item}`);
     const user = JSON.parse(item);
 
-    if(user.username) {
+    if(user && user.username) {
       user.loaded = true;
       console.log(`loadUserWorker: ${user.username}`);
       yield put(loadUser.success(user));

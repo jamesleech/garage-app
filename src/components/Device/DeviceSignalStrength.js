@@ -8,7 +8,7 @@ const DeviceSignalStrength = ({ strength }) => {
   return (
     <RowView>
       <RowText>Signal Strength:</RowText>
-      <RowText>{ strength }</RowText>
+      <RowText>{ strength ? strength : 'na' }</RowText>
     </RowView>
   );
 };

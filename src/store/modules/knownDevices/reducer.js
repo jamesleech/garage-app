@@ -1,6 +1,7 @@
 import {Map} from "immutable";
-import {bleDeviceConnect, bleDeviceDisconnect, bleUpdateState} from '../ble/actions';
+import { bleDeviceConnect, bleDeviceDisconnect, bleUpdateState } from '../ble/actions';
 import { loadDevices, saveDevice, removeDevice } from './index';
+import { linkDevice } from '../linkDevice';
 
 const initialState = {
   devices: Map(
@@ -65,10 +66,21 @@ export const reducer = (state = initialState, action) => {
         ...state,
         devices: state.devices.setIn([action.payload.id, 'status'], 'notConnected'),
       };
-    // case loadDevices.SUCCESS:
-    //   return {
-    //     ...state,
-    //   };
+    case loadDevices.SUCCESS:
+      const loadedDevices = Map(action.payload.map(device => [ device.id, device]));
+      console.log(`reducer loadDevices.SUCCESS device: ${JSON.stringify(loadedDevices )}`);
+      return {
+        ...state,
+        // devices: loadedDevices,
+        devices: state.devices.merge(loadedDevices),
+      };
+    case linkDevice.SUCCESS:
+      const linkedDevice = action.payload;
+      console.log(`reducer linkDevice.SUCCESS device: ${JSON.stringify(linkedDevice)}`);
+      return {
+        ...state,
+        devices: state.devices.set(linkedDevice.id, linkedDevice),
+      };
     default:
       return state
   }

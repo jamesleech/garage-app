@@ -13,16 +13,22 @@ function* loadDevicesWorker() {
     const deviceKeys = keysResult.filter(key => key.startsWith(deviceKey));
     yield call(console.log, `loadDevicesWorker.filtered keys: ${deviceKeys}`);
 
+    const devices = [];
     if(deviceKeys.length > 0) {
       yield call(console.log, `loadDevicesWorker multi getting (${deviceKeys.length}) devices`);
-      const devices = yield call(AsyncStorage.multiGet, deviceKeys);
-      yield call(console.log, `loadDevicesWorker.devices: ${JSON.stringify(devices)}`);
+      // const devices = yield call(AsyncStorage.multiGet, deviceKeys); //doesn't workie
+      // maybe 10 max in a single app... so lets go one at a time.
+      for(let i = 0; i < deviceKeys.length; i++) {
+        let device = yield call(AsyncStorage.getItem, deviceKeys[i]);
+        device = JSON.parse(device);
+        device.status = 'notConnected';
+        device.rssi = null;
+        devices.push(device);
+      }
     }
-
     yield call(console.log, `load devices success`);
+    yield put(loadDevices.success(devices));
 
-
-    yield put(loadDevices.success({ }));
   } catch (error){
     yield call(console.log, `loadDevicesWorks error: ${error}`);
     yield put(loadDevices.failure(error));

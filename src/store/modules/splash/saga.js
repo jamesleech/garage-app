@@ -1,4 +1,3 @@
-import { delay } from 'redux-saga';
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { signIn } from '../signIn';
 import { loadDevices } from '../knownDevices';
@@ -25,6 +24,8 @@ import {AsyncStorage} from "react-native";
 function* restoreWorker() {
   try {
     // yield delay(500);
+    yield call(AsyncStorage.clear);
+
     yield call(console.log, 'restoreWorker.loadUsername');
     const userResult = yield call(loadUser.call);
     yield call(console.log, `restoreWorker.loadUsername: ${JSON.stringify(userResult)}`);
