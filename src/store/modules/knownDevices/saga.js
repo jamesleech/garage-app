@@ -10,11 +10,13 @@ function* loadDevicesWorker() {
   const keysResult = yield call(AsyncStorage.getAllKeys);
   yield call(console.log, `loadDevicesWorker.getAllKeys: ${keysResult}`);
   try {
-    const keys = JSON.parse(keysResult);
+    const deviceKeys = keysResult.filter(key => key.startsWith(deviceKey));
+    yield call(console.log, `loadDevicesWorker.filtered keys: ${deviceKeys}`);
 
-    if(keys.length > 0) {
-      const devices = yield call(AsyncStorage.multiGet, keys);
-      yield call(console.log, `loadDevicesWorker.devices: ${devices}`);
+    if(deviceKeys.length > 0) {
+      yield call(console.log, `loadDevicesWorker multi getting (${deviceKeys.length}) devices`);
+      const devices = yield call(AsyncStorage.multiGet, deviceKeys);
+      yield call(console.log, `loadDevicesWorker.devices: ${JSON.stringify(devices)}`);
     }
 
     yield call(console.log, `load devices success`);
@@ -22,7 +24,8 @@ function* loadDevicesWorker() {
 
     yield put(loadDevices.success({ }));
   } catch (error){
-    yield put(loadDevices.failure());
+    yield call(console.log, `loadDevicesWorks error: ${error}`);
+    yield put(loadDevices.failure(error));
   }
 }
 
@@ -34,9 +37,10 @@ function* saveDeviceWorker(action) {
   if(device.id && device.name && device.key) {
     // add to persistent store
     yield call(AsyncStorage.setItem, deviceKeyId(device.id), JSON.stringify(device));
+    yield put(saveDevice.success(device));
+  } else {
+    yield put(saveDevice.failure(device));
   }
-
-  yield put(saveDevice.success(device));
 }
 
 function* removeDeviceWorker(action) {

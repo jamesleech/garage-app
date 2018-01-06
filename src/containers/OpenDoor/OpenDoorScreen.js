@@ -38,7 +38,7 @@ class OpenDoorScreen extends React.Component {
 function mapStateToProps(state) {
   return {
     bluetoothPower: state.ble.on,
-    devices: state.ble.knownDevices.toList().toJS(),
+    devices: state.knownDevices.devices.toList().toJS(),
   }
 }
 

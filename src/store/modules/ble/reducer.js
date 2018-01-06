@@ -11,25 +11,6 @@ import { List, Map } from 'immutable';
 const initialState = {
   on: false,
   scanning: false,
-  knownDevices: Map(
-    [
-      // [
-      //   '4C9AE077-E60A-9E90-7F09-C2064B7D36A5',
-      //   Map([
-      //     ['id', '4C9AE077-E60A-9E90-7F09-C2064B7D36A5'],
-      //     ['name', '**GarageOpener**'],
-      //     ['status', 'notConnected' ]
-      //     ])
-      // ],
-      // [
-      //   '1C9AE077-E60A-9E90-7F09-C2064B7D36A5',
-      //   Map([
-      //     ['id', '1C9AE077-E60A-9E90-7F09-C2064B7D36A5'],
-      //     ['name', '**Dummy**'],
-      //     ['status', 'notConnected' ]
-      //   ])
-      // ]
-    ]),
   devices: Map(
     [
       [
@@ -52,27 +33,8 @@ const initialState = {
   ),
 };
 
-const bleUpdateStateReducer = (state, payload) => {
-  const on = payload === 'on'; //TODO: remove magic string
-
-  let knownDevices;
-  if(!on) {
-    knownDevices = state.knownDevices.map(device => device.setIn(['status'], 'notConnected'));
-  } else {
-    knownDevices = state.knownDevices;
-  }
-
-  return {
-    ...state,
-    on,
-    knownDevices
-  };
-};
-
 export const reducer = (state = initialState, action) => {
   switch (action.type) {
-    case bleUpdateState.SUCCESS:
-      return bleUpdateStateReducer(state, action.payload);
     case bleScanStart.REQUEST:
       return {
         ...state,
@@ -99,26 +61,6 @@ export const reducer = (state = initialState, action) => {
       return {
         ...state,
         devices: state.devices.set(device.id, device),
-      };
-    case bleDeviceConnect.REQUEST:
-      return {
-        ...state,
-        knownDevices: state.knownDevices.setIn([action.payload.id, 'status'], 'connecting'),
-      };
-    case bleDeviceConnect.SUCCESS:
-      return {
-        ...state,
-        knownDevices: state.knownDevices.setIn([action.payload.id, 'status'], 'connected'),
-      };
-    case bleDeviceConnect.FAILURE:
-      return {
-        ...state,
-        knownDevices: state.knownDevices.setIn([action.payload.id, 'status'], 'notConnected'),
-      };
-    case bleDeviceDisconnect.SUCCESS:
-      return {
-        ...state,
-        knownDevices: state.knownDevices.setIn([action.payload.id, 'status'], 'notConnected'),
       };
     default:
       return state

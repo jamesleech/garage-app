@@ -28,7 +28,7 @@ const GARAGE_SERVICE_UUIDS = "321CCACA-29A6-4D46-B2DB-9B5639948751";
 const GARAGE_DOOR_CHARACTERISTIC_UUID = "D7C7B570-EEDA-11E7-BD5D-FB4762172F1A";
 
 const getBleState = state => state.ble.on;
-const getKnownDevices = state => state.ble.knownDevices;
+const getKnownDevices = state => state.knownDevices.devices;
 
 // pipe ble channel messages
 // HACK? is there a better way?
