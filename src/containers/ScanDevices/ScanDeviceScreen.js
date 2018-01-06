@@ -16,7 +16,7 @@ import {
   DeviceStatus,
 } from '../../components';
 
-class LinkDeviceScreen extends React.Component {
+class ScanDevicesScreen extends React.Component {
 
   onLinkDevice = (device) => {
     const { linkDevice } = this.props;
@@ -57,13 +57,13 @@ function mapStateToProps(state) {
   };
 }
 
-LinkDeviceScreen = connect(
+ScanDevicesScreen = connect(
   mapStateToProps,
   {
     startScan: bleScanStart,
     stopScan: bleScanStop,
     linkDevice: bleDeviceLink,
   }
-)(LinkDeviceScreen);
+)(ScanDevicesScreen);
 
-export { LinkDeviceScreen };
+export { ScanDevicesScreen };

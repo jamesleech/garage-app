@@ -1,1 +1,0 @@
-export { LinkDeviceScreen } from './LinkDeviceScreen';

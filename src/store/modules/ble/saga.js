@@ -22,6 +22,7 @@ import {
 } from './actions';
 import { BleWrapper } from './BleWrapper';
 import { createCommand } from './commands';
+import {NavigationActions} from 'react-navigation';
 
 const GARAGE_SERVICE_UUIDS = "321CCACA-29A6-4D46-B2DB-9B5639948751";
 const GARAGE_DOOR_CHARACTERISTIC_UUID = "D7C7B570-EEDA-11E7-BD5D-FB4762172F1A";
@@ -133,6 +134,15 @@ function* connectKnownDevicesWorker() {
   }
 
   yield put(bleDeviceConnectKnown.success());
+}
+
+function* linkDeviceNavigate(action) {
+  yield put(NavigationActions.navigate({
+    routeName: 'LinkDevice',
+    params: {
+      deviceId: action.payload.id,
+    }
+  }))
 }
 
 function* toggleDoorWorker(bleWrapper, action) {

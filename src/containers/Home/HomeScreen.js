@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { TabNavigator } from 'react-navigation';
-import { LinkDeviceScreen, OpenDoorScreen } from '../index';
+import { ScanDevicesScreen, OpenDoorScreen } from '../index';
 import { StatusBarWrapper } from '../../components';
 
 let HomeScreenNavigator = {};
@@ -12,7 +12,7 @@ class HomeScreen extends React.Component {
     super();
     HomeScreenNavigator = TabNavigator({
       Open: { screen: OpenDoorScreen },
-      Link: { screen: LinkDeviceScreen },
+      Link: { screen: ScanDevicesScreen },
     });
     HomeScreenNavigator.router = HomeScreen.router;
   }
