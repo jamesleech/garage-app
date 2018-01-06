@@ -13,7 +13,7 @@ export const bleScanStart = createAction(ActionPrefix + 'SCAN_START');
 export const bleScanStop = createAction(ActionPrefix + 'SCAN_STOP');
 
 export const bleDeviceFound = createAction(ActionPrefix + 'DEVICE_FOUND');
-export const bleDeviceSelected = createAction(ActionPrefix + 'DEVICE_SELECTED');
+export const bleDeviceLink = createAction(ActionPrefix + 'DEVICE_LINK');
 
 export const bleDeviceConnect = createAction(ActionPrefix + 'DEVICE_CONNECT');
 export const bleDeviceDisconnect = createAction(ActionPrefix + 'DEVICE_DISCONNECT');

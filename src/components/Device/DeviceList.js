@@ -19,7 +19,7 @@ class DeviceList extends Component {
   };
 
   render() {
-    const { scanning, devices, onPressDevice } = this.props;
+    const { scanning, devices, onLinkDevice } = this.props;
     return (
       <StyledView>
         <RowView>
@@ -41,7 +41,7 @@ class DeviceList extends Component {
         <FlatList
           data={ devices }
           keyExtractor={this.keyExtractor}
-          renderItem={({item}) => <DeviceListItem item={item} onPress={onPressDevice}/>}
+          renderItem={({item}) => <DeviceListItem item={item} onLinkPress={onLinkDevice}/>}
         />
       </StyledView>
     );

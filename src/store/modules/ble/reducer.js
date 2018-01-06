@@ -3,7 +3,7 @@ import {
   bleScanStop,
   bleUpdateState,
   bleDeviceFound,
-  bleDeviceSelected, bleDeviceConnect, bleDeviceDisconnect,
+  bleDeviceLink, bleDeviceConnect, bleDeviceDisconnect,
 } from './actions';
 import { List, Map } from 'immutable';
 
@@ -12,43 +12,42 @@ const initialState = {
   scanning: false,
   knownDevices: Map(
     [
+      // [
+      //   '4C9AE077-E60A-9E90-7F09-C2064B7D36A5',
+      //   Map([
+      //     ['id', '4C9AE077-E60A-9E90-7F09-C2064B7D36A5'],
+      //     ['name', '**GarageOpener**'],
+      //     ['status', 'notConnected' ]
+      //     ])
+      // ],
+      // [
+      //   '1C9AE077-E60A-9E90-7F09-C2064B7D36A5',
+      //   Map([
+      //     ['id', '1C9AE077-E60A-9E90-7F09-C2064B7D36A5'],
+      //     ['name', '**Dummy**'],
+      //     ['status', 'notConnected' ]
+      //   ])
+      // ]
+    ]),
+  devices: Map(
+    [
       [
-        '4C9AE077-E60A-9E90-7F09-C2064B7D36A5',
-        Map([
-          ['id', '4C9AE077-E60A-9E90-7F09-C2064B7D36A5'],
-          ['name', '**GarageOpener**'],
-          ['status', 'notConnected' ]
-          ])
+      '1123-13123-33145-4536',
+      {
+        id: '1123-13123-33145-4536',
+        name: 'Garage Opener',
+        rssi: -31,
+      }
       ],
       [
-        '1C9AE077-E60A-9E90-7F09-C2064B7D36A5',
-        Map([
-          ['id', '1C9AE077-E60A-9E90-7F09-C2064B7D36A5'],
-          ['name', '**Dummy**'],
-          ['status', 'notConnected' ]
-        ])
-      ]
-    ]),
-  selectedDevice: undefined,
-  devices: Map(
-  //   [
-  //     [
-  //     '1123-13123-33145-4536',
-  //     {
-  //       id: '1123-13123-33145-4536',
-  //       name: 'Garage Opener',
-  //       rssi: -31,
-  //     }
-  //     ],
-  //     [
-  //       '5555-13123-33145-4536',
-  //       {
-  //         id: '5555-13123-33145-4536',
-  //         name: 'James MacBook Pro',
-  //         rssi: -50,
-  //       }
-  //     ],
-  // ]
+        '5555-13123-33145-4536',
+        {
+          id: '5555-13123-33145-4536',
+          name: 'James MacBook Pro',
+          rssi: -50,
+        }
+      ],
+  ]
   ),
 };
 
@@ -100,10 +99,10 @@ export const reducer = (state = initialState, action) => {
         ...state,
         devices: state.devices.set(device.id, device),
       };
-    case bleDeviceSelected.SUCCESS:
+    case bleDeviceLink.REQUEST:
       return {
         ...state,
-        selectedDevice: state.devices.get(action.payload),
+        // selectedDevice: state.devices.get(action.payload),
       };
     case bleDeviceConnect.REQUEST:
       return {

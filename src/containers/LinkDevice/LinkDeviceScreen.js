@@ -1,6 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { bleScanStart, bleScanStop, bleDeviceSelected } from '../../store/modules/ble';
+import {
+  bleScanStart,
+  bleScanStop,
+  bleDeviceLink
+} from '../../store/modules/ble';
 import {
   DeviceScanButton,
   DeviceList,
@@ -11,13 +15,12 @@ import {
   RowBluetooth,
   DeviceStatus,
 } from '../../components';
-import styled from 'styled-components/native/index';
 
 class LinkDeviceScreen extends React.Component {
 
-  onPressDevice = (device) => {
-    const { selectDevice } = this.props;
-    selectDevice({ id: device.id });
+  onLinkDevice = (device) => {
+    const { linkDevice } = this.props;
+    linkDevice({ id: device.id, key: device.key });
   };
 
   render() {
@@ -39,7 +42,7 @@ class LinkDeviceScreen extends React.Component {
         </RowRightItem>
       </RowView>
       <DeviceScanButton scanning={scanning} startScanning={startScan} stopScanning={stopScan} />
-      <DeviceList scanning={scanning} devices={devices} onPressDevice={this.onPressDevice}/>
+      <DeviceList scanning={scanning} devices={devices} onLinkDevice={this.onLinkDevice}/>
     </TabContainer>
     );
   }
@@ -59,7 +62,7 @@ LinkDeviceScreen = connect(
   {
     startScan: bleScanStart,
     stopScan: bleScanStop,
-    selectDevice: bleDeviceSelected,
+    linkDevice: bleDeviceLink,
   }
 )(LinkDeviceScreen);
 

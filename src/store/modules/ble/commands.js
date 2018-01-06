@@ -1,6 +1,14 @@
-import * as aesjs from 'aes-js';
+const jsSHA = require("jssha");
 
 const key = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 ];
+
+function hashCommand(command) {
+  const shaObj = new jsSHA("SHA-256", "ARRAYBUFFER");
+  shaObj.setHMACKey(key, "ARRAYBUFFER");
+  shaObj.update(command);
+  console.log('hashCommand: return getHMAC');
+  return new DataView(shaObj.getHMAC("ARRAYBUFFER"));
+}
 
 // returns a byte array to send to the device
 export function createCommand(serialNumber, counter, command) {
@@ -9,12 +17,8 @@ export function createCommand(serialNumber, counter, command) {
   serialCounter[0] = serialNumber; // create serialNumber bytes 4, uint_32_t
   serialCounter[1] = counter; // create counter bytes 4, uint_32_t
 
-  // yield call(console.log, serialCounter);
-
   const bytes = new DataView(serialCounter.buffer, 0);
-  // yield call(console.log, bytes);
-
-  const result = new Uint8ClampedArray(13);
+  const result = new Uint8ClampedArray(8+1+11);
 
   for (let i = 0; i < bytes.byteLength; i++) {
     result[i] = bytes.getUint8(i);
@@ -22,29 +26,18 @@ export function createCommand(serialNumber, counter, command) {
 
   result[8] = command; // create command byte 1, byte
 
-  result[9] = 0x30; // create MAC bytes, 4, byte[4]
-  result[10] = 0x31;
-  result[11] = 0x32;
-  result[12] = 0x33;
+  const hmac = hashCommand(result);
+  console.log(`typeof hmac: ${typeof hmac}`);
+  console.log(`hmac: ${hmac}`);
 
+  for(let i = 0; i < 11; i++) {
+    console.log((hmac.getUint8(i) & 0xFF).toString(16));
+    //use first 11 bytes of hmac
+    result[9 + i] = hmac.getUint8(i);
+  }
+
+  // console.log(`command: ${result}`);
+  // console.log(`command hash: ${hmac}`);
   // return a normal array
   return Array.prototype.slice.call(result); //return plain old array
-}
-
-export function encryptCommand(command) {
-  // The counter is optional, and if omitted will begin at 1
-  const aesCtr = new aesjs.ModeOfOperation.ctr(key, new aesjs.Counter(5));
-  const encryptedBytes = aesCtr.encrypt(command);
-
-  // To print or store the binary data, you may convert it to hex
-  const commandHex = aesjs.utils.hex.fromBytes(command);
-  console.log(`command Hex: ${commandHex}`);
-
-  // To print or store the binary data, you may convert it to hex
-  const encryptedHex = aesjs.utils.hex.fromBytes(encryptedBytes);
-  console.log(`encryptedHex: ${encryptedHex}`);
-  console.log(`encryptedBytes.length: ${encryptedHex.length}`);
-  console.log(`encryptedBytes: ${encryptedBytes}`);
-
-  return Array.prototype.slice.call(encryptedBytes); //return plain old array
 }

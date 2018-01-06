@@ -21,7 +21,7 @@ import {
   bleDeviceConnectKnown,
 } from './actions';
 import { BleWrapper } from './BleWrapper';
-import { createCommand, encryptCommand } from './commands';
+import { createCommand } from './commands';
 
 const GARAGE_SERVICE_UUIDS = "321CCACA-29A6-4D46-B2DB-9B5639948751";
 const GARAGE_DOOR_CHARACTERISTIC_UUID = "D7C7B570-EEDA-11E7-BD5D-FB4762172F1A";
@@ -35,10 +35,9 @@ function* handleFromBleChannel(channel) {
   while (true) {
     const action = yield take(channel);
     yield put(action);
-
-    if(action.type !== 'jg/ble/DEVICE_FOUND_SUCCESS') {
-      console.log(`handleFromBleChannel piping ${JSON.stringify(action)}`);
-    }
+    // if(action.type !== 'jg/ble/DEVICE_FOUND_SUCCESS') {
+    //   console.log(`handleFromBleChannel piping ${JSON.stringify(action)}`);
+    // }
   }
 }
 
@@ -72,7 +71,8 @@ function* scanningSaga(bleWrapper) {
     } else {
       yield put(bleScanStart.success());
       // start scanning
-      yield call(bleWrapper.startScan, [GARAGE_SERVICE_UUIDS], 10); // returns immediately
+      // yield call(bleWrapper.startScan, [GARAGE_SERVICE_UUIDS], 10); // returns immediately
+      yield call(bleWrapper.startScan, null, 10); // returns immediately
       // let the scanning run until a scan stop request or timed out
       const action = yield take([bleScanStop.REQUEST, bleScanStop.SUCCESS]);
       // if a stop request, cancel the scanning task.
@@ -135,7 +135,6 @@ function* connectKnownDevicesWorker() {
   yield put(bleDeviceConnectKnown.success());
 }
 
-
 function* toggleDoorWorker(bleWrapper, action) {
   const { id } = action.payload;
   yield call(console.log, `toggleDoorWorker: ${id}`);
@@ -145,7 +144,7 @@ function* toggleDoorWorker(bleWrapper, action) {
     //TODO: get a serial number
     //TODO: manage rolling counter
     //TODO: create a list of commands
-    const command = encryptCommand(createCommand(4294967295,1024,0x0A));
+    const command = createCommand(4294967295,1024,0x0A);
 
     yield call(
       bleWrapper.write,
