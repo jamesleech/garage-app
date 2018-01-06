@@ -4,3 +4,4 @@ const ActionPrefix = 'jg/signIn/';
 
 export const signIn = createAction(ActionPrefix + 'SIGN_IN');
 export const signOut = createAction(ActionPrefix + 'SIGN_OUT');
+export const loadUser = createAction(ActionPrefix + 'LOAD_USER');

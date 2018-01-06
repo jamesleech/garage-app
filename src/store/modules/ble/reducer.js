@@ -3,7 +3,8 @@ import {
   bleScanStop,
   bleUpdateState,
   bleDeviceFound,
-  bleDeviceLink, bleDeviceConnect, bleDeviceDisconnect,
+  bleDeviceConnect,
+  bleDeviceDisconnect,
 } from './actions';
 import { List, Map } from 'immutable';
 
@@ -98,11 +99,6 @@ export const reducer = (state = initialState, action) => {
       return {
         ...state,
         devices: state.devices.set(device.id, device),
-      };
-    case bleDeviceLink.REQUEST:
-      return {
-        ...state,
-        // selectedDevice: state.devices.get(action.payload),
       };
     case bleDeviceConnect.REQUEST:
       return {

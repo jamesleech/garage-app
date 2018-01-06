@@ -49,6 +49,7 @@ function* startBluetoothSaga(bleWrapper) {
     yield call(bleWrapper.start);
     yield put(bleStart.success());
   } catch (error) {
+    yield call(console.error, `startBluetoothSaga exception: ${error}`);
     yield put(bleStart.failure(error));
   }
 }
@@ -92,8 +93,8 @@ function* connectDeviceWorker(bleWrapper, action) {
   try {
     yield call(bleWrapper.connect, id);
   } catch (error) {
+    yield call(console.error, `connectDeviceWorker exception: ${error}`);
     yield put(bleDeviceConnect.failure({ id, error }));
-    yield call(console.log, error);
   }
 }
 
@@ -110,8 +111,8 @@ function* getDeviceServicesWorker(bleWrapper, action) {
     const services = yield call(bleWrapper.getServicesForDeviceId, id);
     yield call(console.log, `getDeviceServicesWorker: ${JSON.stringify(services)}`);
   } catch (error){
+    yield call(console.error, `getDeviceServicesWorker exception: ${error}`);
     yield put(bleDeviceGetServices.failure({ id, error }));
-    yield call(console.log, error);
   }
 }
 
@@ -138,7 +139,7 @@ function* connectKnownDevicesWorker() {
 
 function* linkDeviceNavigate(action) {
   yield put(NavigationActions.navigate({
-    routeName: 'LinkDevice',
+    routeName: 'linkDevice',
     params: {
       deviceId: action.payload.id,
     }
@@ -165,6 +166,7 @@ function* toggleDoorWorker(bleWrapper, action) {
     );
     yield put(bleToggleDoor.success({ id }));
   } catch (error) {
+    yield call(console.error, `toggleDoorWorker exception: ${error}`);
     yield put(bleToggleDoor.failure({ id, error }));
     yield call(console.log, error);
   }

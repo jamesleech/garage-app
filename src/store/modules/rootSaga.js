@@ -3,20 +3,25 @@ import { splashSaga, restore } from './splash';
 import { signInSaga } from './signIn';
 import { homeSaga} from './home';
 import { bleSaga } from './ble';
+import { linkDeviceSaga } from './linkDevice';
+import { knownDevicesSaga } from './knownDevices';
 
 function* restoreSaga() {
   yield call(restore.call, {});
 }
 
 export function* rootSaga () {
-  // start the signInSaga.
-  yield fork(splashSaga);
-  yield fork(signInSaga);
+  yield all([
+    fork(splashSaga),
+    fork(signInSaga),
+    fork(knownDevicesSaga),
+  ]);
 
   yield call(restoreSaga);
 
   yield all([
     fork(bleSaga),
     fork(homeSaga),
+    fork(linkDeviceSaga),
   ]);
 }

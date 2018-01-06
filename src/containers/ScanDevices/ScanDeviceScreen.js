@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import {
   bleScanStart,
   bleScanStop,
-  bleDeviceLink
 } from '../../store/modules/ble';
+import { linkDevice } from '../../store/modules/linkDevice';
 import {
   DeviceScanButton,
   DeviceList,
@@ -20,7 +20,7 @@ class ScanDevicesScreen extends React.Component {
 
   onLinkDevice = (device) => {
     const { linkDevice } = this.props;
-    linkDevice({ id: device.id, key: device.key });
+    linkDevice({ device });
   };
 
   render() {
@@ -62,7 +62,7 @@ ScanDevicesScreen = connect(
   {
     startScan: bleScanStart,
     stopScan: bleScanStop,
-    linkDevice: bleDeviceLink,
+    linkDevice: linkDevice,
   }
 )(ScanDevicesScreen);
 
