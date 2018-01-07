@@ -7,7 +7,7 @@ import {
   RowText,
   DeviceStatus
 } from '../index';
-import {DeviceSignalStrength} from './DeviceSignalStrength';
+import {DeviceSignalStrength} from '../Device/DeviceSignalStrength';
 
 const StyledTouchableOpacity = styled.TouchableOpacity`
   display: flex;

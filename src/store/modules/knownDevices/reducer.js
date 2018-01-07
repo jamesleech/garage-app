@@ -1,5 +1,5 @@
 import {Map} from "immutable";
-import { bleDeviceConnect, bleDeviceDisconnect, bleUpdateState } from '../ble/actions';
+import {bleDeviceConnect, bleDeviceDisconnect, bleDeviceSignalStrength, bleUpdateState} from '../ble/actions';
 import { loadDevices, saveDevice, removeDevice } from './index';
 import { linkDevice } from '../linkDevice';
 
@@ -64,6 +64,16 @@ export const reducer = (state = initialState, action) => {
         ...state,
         devices: state.devices.setIn([action.payload.id, 'status'], 'notConnected'),
       };
+    case bleDeviceDisconnect.REQUEST:
+      const { disconnectingDevice } = action.payload;
+      if(disconnectingDevice && state.devices.has(disconnectingDevice.id)) {
+        return {
+          ...state,
+          devices: state.devices.setIn([disconnectingDevice.id, 'status'], 'disconnecting'),
+        };
+      } else {
+        return state;
+      }
     case bleDeviceDisconnect.SUCCESS:
       const { disconnectedDevice } = action.payload;
       // need to test if the device is still a known device, could have just been removed and disconnected.
@@ -75,6 +85,11 @@ export const reducer = (state = initialState, action) => {
       } else {
         return state;
       }
+    case bleDeviceSignalStrength.SUCCESS:
+      return {
+        ...state,
+        devices: state.devices.setIn([action.payload.id, 'rssi'], action.payload.rssi),
+      };
     case loadDevices.SUCCESS:
       const devices = Map(action.payload.map((item) => [ item.id, Map(item) ]));
       return {

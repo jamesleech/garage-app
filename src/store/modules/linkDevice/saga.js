@@ -2,6 +2,7 @@ import { linkDevice, getDeviceKey } from './index';
 import { saveDevice } from '../knownDevices';
 import { takeLatest, call, put } from 'redux-saga/effects';
 import {bleScanStop} from '../ble';
+import {NavigationActions} from 'react-navigation';
 
 function* linkDeviceWorker(action) {
   yield put(bleScanStop.request());
@@ -24,6 +25,15 @@ function* gotDeviceKeyWorker(action) {
   // add to persistent store
   const saveResult = yield call(saveDevice.call(device));
   yield call(console.log(`saveResult: ${JSON.stringify(saveResult)}`));
+}
+
+function* linkDeviceNavigate(action) {
+  yield put(NavigationActions.navigate({
+    routeName: 'linkDevice',
+    params: {
+      deviceId: action.payload.id,
+    }
+  }))
 }
 
 export function* saga() {

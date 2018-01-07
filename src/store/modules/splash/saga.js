@@ -6,21 +6,6 @@ import { loadUser } from '../signIn';
 import { NavigationActions } from 'react-navigation'
 import {AsyncStorage} from "react-native";
 
-// //Don't allow back button
-// const ResetNavigation = (navigation, targetRoute, params) => {
-//   const resetAction = NavigationActions.reset({
-//     index: 0,
-//     actions: [
-//       NavigationActions.navigate({
-//         routeName: targetRoute,
-//         params: params
-//       }),
-//     ],
-//   });
-//
-//   navigation.dispatch(resetAction);
-// };
-
 function* restoreWorker() {
   try {
     // yield delay(500);

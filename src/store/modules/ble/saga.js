@@ -1,4 +1,4 @@
-import { channel } from 'redux-saga';
+import { channel, delay } from 'redux-saga';
 import {
   put,
   fork,
@@ -17,9 +17,10 @@ import {
   bleToggleDoor,
   bleUpdateState,
   bleDeviceConnect,
+  bleDeviceDisconnect,
   bleDeviceGetServices,
   bleDeviceConnectKnown,
-  bleDeviceDisconnect
+  bleDeviceSignalStrength,
 } from './actions';
 import { BleWrapper } from './BleWrapper';
 import { createCommand } from './commands';
@@ -137,6 +138,36 @@ function* updateStateWorker(action) {
   }
 }
 
+// function* getDeviceSignalStrengthWorker(bleWrapper, action) {
+//   try {
+//     const deviceId = action.payload.id;
+//     const rssi = yield call(bleWrapper.getSignalStrength, deviceId);
+//     yield call(console.log, `getDeviceSignalStrengthWorker: signal strength for ${deviceId} is ${rssi}`);
+//     yield put(bleDeviceSignalStrength.success( { id: deviceId, rssi }));
+//   } catch (error){
+//     yield call(console.error, `getDeviceSignalStrengthWorker exception: ${error}`);
+//   }
+// }
+//
+// function* updateDeviceSignalStrengthSaga() {
+//   while(true) {
+//     try {
+//       yield delay(1000);
+//       const state = yield select(getBleState);
+//       if(state) {
+//         const devices = yield select(getKnownDevices);
+//         const connectedDeviceIds = devices.filter(d => d.get('status') === 'connected').keys(); //TODO: remove magic string
+//         for (let id of connectedDeviceIds) {
+//           console.log(`updateDeviceSignalStrengthSaga: ${JSON.stringify(id)}`);
+//           yield put(bleDeviceSignalStrength.request({ id }));
+//         }
+//       }
+//     } catch (error){
+//       yield call(console.error, `updateDeviceSignalStrengthSaga exception: ${error}`);
+//     }
+//   }
+// }
+
 function* connectKnownDevicesWorker() {
   yield call(console.log, 'connectKnownDevices: try to connect all known devices...');
 
@@ -149,15 +180,6 @@ function* connectKnownDevicesWorker() {
   }
 
   yield put(bleDeviceConnectKnown.success());
-}
-
-function* linkDeviceNavigate(action) {
-  yield put(NavigationActions.navigate({
-    routeName: 'linkDevice',
-    params: {
-      deviceId: action.payload.id,
-    }
-  }))
 }
 
 function* toggleDoorWorker(bleWrapper, action) {
@@ -203,6 +225,8 @@ export function* saga() {
 
   // connect known devices, every time bluetooth is turned on (at start up) and also every request to do so
   yield takeLatest(bleDeviceConnectKnown.REQUEST, connectKnownDevicesWorker);
+
+  // handle bluetooth state changes
   yield takeLatest(bleUpdateState.SUCCESS, updateStateWorker);
 
   // only allow door toggle once per second
@@ -214,4 +238,8 @@ export function* saga() {
   // finally start bluetooth
   yield fork(stopBluetoothSaga, bleWrapper);
   yield fork(startBluetoothSaga, bleWrapper, fromBleChannel);
+
+  // keep signal strength updated
+  // yield takeEvery(bleDeviceSignalStrength.REQUEST, getDeviceSignalStrengthWorker, bleWrapper);
+  // yield fork(updateDeviceSignalStrengthSaga);
 }

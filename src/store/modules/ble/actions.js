@@ -21,3 +21,5 @@ export const bleDeviceGetServices = createAction(ActionPrefix + 'DEVICE_GET_SERV
 
 export const bleDeviceConnectKnown = createAction(ActionPrefix + 'DEVICE_CONNECT_KNOWN');
 export const bleDeviceDisconnectKnown = createAction(ActionPrefix + 'DEVICE_CONNECT_KNOWN');
+
+export const bleDeviceSignalStrength = createAction(ActionPrefix + 'DEVICE_SIGNAL_STRENGTH');

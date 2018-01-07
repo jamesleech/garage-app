@@ -97,14 +97,31 @@ export class BleWrapper {
   };
 
   disconnect = async (id) => {
-    const isConnected = await BleManager.isPeripheralConnected(id, []);
-    if(isConnected) {
-      return await BleManager.disconnect(id);
+    try {
+      const isConnected = await BleManager.isPeripheralConnected(id, []);
+      if(isConnected) {
+        return await BleManager.disconnect(id);
+      }
+    } catch (error) {
+      console.log(`disconnect error ${error}`);
     }
   };
 
   getServicesForDeviceId = async (id) => {
     return await BleManager.retrieveServices(id);
+  };
+
+  getSignalStrength = async (id) => {
+    try {
+      const isConnected = await BleManager.isPeripheralConnected(id, []);
+      if(isConnected) {
+        return await BleManager.readRSSI(id);
+      } else {
+        return 0;
+      }
+    } catch (error) {
+      console.log(`getSignalStrength error ${error}`);
+    }
   };
 
   write = async (id, serviceUUID, characteristicUUID, data) => {

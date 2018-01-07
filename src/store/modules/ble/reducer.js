@@ -4,7 +4,7 @@ import {
   bleUpdateState,
   bleDeviceFound,
   bleDeviceConnect,
-  bleDeviceDisconnect,
+  bleDeviceDisconnect, bleDeviceSignalStrength,
 } from './actions';
 import { List, Map } from 'immutable';
 

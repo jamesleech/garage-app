@@ -4,14 +4,8 @@ import { ActivityIndicator, View, Text, Alert } from 'react-native';
 import styled from "styled-components/native";
 import {
   TabContainer,
-  RowView,
-  RowSwitch,
-  RowText,
-  RowRightItem,
-  DeviceStatus,
   DeviceKnownList,
   RowBluetooth,
-  GarageStatus
 } from '../../components';
 import { bleToggleDoor } from '../../store/modules/ble';
 import { removeDevice } from '../../store/modules/knownDevices';

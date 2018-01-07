@@ -36,13 +36,21 @@ function* signOutWorker() {
   }
 }
 
+//Don't allow back button
+const ResetNavigation = (targetRoute, params) => {
+  return NavigationActions.reset({
+    index: 0,
+    actions: [
+      NavigationActions.navigate({
+        routeName: targetRoute,
+        params: params
+      }),
+    ],
+  });
+};
+
 function* signedInNavigate(action) {
-  yield put(NavigationActions.navigate({
-    routeName: 'Home',
-    params: {
-      username: action.payload.username,
-    }
-  }))
+  yield put(ResetNavigation('Home', { username: action.payload.username }););
 }
 
 function* loadUserWorker() {
