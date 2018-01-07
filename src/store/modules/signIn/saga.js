@@ -50,7 +50,7 @@ const ResetNavigation = (targetRoute, params) => {
 };
 
 function* signedInNavigate(action) {
-  yield put(ResetNavigation('Home', { username: action.payload.username }););
+  yield put(ResetNavigation('Home', { username: action.payload.username }));
 }
 
 function* loadUserWorker() {

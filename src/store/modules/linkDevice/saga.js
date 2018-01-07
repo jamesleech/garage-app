@@ -12,10 +12,17 @@ function* linkDeviceWorker(action) {
 
   device.status = 'notConnected';
   // TODO: navigate to screen to get secret key from user
-  device.key = '0123456789abcdef';
-  yield put(saveDevice.request({ device }));
 
-  yield put(linkDevice.success(device));
+  yield put(NavigationActions.navigate({
+    routeName: 'LinkDevice',
+    params: {
+      deviceId: action.payload.id,
+    }
+  }))
+
+  // device.key = '0123456789abcdef';
+  // yield put(saveDevice.request({ device }));
+  // yield put(linkDevice.success(device));
 }
 
 function* gotDeviceKeyWorker(action) {
@@ -25,15 +32,6 @@ function* gotDeviceKeyWorker(action) {
   // add to persistent store
   const saveResult = yield call(saveDevice.call(device));
   yield call(console.log(`saveResult: ${JSON.stringify(saveResult)}`));
-}
-
-function* linkDeviceNavigate(action) {
-  yield put(NavigationActions.navigate({
-    routeName: 'linkDevice',
-    params: {
-      deviceId: action.payload.id,
-    }
-  }))
 }
 
 export function* saga() {

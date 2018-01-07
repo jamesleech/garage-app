@@ -55,7 +55,6 @@ const DeviceKnownListItem = ({item, onPress, onRemove}) => {
             <RowText>{item.name}</RowText>
           </ItemView>
           <DeviceStatus status={item.status}/>
-          <DeviceSignalStrength strength = {item.rssi}/>
         </View>
       </StyledTouchableOpacity>
     </Swipeout>
