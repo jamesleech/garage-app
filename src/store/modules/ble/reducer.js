@@ -12,7 +12,7 @@ const initialState = {
   on: false,
   scanning: false,
   devices: Map(
-    [
+   /* [
       [
       '4123-13123-33145-4536',
       {
@@ -29,7 +29,7 @@ const initialState = {
           rssi: -50,
         }
       ],
-  ]
+  ]*/
   ),
 };
 
