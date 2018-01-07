@@ -20,7 +20,7 @@ const StyledSwitch = styled.Switch`
   margin-left: auto;
 `;
 
-class OpenDoorScreen extends React.Component {
+class KnownDevicesScreen extends React.Component {
   onPressDevice = (device) => {
     const { toggleDoor } = this.props;
     toggleDoor({ id: device.id });
@@ -62,12 +62,12 @@ function mapStateToProps(state) {
   }
 }
 
-OpenDoorScreen = connect(
+KnownDevicesScreen = connect(
   mapStateToProps,
   {
     toggleDoor: bleToggleDoor,
     removeDevice: removeDevice
   }
-)(OpenDoorScreen);
+)(KnownDevicesScreen);
 
-export { OpenDoorScreen };
+export { KnownDevicesScreen };

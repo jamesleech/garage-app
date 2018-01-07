@@ -2,4 +2,4 @@ export * from './Splash';
 export * from './SignIn';
 export * from './Home';
 export * from './ScanDevices';
-export * from './OpenDoor';
+export * from './KnownDevices';
