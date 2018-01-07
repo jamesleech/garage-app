@@ -60,13 +60,14 @@ function* removeDeviceWorker(action) {
   yield call(console.log,`removeDeviceWorker: ${device.id} - ${device.name}`);
 
   try {
-    if(device.id) {
+    if(device && device.id) {
       yield put(bleDeviceDisconnect.request(device));
       yield call(AsyncStorage.removeItem, deviceKeyId(device.id));
       yield put(removeDevice.success(device));
     } else {
       yield put(removeDevice.failure('need a device id to remove'));
     }
+    yield put(removeDevice.success(device));
   } catch (error) {
     yield call(console.error, `removeDeviceWorker: error`);
     yield put(removeDevice.failure('need a device id to remove'));

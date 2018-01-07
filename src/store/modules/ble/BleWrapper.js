@@ -97,7 +97,10 @@ export class BleWrapper {
   };
 
   disconnect = async (id) => {
-    return await BleManager.disconnect(id);
+    const isConnected = await BleManager.isPeripheralConnected(id, []);
+    if(isConnected) {
+      return await BleManager.disconnect(id);
+    }
   };
 
   getServicesForDeviceId = async (id) => {
