@@ -46,13 +46,13 @@ const DeviceKnownListItem = ({item, onPress, onRemove}) => {
     type: 'delete',
     onPress: handleRemove(onRemove, item),
   };
-//autoClose={true}
+
   return (
-    <Swipeout backgroundColor= 'transparent' right={[removeBtn]}>
+    <Swipeout backgroundColor='transparent' right={[removeBtn]} autoClose={true}>
       <StyledTouchableOpacity onPress={handlePress(onPress, item)} disabled={disabled}>
         <View>
           <ItemView>
-            <RowText>{item.name}</RowText>
+            <RowText>{item.alias || item.name}</RowText>
           </ItemView>
           <DeviceStatus status={item.status}/>
         </View>

@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { ActivityIndicator, View, Text, Alert } from 'react-native';
 import styled from "styled-components/native";
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   TabContainer,
   DeviceKnownList,
@@ -15,6 +16,19 @@ const StyledSwitch = styled.Switch`
 `;
 
 class KnownDevicesScreen extends React.Component {
+  static navigationOptions = ({navigation}) => {
+    return {
+      tabBarLabel: 'Devices',
+      tabBarIcon: ({ tintColor, focused }) => (
+        <Ionicons
+          name={focused ? 'ios-home' : 'ios-home-outline'}
+          size={26}
+          style={{ color: tintColor }}
+        />
+      ),
+    }
+  };
+
   onPressDevice = (device) => {
     const { toggleDoor } = this.props;
     toggleDoor({ id: device.id });

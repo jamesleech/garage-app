@@ -5,3 +5,6 @@ export * from './RowText';
 export * from './RowRightItem';
 export * from './StatusBarWrapper';
 export * from './RowBluetooth';
+
+export * from './CommonInput';
+export * from './CommonButton';

@@ -92,9 +92,14 @@ function* scanningSaga(bleWrapper) {
 // device connect
 function* connectDeviceWorker(bleWrapper, action) {
   const { id } = action.payload;
-  yield console.log(`connectDeviceWorker ${JSON.stringify(id)}`);
   try {
-    yield call(bleWrapper.connect, id);
+    const bleOn = yield select(getBleState);
+    if(bleOn) {
+      yield console.log(`connectDeviceWorker ${JSON.stringify(id)}`);
+      yield call(bleWrapper.connect, id);
+    } else {
+      yield console.log(`connectDeviceWorker can NOT connect ${JSON.stringify(id)}, as bluetooth is not on.`);
+    }
   } catch (error) {
     yield call(console.error, `connectDeviceWorker exception: ${error}`);
     yield put(bleDeviceConnect.failure({ id, error }));

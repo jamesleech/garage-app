@@ -49,7 +49,7 @@ function* connectLoadedDevicesWorker(action) {
 }
 
 function* saveDeviceWorker(action) {
-  const { device } = action.payload;
+  const device = action.payload;
   yield call(console.log, `saveDeviceWorker: ${device.id} - ${device.name}`);
 
   try {

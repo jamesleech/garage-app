@@ -1,14 +1,14 @@
-import { linkDevice, getDeviceKey } from './index';
+import { linkDevice, startLinkDevice } from './index';
 import { saveDevice } from '../knownDevices';
 import { takeLatest, call, put } from 'redux-saga/effects';
-import {bleScanStop} from '../ble';
-import {NavigationActions} from 'react-navigation';
+import { bleScanStop } from '../ble';
+import { NavigationActions } from 'react-navigation';
 
 function* linkDeviceWorker(action) {
   yield put(bleScanStop.request());
 
   const { device } = action.payload;
-  yield call(console.log,`linkDeviceWorker ${device.id} - ${device.name}`);
+  yield call(console.log,`linkDeviceWorker ${JSON.stringify(device)}`);
 
   device.status = 'notConnected';
   // TODO: navigate to screen to get secret key from user
@@ -16,25 +16,28 @@ function* linkDeviceWorker(action) {
   yield put(NavigationActions.navigate({
     routeName: 'LinkDevice',
     params: {
-      deviceId: action.payload.id,
+      device: device,
     }
   }))
-
-  // device.key = '0123456789abcdef';
-  // yield put(saveDevice.request({ device }));
-  // yield put(linkDevice.success(device));
 }
 
-function* gotDeviceKeyWorker(action) {
-  const { device } = action.payload;
-  yield call(console.log,`linkDeviceWorker ${device.id} - ${device.name}`);
+function* requestSaveDeviceWorker(action) {
+  const device = action.payload;
+  yield call(console.log,`requestSaveDeviceWorker ${device.id} - ${device.name}`);
 
-  // add to persistent store
-  const saveResult = yield call(saveDevice.call(device));
-  yield call(console.log(`saveResult: ${JSON.stringify(saveResult)}`));
+  try {
+    // add to persistent store
+    const saveResult = yield call(saveDevice.call, device);
+    yield call(console.log, `requestSaveDeviceWorker - saveResult: ${JSON.stringify(saveResult)}`);
+    yield put(linkDevice.success(device));
+    yield put(NavigationActions.back());
+  } catch (error) {
+    yield call(console.log, `requestSaveDeviceWorker error: ${error}`);
+    yield put(linkDevice.failure(device));
+  }
 }
 
 export function* saga() {
-  yield takeLatest(linkDevice.REQUEST, linkDeviceWorker);
-  yield takeLatest(getDeviceKey.SUCCESS, gotDeviceKeyWorker);
+  yield takeLatest(startLinkDevice.REQUEST, linkDeviceWorker);
+  yield takeLatest(linkDevice.REQUEST, requestSaveDeviceWorker);
 }

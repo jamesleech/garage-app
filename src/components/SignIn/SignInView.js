@@ -10,11 +10,9 @@ const Wrapper = styled.KeyboardAvoidingView`
 const SignInView = ({ children }) => {
   return (
     <Wrapper behavior='padding'>
-      <StatusBar
-        barStyle='light-content'
-      />
+      <StatusBar barStyle='dark-content' />
       {children}
-      </Wrapper>
+    </Wrapper>
   );
 };
 

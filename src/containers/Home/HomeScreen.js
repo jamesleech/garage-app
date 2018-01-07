@@ -14,6 +14,8 @@ class HomeScreen extends React.Component {
       Open: { screen: KnownDevicesScreen },
       Link: { screen: ScanDevicesScreen },
     });
+    // this TabNavigator needs it's router set to its parent's router to be a sub element.
+    // the TabNavigator needs to be a sub element so the StatusBar can be changed to dark-content
     HomeScreenNavigator.router = HomeScreen.router;
   }
 
@@ -26,6 +28,8 @@ class HomeScreen extends React.Component {
   };
 
   componentDidMount() {
+    // grab the username from the store
+    // give it to the navigator so that it can be used in navigationOptions above
     this.props.navigation.setParams({
       username: this.props.username
     });
