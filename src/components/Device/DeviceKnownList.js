@@ -15,7 +15,7 @@ class DeviceKnownList extends Component {
   };
 
   render() {
-    const { devices, onPressDevice } = this.props;
+    const { devices, onPressDevice, onRemoveDevice } = this.props;
     return (
       <StyledView>
         <FlatList
@@ -25,6 +25,7 @@ class DeviceKnownList extends Component {
             <DeviceKnownListItem
               item={item}
               onPress={onPressDevice}
+              onRemove={onRemoveDevice}
             />
           }
         />

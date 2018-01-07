@@ -15,7 +15,7 @@ function* loadDevicesWorker() {
 
     const devices = [];
     if(deviceKeys.length > 0) {
-      yield call(console.log, `loadDevicesWorker multi getting (${deviceKeys.length}) devices`);
+      yield call(console.log, `loadDevicesWorker: loading (${deviceKeys.length}) devices`);
       // const devices = yield call(AsyncStorage.multiGet, deviceKeys); //doesn't workie
       // maybe 10 max in a single app... so lets go one at a time.
       for(let i = 0; i < deviceKeys.length; i++) {
@@ -39,26 +39,34 @@ function* saveDeviceWorker(action) {
   const { device } = action.payload;
   yield call(console.log, `saveDeviceWorker: ${device.id} - ${device.name}`);
 
-  // validate the device
-  if(device.id && device.name && device.key) {
-    // add to persistent store
-    yield call(AsyncStorage.setItem, deviceKeyId(device.id), JSON.stringify(device));
-    yield put(saveDevice.success(device));
-  } else {
+  try {
+    // validate the device
+    if (device.id && device.name && device.key) {
+      // add to persistent store
+      yield call(AsyncStorage.setItem, deviceKeyId(device.id), JSON.stringify(device));
+      yield put(saveDevice.success(device));
+    } else {
+      yield put(saveDevice.failure(device));
+    }
+  } catch (error) {
+    yield call(console.error, `saveDeviceWorker: error`);
     yield put(saveDevice.failure(device));
   }
 }
 
 function* removeDeviceWorker(action) {
-  const { device } = action.payload;
+  const device = action.payload;
   yield call(console.log,`removeDeviceWorker: ${device.id} - ${device.name}`);
 
-  // TODO: remove to persistent store
-  if(device.id) {
-    const result = yield call(AsyncStorage.removeItem, deviceKeyId(device.id));
-    yield call(console.log, `removeDeviceResult: ${result}`);
-    yield put(removeDevice.success(device));
-  } else {
+  try {
+    if(device.id) {
+      yield call(AsyncStorage.removeItem, deviceKeyId(device.id));
+      yield put(removeDevice.success(device));
+    } else {
+      yield put(removeDevice.failure('need a device id to remove'));
+    }
+  } catch (error) {
+    yield call(console.error, `removeDeviceWorker: error`);
     yield put(removeDevice.failure('need a device id to remove'));
   }
 }

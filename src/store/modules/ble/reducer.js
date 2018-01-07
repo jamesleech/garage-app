@@ -14,10 +14,10 @@ const initialState = {
   devices: Map(
     [
       [
-      '1123-13123-33145-4536',
+      '4123-13123-33145-4536',
       {
-        id: '1123-13123-33145-4536',
-        name: 'Garage Opener',
+        id: '4123-13123-33145-4536',
+        name: 'Garage Opener 4',
         rssi: -31,
       }
       ],

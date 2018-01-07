@@ -24,7 +24,7 @@ import {AsyncStorage} from "react-native";
 function* restoreWorker() {
   try {
     // yield delay(500);
-    yield call(AsyncStorage.clear);
+    // yield call(AsyncStorage.clear);
 
     yield call(console.log, 'restoreWorker.loadUsername');
     const userResult = yield call(loadUser.call);

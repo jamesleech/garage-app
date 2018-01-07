@@ -28,18 +28,23 @@ const initialState = {
 const bleUpdateStateReducer = (state, payload) => {
   const on = payload === 'on'; //TODO: remove magic string
 
-  let devices;
-  if(!on) {
-    devices = state.devices.map(device => device.setIn(['status'], 'notConnected'));
-  } else {
-    devices = state.devices;
-  }
+  try {
+    let devices;
+    if (!on) { //bluetooth not on, set all devices as not connected
+      devices = state.devices.map(device => device.setIn(['status'], 'notConnected'));
+    } else {
+      devices = state.devices;
+    }
 
-  return {
-    ...state,
-    on,
-    devices
-  };
+    return {
+      ...state,
+      on,
+      devices
+    };
+  } catch (error)  {
+    console.error(`bleUpdateStateReducer: ${error}`);
+    return state;
+  }
 };
 
 export const reducer = (state = initialState, action) => {
@@ -67,19 +72,22 @@ export const reducer = (state = initialState, action) => {
         devices: state.devices.setIn([action.payload.id, 'status'], 'notConnected'),
       };
     case loadDevices.SUCCESS:
-      const loadedDevices = Map(action.payload.map(device => [ device.id, device]));
-      console.log(`reducer loadDevices.SUCCESS device: ${JSON.stringify(loadedDevices )}`);
+      const devices = Map(action.payload.map((item) => [ item.id, Map(item) ]));
       return {
         ...state,
-        // devices: loadedDevices,
-        devices: state.devices.merge(loadedDevices),
+        devices: state.devices.merge(devices),
       };
     case linkDevice.SUCCESS:
-      const linkedDevice = action.payload;
-      console.log(`reducer linkDevice.SUCCESS device: ${JSON.stringify(linkedDevice)}`);
+      const linkedDevice = Map(action.payload);
       return {
         ...state,
-        devices: state.devices.set(linkedDevice.id, linkedDevice),
+        devices: state.devices.set(linkedDevice.get('id'), linkedDevice),
+      };
+    case removeDevice.SUCCESS:
+      const removeDeviceId = action.payload.id;
+      return {
+        ...state,
+        devices: state.devices.delete(removeDeviceId),
       };
     default:
       return state

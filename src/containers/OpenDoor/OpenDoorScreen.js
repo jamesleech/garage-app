@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, Text } from 'react-native';
 import styled from "styled-components/native";
 import {
   TabContainer,
@@ -14,6 +14,7 @@ import {
   GarageStatus
 } from '../../components';
 import { bleToggleDoor } from '../../store/modules/ble';
+import { removeDevice } from '../../store/modules/knownDevices';
 
 const StyledSwitch = styled.Switch`
   margin-left: auto;
@@ -25,12 +26,18 @@ class OpenDoorScreen extends React.Component {
     toggleDoor({ id: device.id });
   };
 
+  onRemoveDevice = (device) => {
+    const { removeDevice } = this.props;
+    removeDevice(device);
+  };
+
   render() {
     const { bluetoothPower, devices } = this.props;
     return (
       <TabContainer>
         <RowBluetooth on={ bluetoothPower }/>
-        <DeviceKnownList devices={devices} onPressDevice={this.onPressDevice}/>
+        <Text>Known devices: {devices.length}</Text>
+        <DeviceKnownList devices={devices} onPressDevice={this.onPressDevice} onRemoveDevice={this.onRemoveDevice} />
     </TabContainer>)
   }
 }
@@ -45,7 +52,8 @@ function mapStateToProps(state) {
 OpenDoorScreen = connect(
   mapStateToProps,
   {
-    toggleDoor: bleToggleDoor
+    toggleDoor: bleToggleDoor,
+    removeDevice: removeDevice
   }
 )(OpenDoorScreen);
 

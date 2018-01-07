@@ -6,6 +6,7 @@ function* linkDeviceWorker(action) {
   const { device } = action.payload;
   yield call(console.log,`linkDeviceWorker ${device.id} - ${device.name}`);
 
+  device.status = 'notConnected';
   // TODO: navigate to screen to get secret key from user
   device.key = '0123456789abcdef';
   yield put(saveDevice.request({ device }));
