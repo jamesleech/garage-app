@@ -65,10 +65,16 @@ export const reducer = (state = initialState, action) => {
         devices: state.devices.setIn([action.payload.id, 'status'], 'notConnected'),
       };
     case bleDeviceDisconnect.SUCCESS:
-      return {
-        ...state,
-        devices: state.devices.setIn([action.payload.id, 'status'], 'notConnected'),
-      };
+      const { disconnectedDevice } = action.payload;
+      // need to test if the device is still a known device, could have just been removed and disconnected.
+      if(disconnectedDevice && state.devices.has(disconnectedDevice.id)) {
+        return {
+          ...state,
+          devices: state.devices.setIn([disconnectedDevice.id, 'status'], 'notConnected'),
+        };
+      } else {
+        return state;
+      }
     case loadDevices.SUCCESS:
       const devices = Map(action.payload.map((item) => [ item.id, Map(item) ]));
       return {

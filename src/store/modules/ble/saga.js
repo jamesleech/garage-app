@@ -24,6 +24,7 @@ import {
 import { BleWrapper } from './BleWrapper';
 import { createCommand } from './commands';
 import {NavigationActions} from 'react-navigation';
+import {linkDevice} from '../linkDevice';
 
 const GARAGE_SERVICE_UUIDS = "321CCACA-29A6-4D46-B2DB-9B5639948751";
 const GARAGE_DOOR_CHARACTERISTIC_UUID = "D7C7B570-EEDA-11E7-BD5D-FB4762172F1A";
@@ -195,12 +196,12 @@ export function* saga() {
   const bleWrapper = new BleWrapper(fromBleChannel);
 
   // setup listener sagas
-  yield takeEvery(bleDeviceConnect.REQUEST, connectDeviceWorker, bleWrapper);
+  yield takeEvery([bleDeviceConnect.REQUEST, linkDevice.SUCCESS], connectDeviceWorker, bleWrapper);
   yield takeEvery(bleDeviceConnect.SUCCESS, connectedDeviceWorker, bleWrapper);
   yield takeEvery(bleDeviceGetServices.REQUEST, getDeviceServicesWorker, bleWrapper);
   yield takeEvery(bleDeviceDisconnect.REQUEST, disconnectDeviceWorker, bleWrapper);
 
-  // connect known devices, every time bluetooth is turned on (at start up) and also every request
+  // connect known devices, every time bluetooth is turned on (at start up) and also every request to do so
   yield takeLatest(bleDeviceConnectKnown.REQUEST, connectKnownDevicesWorker);
   yield takeLatest(bleUpdateState.SUCCESS, updateStateWorker);
 
