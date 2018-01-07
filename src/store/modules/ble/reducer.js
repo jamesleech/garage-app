@@ -35,6 +35,11 @@ const initialState = {
 
 export const reducer = (state = initialState, action) => {
   switch (action.type) {
+    case bleUpdateState.SUCCESS:
+      return {
+        ...state,
+        on: action.payload === 'on',
+      };
     case bleScanStart.REQUEST:
       return {
         ...state,

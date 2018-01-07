@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { ActivityIndicator, View, Text } from 'react-native';
+import { ActivityIndicator, View, Text, Alert } from 'react-native';
 import styled from "styled-components/native";
 import {
   TabContainer,
@@ -27,8 +27,19 @@ class OpenDoorScreen extends React.Component {
   };
 
   onRemoveDevice = (device) => {
-    const { removeDevice } = this.props;
-    removeDevice(device);
+    Alert.alert(
+      'Remove Device',
+      'Removing the linked device will also remove it\'s key',
+      [
+        { text: 'Cancel' },
+        {
+          text: 'OK',
+          onPress: () => {
+            const { removeDevice } = this.props;
+            removeDevice(device);
+          }
+        }
+      ]);
   };
 
   render() {
@@ -36,7 +47,6 @@ class OpenDoorScreen extends React.Component {
     return (
       <TabContainer>
         <RowBluetooth on={ bluetoothPower }/>
-        <Text>Known devices: {devices.length}</Text>
         <DeviceKnownList devices={devices} onPressDevice={this.onPressDevice} onRemoveDevice={this.onRemoveDevice} />
     </TabContainer>)
   }

@@ -35,10 +35,8 @@ const bleUpdateStateReducer = (state, payload) => {
     } else {
       devices = state.devices;
     }
-
     return {
       ...state,
-      on,
       devices
     };
   } catch (error)  {

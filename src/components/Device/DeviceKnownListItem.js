@@ -39,17 +39,15 @@ const handleRemove = (onRemove, item) => {
 };
 
 const DeviceKnownListItem = ({item, onPress, onRemove}) => {
-
   const disabled = item.status!=='connected';
-
   const removeBtn = {
     text: 'Remove',
     type: 'delete',
     onPress: handleRemove(onRemove, item),
   };
-
+//autoClose={true}
   return (
-    <Swipeout autoClose={true} backgroundColor= 'transparent' right={[removeBtn]}>
+    <Swipeout backgroundColor= 'transparent' right={[removeBtn]}>
       <StyledTouchableOpacity onPress={handlePress(onPress, item)} disabled={disabled}>
         <View>
           <ItemView>

@@ -109,7 +109,7 @@ export class BleWrapper {
   };
 
   handleUpdateState = ( { state } ) => {
-    console.log(`handleUpdateState ${state}`);
+    console.log(`bleWrapper.handleUpdateState: ${state}`);
     this.channel.put(bleUpdateState.success(state));
   };
 

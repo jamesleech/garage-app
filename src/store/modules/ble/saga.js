@@ -19,6 +19,7 @@ import {
   bleDeviceConnect,
   bleDeviceGetServices,
   bleDeviceConnectKnown,
+  bleDeviceDisconnect
 } from './actions';
 import { BleWrapper } from './BleWrapper';
 import { createCommand } from './commands';
@@ -95,6 +96,18 @@ function* connectDeviceWorker(bleWrapper, action) {
   } catch (error) {
     yield call(console.error, `connectDeviceWorker exception: ${error}`);
     yield put(bleDeviceConnect.failure({ id, error }));
+  }
+}
+
+function* disconnectDeviceWorker(bleWrapper, action) {
+  const { id } = action.payload;
+  yield console.log(`disconnectDeviceWorker ${JSON.stringify(id)}`);
+
+  try {
+    yield call(bleWrapper.disconnect, id);
+  } catch (error) {
+    yield call(console.error, `disconnectDeviceWorker exception: ${error}`);
+    yield put(bleDeviceDisconnect.failure({ id, error }));
   }
 }
 
@@ -185,6 +198,7 @@ export function* saga() {
   yield takeEvery(bleDeviceConnect.REQUEST, connectDeviceWorker, bleWrapper);
   yield takeEvery(bleDeviceConnect.SUCCESS, connectedDeviceWorker, bleWrapper);
   yield takeEvery(bleDeviceGetServices.REQUEST, getDeviceServicesWorker, bleWrapper);
+  yield takeEvery(bleDeviceDisconnect.REQUEST, disconnectDeviceWorker, bleWrapper);
 
   // connect known devices, every time bluetooth is turned on (at start up) and also every request
   yield takeLatest(bleDeviceConnectKnown.REQUEST, connectKnownDevicesWorker);

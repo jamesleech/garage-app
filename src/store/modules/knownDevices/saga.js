@@ -1,6 +1,7 @@
 import { loadDevices, saveDevice, removeDevice } from './index';
 import { takeLatest, call, put } from 'redux-saga/effects';
 import { AsyncStorage } from 'react-native';
+import { bleDeviceDisconnect } from '../ble';
 
 const deviceKey = 'DEVICE:';
 const deviceKeyId = id => `${deviceKey}${id}`;
@@ -60,6 +61,7 @@ function* removeDeviceWorker(action) {
 
   try {
     if(device.id) {
+      yield put(bleDeviceDisconnect.request(device));
       yield call(AsyncStorage.removeItem, deviceKeyId(device.id));
       yield put(removeDevice.success(device));
     } else {
