@@ -35,12 +35,6 @@ class ScanDevicesScreen extends React.Component {
     return (
     <TabContainer>
       <RowBluetooth on={ bluetoothPower }/>
-      <RowView>
-        <RowText>Device</RowText>
-        <RowRightItem>
-          <DeviceStatus status='notConnected' />
-        </RowRightItem>
-      </RowView>
       <DeviceScanButton scanning={scanning} startScanning={startScan} stopScanning={stopScan} />
       <DeviceList scanning={scanning} devices={devices} onLinkDevice={this.onLinkDevice}/>
     </TabContainer>

@@ -86,9 +86,9 @@ export class BleWrapper {
       this.scanning = false;
       console.log('stopScan: putting scan stop success');
       this.channel.put(bleScanStop.success());
-      console.log('Scanning stopped...');
+      console.log('Scanning stopped');
     } else {
-      console.log('Already not Scanning...');
+      console.log('Already not Scanning');
     }
   };
 

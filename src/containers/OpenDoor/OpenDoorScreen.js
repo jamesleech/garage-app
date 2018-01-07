@@ -47,7 +47,10 @@ class OpenDoorScreen extends React.Component {
     return (
       <TabContainer>
         <RowBluetooth on={ bluetoothPower }/>
-        <DeviceKnownList devices={devices} onPressDevice={this.onPressDevice} onRemoveDevice={this.onRemoveDevice} />
+        <DeviceKnownList
+          devices={devices}
+          onPressDevice={this.onPressDevice}
+          onRemoveDevice={this.onRemoveDevice} />
     </TabContainer>)
   }
 }

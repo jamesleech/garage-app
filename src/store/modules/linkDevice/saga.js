@@ -1,8 +1,11 @@
 import { linkDevice, getDeviceKey } from './index';
 import { saveDevice } from '../knownDevices';
 import { takeLatest, call, put } from 'redux-saga/effects';
+import {bleScanStop} from '../ble';
 
 function* linkDeviceWorker(action) {
+  yield put(bleScanStop.request());
+
   const { device } = action.payload;
   yield call(console.log,`linkDeviceWorker ${device.id} - ${device.name}`);
 

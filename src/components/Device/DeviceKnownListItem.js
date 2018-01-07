@@ -12,6 +12,7 @@ import {DeviceSignalStrength} from './DeviceSignalStrength';
 const StyledTouchableOpacity = styled.TouchableOpacity`
   display: flex;
   background-color: #3498db;
+  margin-bottom: 2px;
 `;
 
 const ItemView = styled.View`
