@@ -1,7 +1,7 @@
 import { loadDevices, saveDevice, removeDevice } from './index';
 import { takeLatest, call, put } from 'redux-saga/effects';
 import { AsyncStorage } from 'react-native';
-import { bleDeviceDisconnect } from '../ble';
+import { bleDeviceDisconnect, bleDeviceConnect } from '../ble';
 
 const deviceKey = 'DEVICE:';
 const deviceKeyId = id => `${deviceKey}${id}`;
@@ -33,6 +33,18 @@ function* loadDevicesWorker() {
   } catch (error){
     yield call(console.log, `loadDevicesWorks error: ${error}`);
     yield put(loadDevices.failure(error));
+  }
+}
+
+function* connectLoadedDevicesWorker(action) {
+  yield call(console.log, `connectLoadedDevicesWorker`);
+  try {
+    const devices = action.payload;
+    for(let i = 0; i< devices.length; i++) {
+      yield put(bleDeviceConnect.request(devices[i]));
+    }
+  } catch (error) {
+    yield call(console.log, `connectLoadedDevicesWorker error: ${error}`);
   }
 }
 
@@ -76,6 +88,7 @@ function* removeDeviceWorker(action) {
 
 export function* saga() {
   yield takeLatest(loadDevices.REQUEST, loadDevicesWorker);
+  yield takeLatest(loadDevices.SUCCESS, connectLoadedDevicesWorker)
   yield takeLatest(saveDevice.REQUEST, saveDeviceWorker);
   yield takeLatest(removeDevice.REQUEST, removeDeviceWorker);
 }
