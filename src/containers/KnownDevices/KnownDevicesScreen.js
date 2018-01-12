@@ -15,8 +15,7 @@ const StyledSwitch = styled.Switch`
 `;
 
 class KnownDevicesScreen extends React.Component {
-  static navigationOptions = ({navigation}) => {
-    return {
+  static navigationOptions = ({navigation}) => ({
       tabBarLabel: 'Devices',
       tabBarIcon: ({ tintColor, focused }) => (
         <Ionicons
@@ -25,8 +24,7 @@ class KnownDevicesScreen extends React.Component {
           style={{ color: tintColor }}
         />
       ),
-    }
-  };
+    });
 
   onPressDevice = (device) => {
     const { toggleDoor } = this.props;
@@ -72,8 +70,8 @@ function mapStateToProps(state) {
 KnownDevicesScreen = connect(
   mapStateToProps,
   {
-    toggleDoor: toggleDoor,
-    removeDevice: removeDevice
+    toggleDoor,
+    removeDevice
   }
 )(KnownDevicesScreen);
 

@@ -7,13 +7,11 @@ const Wrapper = styled.KeyboardAvoidingView`
   background-color: #2980b9;
 `;
 
-const SignInView = ({ children }) => {
-  return (
+const SignInView = ({ children }) => (
     <Wrapper behavior='padding'>
       <StatusBar barStyle='dark-content' />
       {children}
     </Wrapper>
   );
-};
 
 export { SignInView };

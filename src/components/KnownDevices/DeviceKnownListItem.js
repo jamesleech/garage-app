@@ -31,13 +31,9 @@ const ItemDivider = styled.View`
   align-self: center;
 `;
 
-const handlePress = (onPress, item) => {
-  return () => onPress(item);
-};
+const handlePress = (onPress, item) => () => onPress(item);
 
-const handleRemove = (onRemove, item) => {
-  return () => onRemove(item);
-};
+const handleRemove = (onRemove, item) => () => onRemove(item);
 
 const DeviceKnownListItem = ({item, onPress, onRemove}) => {
   const disabled = item.status!=='connected';
@@ -48,7 +44,7 @@ const DeviceKnownListItem = ({item, onPress, onRemove}) => {
   };
 
   return (
-    <Swipeout backgroundColor='transparent' right={[removeBtn]} autoClose={true}>
+    <Swipeout backgroundColor='transparent' right={[removeBtn]} autoClose>
       <StyledTouchableOpacity onPress={handlePress(onPress, item)} disabled={disabled}>
         <View>
           <ItemView>

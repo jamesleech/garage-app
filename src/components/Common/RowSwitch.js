@@ -6,13 +6,11 @@ const StyledSwitch = styled.Switch`
   margin-left: auto;
 `;
 
-const RowSwitch = ( { text }) => {
-  return (
+const RowSwitch = ( { text }) => (
     <RowView>
       <RowText>{text}</RowText>
       <StyledSwitch/>
     </RowView>
   );
-};
 
 export { RowSwitch };

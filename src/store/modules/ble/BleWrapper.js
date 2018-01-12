@@ -76,7 +76,7 @@ export class BleWrapper {
     } else {
       console.log('Already scanning...');
     }
-    //TODO: message start scanning success
+    // TODO: message start scanning success
   };
 
   stopScan = async () => {
@@ -92,9 +92,7 @@ export class BleWrapper {
     }
   };
 
-  connect = async (id) => {
-    return await BleManager.connect(id);
-  };
+  connect = async (id) => await BleManager.connect(id);
 
   disconnect = async (id) => {
     try {
@@ -107,26 +105,22 @@ export class BleWrapper {
     }
   };
 
-  getServicesForDeviceId = async (id) => {
-    return await BleManager.retrieveServices(id);
-  };
+  getServicesForDeviceId = async (id) => await BleManager.retrieveServices(id);
 
   getSignalStrength = async (id) => {
     try {
       const isConnected = await BleManager.isPeripheralConnected(id, []);
       if(isConnected) {
         return await BleManager.readRSSI(id);
-      } else {
+      } 
         return 0;
-      }
+      
     } catch (error) {
       console.log(`getSignalStrength error ${error}`);
     }
   };
 
-  write = async (id, serviceUUID, characteristicUUID, data) => {
-    return await BleManager.write(id, serviceUUID, characteristicUUID, data);
-  };
+  write = async (id, serviceUUID, characteristicUUID, data) => await BleManager.write(id, serviceUUID, characteristicUUID, data);
 
   handleUpdateState = ( { state } ) => {
     console.log(`bleWrapper.handleUpdateState: ${state}`);
@@ -134,7 +128,7 @@ export class BleWrapper {
   };
 
   handleDiscoverPeripheral = ( { id, name, rssi }) => {
-    //message discovered peripheral
+    // message discovered peripheral
     this.channel.put(bleDeviceFound.success({ id, name, rssi }));
   };
 
@@ -145,10 +139,10 @@ export class BleWrapper {
   };
 
   handleUpdateValueForCharacteristic = (data) => {
-    console.log('Received data from '
-      + data.peripheral
-      + ' characteristic '
-      + data.characteristic, data.value);
+    console.log(`Received data from ${
+       data.peripheral
+       } characteristic ${
+       data.characteristic}`, data.value);
     // TODO: message value
   };
 

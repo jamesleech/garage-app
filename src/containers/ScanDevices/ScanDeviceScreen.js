@@ -19,8 +19,7 @@ import {
 
 class ScanDevicesScreen extends React.Component {
 
-  static navigationOptions = ({navigation}) => {
-    return {
+  static navigationOptions = ({navigation}) => ({
       tabBarLabel: 'Scan',
       tabBarIcon: ({ tintColor, focused }) => (
         <Ionicons
@@ -29,8 +28,7 @@ class ScanDevicesScreen extends React.Component {
           style={{ color: tintColor }}
         />
       ),
-    }
-  };
+    });
 
   onLinkDevice = (device) => {
     const { linkDevice } = this.props;

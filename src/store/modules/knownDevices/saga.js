@@ -78,9 +78,9 @@ function* toggleDoorWorker(action) {
   yield call(console.log, `toggleDoorWorker: ${id}`);
 
   try {
-    //TODO: get a serial number
-    //TODO: manage rolling counter
-    //TODO: create a list of commands
+    // TODO: get a serial number
+    // TODO: manage rolling counter
+    // TODO: create a list of commands
     const msg = createMsg(4294967295, 1024, COMMAND_TOOGLE_DOOR);
     console.log(`toggleDoorWorker: ${msg}`);
 

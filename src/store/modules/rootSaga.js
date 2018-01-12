@@ -1,4 +1,4 @@
-import { fork, all, call, put, take } from 'redux-saga/effects';
+import { fork, all, call } from 'redux-saga/effects';
 import { splashSaga, restore } from './splash';
 import { signInSaga } from './signIn';
 import { homeSaga} from './home';

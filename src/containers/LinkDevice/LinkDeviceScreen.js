@@ -11,14 +11,12 @@ const Wrapper = styled.KeyboardAvoidingView`
   padding: 20px;
 `;
 
-const LinkDeviceView = ({ children }) => {
-  return (
+const LinkDeviceView = ({ children }) => (
     <Wrapper behavior='padding'>
       <StatusBar barStyle='dark-content' />
       {children}
     </Wrapper>
   );
-};
 
 const SignInTouchable = styled.TouchableOpacity`
   background-color: #3498db;

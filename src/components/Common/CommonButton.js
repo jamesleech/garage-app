@@ -13,12 +13,10 @@ const CommonText = styled.Text`
   font-weight: 700;
 `;
 
-const CommonButton = ({ onPress, label }) => {
-  return (
+const CommonButton = ({ onPress, label }) => (
     <CommonTouchable onPress={onPress}>
       <CommonText>{label}</CommonText>
     </CommonTouchable>
   );
-};
 
 export { CommonButton };

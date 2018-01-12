@@ -4,7 +4,7 @@ const initialState = {
   loading: false,
 };
 
-export const reducer = (state = initialState, action) => {
+export const reducer = (state = initialState, action) => 
   // switch (action.type) {
   //   case linkDevice.SUCCESS:
   //     return {
@@ -13,5 +13,5 @@ export const reducer = (state = initialState, action) => {
   //   default:
   //     return state
   // }
-  return state;
-};
+   state
+;

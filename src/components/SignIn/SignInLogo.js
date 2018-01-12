@@ -20,13 +20,11 @@ const LogoText = styled.Text`
   opacity: 0.8;
 `;
 
-const SignInLogo = () => {
-  return (
+const SignInLogo = () => (
     <Wrapper>
       <Logo source={logo}/>
       <LogoText>Garage Opener</LogoText>
     </Wrapper>
   );
-};
 
 export { SignInLogo };

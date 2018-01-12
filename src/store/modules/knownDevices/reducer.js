@@ -26,11 +26,11 @@ const initialState = {
 };
 
 const bleUpdateStateReducer = (state, payload) => {
-  const on = payload === 'on'; //TODO: remove magic string
+  const on = payload === 'on'; // TODO: remove magic string
 
   try {
     let devices;
-    if (!on) { //bluetooth not on, set all devices as not connected
+    if (!on) { // bluetooth not on, set all devices as not connected
       devices = state.devices.map(device => device.setIn(['status'], 'notConnected'));
     } else {
       devices = state.devices;
@@ -71,9 +71,9 @@ export const reducer = (state = initialState, action) => {
           ...state,
           devices: state.devices.setIn([disconnectingDevice.id, 'status'], 'disconnecting'),
         };
-      } else {
+      } 
         return state;
-      }
+      
     case bleDeviceDisconnect.SUCCESS:
       const { disconnectedDevice } = action.payload;
       // need to test if the device is still a known device, could have just been removed and disconnected.
@@ -82,9 +82,9 @@ export const reducer = (state = initialState, action) => {
           ...state,
           devices: state.devices.setIn([disconnectedDevice.id, 'status'], 'notConnected'),
         };
-      } else {
+      } 
         return state;
-      }
+      
     case bleDeviceSignalStrength.SUCCESS:
       return {
         ...state,

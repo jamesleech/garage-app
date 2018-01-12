@@ -14,13 +14,11 @@ const FormattedText = styled.Text`
   font-weight: bold;
 `;
 
-const SplashText = ({ children }) => {
-  return (
+const SplashText = ({ children }) => (
     <Wrapper>
       <FormattedText>{children}</FormattedText>
     </Wrapper>
-  )
-};
+  );
 
 
 export { SplashText };

@@ -64,7 +64,7 @@ function* stopBluetoothSaga(bleWrapper) {
 }
 
 function* scanningSaga(bleWrapper) {
-  //wait for a start scan request
+  // wait for a start scan request
   while (yield take(bleScanStart.REQUEST)) {
     const on = yield select(getBleState); // check to see if bluetooth is actually on
 
@@ -135,7 +135,7 @@ function* getDeviceServicesWorker(bleWrapper, action) {
 
 function* updateStateWorker(action) {
   const { payload } = action;
-  if(payload === 'on') { //TODO: remove magic string
+  if(payload === 'on') { // TODO: remove magic string
     yield put(bleDeviceConnectKnown.request());
   }
 }
@@ -193,7 +193,7 @@ function* connectKnownDevicesWorker() {
 
   const devices = yield select(getKnownDevices);
 
-  for (let device of devices.valueSeq()) {
+  for (const device of devices.valueSeq()) {
     // if(device.get('status') !== 'connected') { //TODO: remove magic string
       yield put(bleDeviceConnect.request({id: device.get('id')}));
     // }

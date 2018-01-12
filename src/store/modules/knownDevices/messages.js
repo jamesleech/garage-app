@@ -10,9 +10,7 @@ function getMsgHMAC(key, msgArray) {
   hmac.update(binaryStr);
   const hash = hmac.digest().data;
 
-  return Array.from(hash, char => {
-    return char.charCodeAt(0);
-  });
+  return Array.from(hash, char => char.charCodeAt(0));
 }
 
 // returns a byte array to send to the device
@@ -32,17 +30,17 @@ export function createMsg(serialNumber, counter, command) {
 
   const hmac = getMsgHMAC(key, msg);
   console.log(hmac);
-  const msgWithHmac = new Uint8ClampedArray(20); //MAX bluetooth characteristic message size
+  const msgWithHmac = new Uint8ClampedArray(20); // MAX bluetooth characteristic message size
   msgWithHmac.set(msg, 0);
   for (let i = 0; i<11; i++) {
     msgWithHmac[9+i] = hmac[i];
   }
   console.log(`msgWithHmac: ${msgWithHmac}`);
 
-  //use first 11 bytes of hmac
+  // use first 11 bytes of hmac
   // for(let i = 0; i < 11; i++) {
   //   msg[9 + i] = hmac[i];
   // }
 
-  return Array.prototype.slice.call(msgWithHmac); //return plain array
+  return Array.prototype.slice.call(msgWithHmac); // return plain array
 }

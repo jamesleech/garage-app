@@ -7,12 +7,10 @@ const StyledView = styled.View`
   flex: 1;
   margin-top: 6px;
   width: 100%;
-`; //#2980b9
+`; // #2980b9
 
 class DeviceKnownList extends Component {
-  keyExtractor = (device, index) => {
-    return device.id;
-  };
+  keyExtractor = (device, index) => device.id;
 
   render() {
     const { devices, onPressDevice, onRemoveDevice } = this.props;

@@ -8,15 +8,13 @@ const StyledView = styled.View`
   flex: 1;
   margin-top: 6px;
   width: 100%;
-`; //#2980b9
+`; // #2980b9
 const ActivityIndicatorWrapper = styled.View`
   padding-left: 10px;
 `;
 
 class DeviceList extends Component {
-  keyExtractor = (device, index) => {
-    return device.id || device.uuid;
-  };
+  keyExtractor = (device, index) => device.id || device.uuid;
 
   foundText(length) {
     return `Found ${length} ${length === 1 ? 'device' : 'devices'}`;

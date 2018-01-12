@@ -1,8 +1,8 @@
+import { NavigationActions } from 'react-navigation';
+import { takeLatest, call, put } from 'redux-saga/effects';
 import { linkDevice, startLinkDevice } from './index';
 import { saveDevice } from '../knownDevices';
-import { takeLatest, call, put } from 'redux-saga/effects';
 import { bleScanStop } from '../ble';
-import { NavigationActions } from 'react-navigation';
 
 function* linkDeviceWorker(action) {
   yield put(bleScanStop.request());
@@ -16,7 +16,7 @@ function* linkDeviceWorker(action) {
   yield put(NavigationActions.navigate({
     routeName: 'LinkDevice',
     params: {
-      device: device,
+      device,
     }
   }))
 }
