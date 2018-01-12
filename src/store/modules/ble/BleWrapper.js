@@ -10,7 +10,7 @@ import {
   AppState,
   NativeModules,
   Platform,
-  PermissionsAndroid,
+  // PermissionsAndroid,
   NativeEventEmitter,
 } from 'react-native';
 import BleManager from 'react-native-ble-manager';
@@ -26,7 +26,7 @@ export class BleWrapper {
   }
 
   start = async () => {
-    await this.androidBluetoothPermission();
+    // await this.androidBluetoothPermission();
     AppState.addEventListener('change', this.handleAppStateChange);
     const result = await BleManager.start({showAlert: true});
 
@@ -42,22 +42,22 @@ export class BleWrapper {
     return result;
   };
 
-  androidBluetoothPermission = async () => {
-    if (Platform.OS === 'android' && Platform.Version >= 23) {
-      const result = PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION);
-
-      if (result) {
-        console.log("Permission is OK");
-      } else {
-        const permission = await PermissionsAndroid.requestPermission(PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION);
-        if (permission) {
-          console.log("User accept");
-        } else {
-          console.log("User refuse");
-        }
-      }
-    }
-  };
+  // androidBluetoothPermission = async () => {
+  //   if (Platform.OS === 'android' && Platform.Version >= 23) {
+  //     const result = PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION);
+  //
+  //     if (result) {
+  //       console.log("Permission is OK");
+  //     } else {
+  //       const permission = await PermissionsAndroid.requestPermission(PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION);
+  //       if (permission) {
+  //         console.log("User accept");
+  //       } else {
+  //         console.log("User refuse");
+  //       }
+  //     }
+  //   }
+  // };
 
   stop = () => {
     this.listenerUpdateState.remove();

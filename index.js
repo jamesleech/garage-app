@@ -27,7 +27,6 @@ const store = configureStore();
 
 const ReduxApp = () => (
   <Provider store={store}>
-    {/*<AppNavigator />*/}
     <AppWithNavigationState />
   </Provider>
 );
