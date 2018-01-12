@@ -18,16 +18,16 @@ class DeviceList extends Component {
     return device.id || device.uuid;
   };
 
+  foundText(length) {
+    return `Found ${length} ${length === 1 ? ' device' : ' devices'}`;
+  }
+
   render() {
     const { scanning, devices, onLinkDevice } = this.props;
     return (
       <StyledView>
         <RowView>
-          <RowText>Found {devices.length}
-            {devices.length === 1
-              ? ' device'
-              : ' devices'
-            }
+          <RowText>{this.foundText(devices.length)}
           </RowText>
           {scanning
             ?

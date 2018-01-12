@@ -38,17 +38,4 @@ const DeviceListItem = ({ item, onLinkPress }) => {
     </StyledTouchableOpacity>
   );
 
-{/*  <Wrapper>
-    <ItemGroup>
-      <ItemView>
-        <RowText>{item.name || item.id}</RowText>
-      </ItemView>
-      <DeviceSignalStrength strength = {item.rssi}/>
-    </ItemGroup>
-    <LinkTouchable onPress={pressed}>
-      <LinkText>Link</LinkText>
-    </LinkTouchable>
-  </Wrapper>*/}
-};
-
 export { DeviceListItem };
