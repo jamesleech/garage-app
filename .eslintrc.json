@@ -1,7 +1,14 @@
 {
+  "extends": [
+    "airbnb",
+    "plugin:react-native/all",
+    "prettier",
+    "prettier/react"
+  ],
   "plugins": [
     "react",
-    "react-native"
+    "react-native",
+    "prettier"
   ],
   "parser": "babel-eslint",
   "parserOptions": {
@@ -14,9 +21,12 @@
     },
     "allowImportExportEverywhere": false
   },
+  "rules": {
+    "no-console": "off",
+    "import/prefer-default-export": "off"
+  },
   "env": {
     "es6": true,
     "react-native/react-native": true
-  },
-  "extends": [ "plugin:react-native/all" ]
+  }
 }

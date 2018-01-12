@@ -1,10 +1,9 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
-import { signIn } from '../signIn';
+import { NavigationActions } from 'react-navigation'
+import { loadUser, signIn } from '../signIn';
 import { loadDevices } from '../knownDevices';
 import { restore } from './actions';
-import { loadUser } from '../signIn';
-import { NavigationActions } from 'react-navigation'
-import {AsyncStorage} from "react-native";
+// import {AsyncStorage} from "react-native";
 
 function* restoreWorker() {
   try {

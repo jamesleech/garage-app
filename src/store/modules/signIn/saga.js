@@ -1,11 +1,11 @@
+import {NavigationActions} from 'react-navigation';
+import {AsyncStorage} from "react-native";
 import { takeLatest, put, call } from 'redux-saga/effects';
 import {
   loadUser,
   signIn,
   signOut,
 } from './actions';
-import {NavigationActions} from 'react-navigation';
-import {AsyncStorage} from "react-native";
 
 function* signInWorker(action) {
   try {
@@ -36,18 +36,16 @@ function* signOutWorker() {
   }
 }
 
-//Don't allow back button
-const ResetNavigation = (targetRoute, params) => {
-  return NavigationActions.reset({
+// Don't allow back button
+const ResetNavigation = (targetRoute, params) => NavigationActions.reset({
     index: 0,
     actions: [
       NavigationActions.navigate({
         routeName: targetRoute,
-        params: params
+        params
       }),
     ],
   });
-};
 
 function* signedInNavigate(action) {
   yield put(ResetNavigation('Home', { username: action.payload.username }));
