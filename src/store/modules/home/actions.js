@@ -1,3 +1,3 @@
-import { createAction } from '../../createAction';
-
-const ActionPrefix = 'jg/home/';
+// import { createAction } from '../../createAction';
+//
+// const ActionPrefix = 'jg/home/';
