@@ -99,7 +99,7 @@ function* toggleDoorWorker(action) {
     }
   } catch (error) {
     yield call(console.error, `toggleDoorWorker exception: ${error}`);
-    yield put(bleToggleDoor.failure({ id, error }));
+    yield put(toggleDoor.failure({ id, error }));
     yield call(console.log, error);
   }
 }

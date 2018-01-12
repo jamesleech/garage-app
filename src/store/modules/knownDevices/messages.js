@@ -2,11 +2,11 @@ import * as forge from 'node-forge';
 
 const key = '0123456789abcdef';
 
-function getMsgHMAC(key, msgArray) {
+function getMsgHMAC(deviceKey, msgArray) {
   const binaryStr = String.fromCharCode.apply(null, msgArray); // convert the command
   const hmac = forge.hmac.create();
 
-  hmac.start('sha256', key);
+  hmac.start('sha256', deviceKey);
   hmac.update(binaryStr);
   const hash = hmac.digest().data;
 
