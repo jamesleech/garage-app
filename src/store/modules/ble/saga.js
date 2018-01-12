@@ -23,7 +23,7 @@ import {
   bleDeviceSignalStrength,
 } from './actions';
 import { BleWrapper } from './BleWrapper';
-import { createCommand } from './commands';
+import { createMsg } from './commands';
 import {NavigationActions} from 'react-navigation';
 import {linkDevice} from '../linkDevice';
 
@@ -196,7 +196,7 @@ function* toggleDoorWorker(bleWrapper, action) {
     //TODO: get a serial number
     //TODO: manage rolling counter
     //TODO: create a list of commands
-    const command = createCommand(4294967295,1024,0x0A);
+    const command = createMsg(4294967295,1024,0x0A);
 
     yield call(
       bleWrapper.write,
@@ -205,6 +205,8 @@ function* toggleDoorWorker(bleWrapper, action) {
       GARAGE_DOOR_CHARACTERISTIC_UUID,
       command
     );
+    console.log(`toggleDoorWorker: ${command}`);
+
     yield put(bleToggleDoor.success({ id }));
   } catch (error) {
     yield call(console.error, `toggleDoorWorker exception: ${error}`);

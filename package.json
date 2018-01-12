@@ -4,12 +4,14 @@
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
+    "device": "react-native run-ios --device 1853b10f1edaf9d87e58e8e0514c6fe4823f24ca",
     "test": "jest"
   },
   "dependencies": {
     "events": "^1.1.1",
     "immutable": "^3.8.2",
     "install": "^0.10.2",
+    "node-forge": "^0.7.1",
     "npm": "^5.6.0",
     "react": "16.0.0",
     "react-native": "0.51.0",
