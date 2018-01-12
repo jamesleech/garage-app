@@ -33,9 +33,10 @@ const DeviceListItem = ({ item, onLinkPress }) => {
         <ItemView>
           <RowText>{item.name || item.id}</RowText>
         </ItemView>
-        <DeviceSignalStrength strength = {item.rssi}/>
+        <DeviceSignalStrength strength={item.rssi}/>
       </View>
     </StyledTouchableOpacity>
   );
+};
 
 export { DeviceListItem };

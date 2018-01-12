@@ -19,7 +19,7 @@ class DeviceList extends Component {
   };
 
   foundText(length) {
-    return `Found ${length} ${length === 1 ? ' device' : ' devices'}`;
+    return `Found ${length} ${length === 1 ? 'device' : 'devices'}`;
   }
 
   render() {

@@ -20,15 +20,12 @@ import {
   bleDeviceDisconnect,
   bleDeviceGetServices,
   bleDeviceConnectKnown,
-  bleDeviceSignalStrength,
+  bleDeviceSignalStrength, bleWriteCharacteristic,
 } from './actions';
 import { BleWrapper } from './BleWrapper';
-import { createMsg } from './commands';
+import { createMsg } from '../knownDevices/messages';
 import {NavigationActions} from 'react-navigation';
 import {linkDevice} from '../linkDevice';
-
-const GARAGE_SERVICE_UUIDS = "321CCACA-29A6-4D46-B2DB-9B5639948751";
-const GARAGE_DOOR_CHARACTERISTIC_UUID = "D7C7B570-EEDA-11E7-BD5D-FB4762172F1A";
 
 const getBleState = state => state.ble.on;
 const getKnownDevices = state => state.knownDevices.devices;
@@ -143,6 +140,24 @@ function* updateStateWorker(action) {
   }
 }
 
+function* writeCharacteristic(bleWrapper, action) {
+  const { deviceId, serviceUuid, characteristicUuid, message } = action.payload;
+  try {
+    yield call(
+      bleWrapper.write,
+      deviceId,
+      serviceUuid,
+      characteristicUuid,
+      message
+    );
+    yield put(bleWriteCharacteristic.success({ deviceId, serviceUuid, characteristicUuid }));
+  } catch (error) {
+    yield call(console.error, `writeCharacteristic exception: ${error}`);
+    yield put(bleWriteCharacteristic.failure({ deviceId, serviceUuid, characteristicUuid, error }));
+    yield call(console.log, error);
+  }
+}
+
 // function* getDeviceSignalStrengthWorker(bleWrapper, action) {
 //   try {
 //     const deviceId = action.payload.id;
@@ -187,34 +202,6 @@ function* connectKnownDevicesWorker() {
   yield put(bleDeviceConnectKnown.success());
 }
 
-function* toggleDoorWorker(bleWrapper, action) {
-  const { id } = action.payload;
-  yield call(console.log, `toggleDoorWorker: ${id}`);
-
-  try {
-
-    //TODO: get a serial number
-    //TODO: manage rolling counter
-    //TODO: create a list of commands
-    const command = createMsg(4294967295,1024,0x0A);
-
-    yield call(
-      bleWrapper.write,
-      id,
-      GARAGE_SERVICE_UUIDS,
-      GARAGE_DOOR_CHARACTERISTIC_UUID,
-      command
-    );
-    console.log(`toggleDoorWorker: ${command}`);
-
-    yield put(bleToggleDoor.success({ id }));
-  } catch (error) {
-    yield call(console.error, `toggleDoorWorker exception: ${error}`);
-    yield put(bleToggleDoor.failure({ id, error }));
-    yield call(console.log, error);
-  }
-}
-
 // ble saga
 export function* saga() {
   // create a channel onto which the bleWrapper will emit actions
@@ -236,8 +223,9 @@ export function* saga() {
   // handle bluetooth state changes
   yield takeLatest(bleUpdateState.SUCCESS, updateStateWorker);
 
-  // only allow door toggle once per second
-  yield throttle(1000, bleToggleDoor.REQUEST, toggleDoorWorker, bleWrapper);
+  // device interactions
+  yield takeEvery(bleWriteCharacteristic.REQUEST, writeCharacteristic, bleWrapper);
+
 
   // fork saga's
   yield fork(scanningSaga, bleWrapper);

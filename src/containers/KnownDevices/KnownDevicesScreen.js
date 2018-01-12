@@ -8,8 +8,7 @@ import {
   DeviceKnownList,
   RowBluetooth,
 } from '../../components';
-import { bleToggleDoor } from '../../store/modules/ble';
-import { removeDevice } from '../../store/modules/knownDevices';
+import { removeDevice, toggleDoor } from '../../store/modules/knownDevices';
 
 const StyledSwitch = styled.Switch`
   margin-left: auto;
@@ -73,7 +72,7 @@ function mapStateToProps(state) {
 KnownDevicesScreen = connect(
   mapStateToProps,
   {
-    toggleDoor: bleToggleDoor,
+    toggleDoor: toggleDoor,
     removeDevice: removeDevice
   }
 )(KnownDevicesScreen);

@@ -1,7 +1,13 @@
-import { loadDevices, saveDevice, removeDevice } from './index';
-import { takeLatest, call, put } from 'redux-saga/effects';
+import { takeLatest, call, put, throttle } from 'redux-saga/effects';
 import { AsyncStorage } from 'react-native';
-import { bleDeviceDisconnect, bleDeviceConnect } from '../ble';
+import { bleDeviceDisconnect, bleDeviceConnect, bleWriteCharacteristic} from '../ble';
+import { loadDevices, saveDevice, removeDevice, toggleDoor } from '.';
+import { createMsg } from './messages';
+
+const GARAGE_SERVICE_UUID = "321CCACA-29A6-4D46-B2DB-9B5639948751";
+const GARAGE_DOOR_CHARACTERISTIC_UUID = "D7C7B570-EEDA-11E7-BD5D-FB4762172F1A";
+
+const COMMAND_TOOGLE_DOOR = '0x01';
 
 const deviceKey = 'DEVICE:';
 const deviceKeyId = id => `${deviceKey}${id}`;
@@ -67,6 +73,37 @@ function* saveDeviceWorker(action) {
   }
 }
 
+function* toggleDoorWorker(action) {
+  const { id } = action.payload;
+  yield call(console.log, `toggleDoorWorker: ${id}`);
+
+  try {
+    //TODO: get a serial number
+    //TODO: manage rolling counter
+    //TODO: create a list of commands
+    const msg = createMsg(4294967295, 1024, COMMAND_TOOGLE_DOOR);
+    console.log(`toggleDoorWorker: ${msg}`);
+
+    const result = yield call(
+      bleWriteCharacteristic.call, {
+        deviceId: id,
+        serviceUuid: GARAGE_SERVICE_UUID,
+        characteristicUuid: GARAGE_DOOR_CHARACTERISTIC_UUID,
+        message: msg
+      });
+
+    if(result.type === bleWriteCharacteristic.SUCCESS) {
+      yield put(toggleDoor.success(result.payload));
+    } else {
+      yield put(toggleDoor.failure(result.payload));
+    }
+  } catch (error) {
+    yield call(console.error, `toggleDoorWorker exception: ${error}`);
+    yield put(bleToggleDoor.failure({ id, error }));
+    yield call(console.log, error);
+  }
+}
+
 function* removeDeviceWorker(action) {
   const device = action.payload;
   yield call(console.log,`removeDeviceWorker: ${device.id} - ${device.name}`);
@@ -88,7 +125,10 @@ function* removeDeviceWorker(action) {
 
 export function* saga() {
   yield takeLatest(loadDevices.REQUEST, loadDevicesWorker);
-  yield takeLatest(loadDevices.SUCCESS, connectLoadedDevicesWorker)
+  yield takeLatest(loadDevices.SUCCESS, connectLoadedDevicesWorker);
   yield takeLatest(saveDevice.REQUEST, saveDeviceWorker);
   yield takeLatest(removeDevice.REQUEST, removeDeviceWorker);
+
+  // only allow door toggle once per second
+  yield throttle(1000, toggleDoor.REQUEST, toggleDoorWorker);
 }
