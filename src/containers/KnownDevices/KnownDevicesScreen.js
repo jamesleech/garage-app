@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { Alert } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   TabContainer,

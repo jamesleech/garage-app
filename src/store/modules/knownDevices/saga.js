@@ -33,7 +33,8 @@ function* loadDevicesWorker() {
         devices.push(device);
       }
     }
-    yield call(console.log, `load devices success`);
+
+    yield call(console.log, `loadDevicesWorker: load devices success ${JSON.stringify(devices)}`);
     yield put(loadDevices.success(devices));
 
   } catch (error){
@@ -56,15 +57,18 @@ function* connectLoadedDevicesWorker(action) {
 
 function* saveDeviceWorker(action) {
   const device = action.payload;
-  yield call(console.log, `saveDeviceWorker: ${device.id} - ${device.name}`);
+  yield call(console.log, `saveDeviceWorker: ${deviceKeyId(device.id)} - ${JSON.stringify(device)}`);
 
   try {
     // validate the device
     if (device.id && device.name && device.key) {
+      console.log('saveDeviceWorker: Device is valid');
       // add to persistent store
       yield call(AsyncStorage.setItem, deviceKeyId(device.id), JSON.stringify(device));
+      console.log('saveDeviceWorker: AsyncStorage success');
       yield put(saveDevice.success(device));
     } else {
+      console.log('saveDeviceWorker: AsyncStorage failure');
       yield put(saveDevice.failure(device));
     }
   } catch (error) {

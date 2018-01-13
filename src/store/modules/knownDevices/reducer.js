@@ -92,6 +92,7 @@ export const reducer = (state = initialState, action) => {
       };
     case loadDevices.SUCCESS: {
       const devices = Map(action.payload.map((item) => [ item.id, Map(item) ]));
+      console.log(`loadDevices.SUCCESS: ${devices}`);
       return {
         ...state,
         devices: state.devices.merge(devices),
