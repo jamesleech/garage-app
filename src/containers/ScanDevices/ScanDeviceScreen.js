@@ -1,22 +1,30 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   bleScanStart,
   bleScanStop,
 } from '../../store/modules/ble';
-import { linkDevice } from '../../store/modules/linkDevice';
+import { startLinkDevice } from '../../store/modules/linkDevice';
 import {
   DeviceScanButton,
   DeviceList,
   TabContainer,
-  RowView,
-  RowText,
-  RowRightItem,
   RowBluetooth,
-  DeviceStatus,
 } from '../../components';
 
 class ScanDevicesScreen extends React.Component {
+
+  static navigationOptions = () => ({
+      tabBarLabel: 'Scan',
+      tabBarIcon: ({ tintColor, focused }) => (
+        <Ionicons
+          name={focused ? 'ios-add' : 'ios-add-outline'}
+          size={26}
+          style={{ color: tintColor }}
+        />
+      ),
+    });
 
   onLinkDevice = (device) => {
     const { linkDevice } = this.props;
@@ -51,13 +59,12 @@ function mapStateToProps(state) {
   };
 }
 
-ScanDevicesScreen = connect(
-  mapStateToProps,
+const screen = connect(mapStateToProps,
   {
     startScan: bleScanStart,
     stopScan: bleScanStop,
-    linkDevice: linkDevice,
+    linkDevice: startLinkDevice,
   }
 )(ScanDevicesScreen);
 
-export { ScanDevicesScreen };
+export { screen as ScanDevicesScreen };

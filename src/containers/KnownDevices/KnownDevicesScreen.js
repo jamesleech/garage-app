@@ -1,29 +1,29 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { ActivityIndicator, View, Text, Alert } from 'react-native';
-import styled from "styled-components/native";
+import { Alert } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   TabContainer,
-  RowView,
-  RowSwitch,
-  RowText,
-  RowRightItem,
-  DeviceStatus,
   DeviceKnownList,
   RowBluetooth,
-  GarageStatus
 } from '../../components';
-import { bleToggleDoor } from '../../store/modules/ble';
-import { removeDevice } from '../../store/modules/knownDevices';
-
-const StyledSwitch = styled.Switch`
-  margin-left: auto;
-`;
+import { removeDevice, toggleDoor } from '../../store/modules/knownDevices';
 
 class KnownDevicesScreen extends React.Component {
+  static navigationOptions = () => ({
+      tabBarLabel: 'Devices',
+      tabBarIcon: ({ tintColor, focused }) => (
+        <Ionicons
+          name={focused ? 'ios-home' : 'ios-home-outline'}
+          size={26}
+          style={{ color: tintColor }}
+        />
+      ),
+    });
+
   onPressDevice = (device) => {
-    const { toggleDoor } = this.props;
-    toggleDoor({ id: device.id });
+    const { onToggleDoor } = this.props;
+    onToggleDoor({ id: device.id });
   };
 
   onRemoveDevice = (device) => {
@@ -35,8 +35,8 @@ class KnownDevicesScreen extends React.Component {
         {
           text: 'OK',
           onPress: () => {
-            const { removeDevice } = this.props;
-            removeDevice(device);
+            const { onRemoveDevice } = this.props;
+            onRemoveDevice(device);
           }
         }
       ]);
@@ -62,12 +62,11 @@ function mapStateToProps(state) {
   }
 }
 
-KnownDevicesScreen = connect(
-  mapStateToProps,
+const screen = connect(mapStateToProps,
   {
-    toggleDoor: bleToggleDoor,
-    removeDevice: removeDevice
+    onToggleDoor: toggleDoor,
+    onRemoveDevice: removeDevice
   }
 )(KnownDevicesScreen);
 
-export { KnownDevicesScreen };
+export { screen as KnownDevicesScreen };

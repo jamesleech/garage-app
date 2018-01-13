@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import styled from "styled-components/native";
 import { StatusBar } from "react-native";
 
@@ -7,15 +7,11 @@ const Wrapper = styled.KeyboardAvoidingView`
   background-color: #2980b9;
 `;
 
-const SignInView = ({ children }) => {
-  return (
+const SignInView = ({ children }) => (
     <Wrapper behavior='padding'>
-      <StatusBar
-        barStyle='light-content'
-      />
+      <StatusBar barStyle='dark-content' />
       {children}
-      </Wrapper>
+    </Wrapper>
   );
-};
 
 export { SignInView };

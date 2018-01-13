@@ -21,6 +21,10 @@ class DeviceStatus extends Component {
         return (
           <StyledText>Connecting...</StyledText>
         );
+      case 'disconnecting':
+        return (
+          <StyledText>Disconnecting...</StyledText>
+        );
       default:
         return (
           <StyledText>TODO: {this.props.status}</StyledText>

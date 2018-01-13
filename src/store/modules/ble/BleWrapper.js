@@ -1,19 +1,18 @@
 import {
+  AppState,
+  NativeModules,
+  // Platform,
+  // PermissionsAndroid,
+  NativeEventEmitter,
+} from 'react-native';
+import BleManager from 'react-native-ble-manager';
+import {
   bleUpdateState,
   bleScanStop,
   bleDeviceConnect,
   bleDeviceDisconnect,
   bleDeviceFound,
 } from './actions';
-
-import {
-  AppState,
-  NativeModules,
-  Platform,
-  PermissionsAndroid,
-  NativeEventEmitter,
-} from 'react-native';
-import BleManager from 'react-native-ble-manager';
 
 const bleManagerEmitter = new NativeEventEmitter(NativeModules.BleManager);
 
@@ -26,7 +25,7 @@ export class BleWrapper {
   }
 
   start = async () => {
-    await this.androidBluetoothPermission();
+    // await this.androidBluetoothPermission();
     AppState.addEventListener('change', this.handleAppStateChange);
     const result = await BleManager.start({showAlert: true});
 
@@ -42,22 +41,22 @@ export class BleWrapper {
     return result;
   };
 
-  androidBluetoothPermission = async () => {
-    if (Platform.OS === 'android' && Platform.Version >= 23) {
-      const result = PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION);
-
-      if (result) {
-        console.log("Permission is OK");
-      } else {
-        const permission = await PermissionsAndroid.requestPermission(PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION);
-        if (permission) {
-          console.log("User accept");
-        } else {
-          console.log("User refuse");
-        }
-      }
-    }
-  };
+  // androidBluetoothPermission = async () => {
+  //   if (Platform.OS === 'android' && Platform.Version >= 23) {
+  //     const result = PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION);
+  //
+  //     if (result) {
+  //       console.log("Permission is OK");
+  //     } else {
+  //       const permission = await PermissionsAndroid.requestPermission(PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION);
+  //       if (permission) {
+  //         console.log("User accept");
+  //       } else {
+  //         console.log("User refuse");
+  //       }
+  //     }
+  //   }
+  // };
 
   stop = () => {
     this.listenerUpdateState.remove();
@@ -72,11 +71,11 @@ export class BleWrapper {
     if (!this.scanning) {
       console.log('Scanning...');
       this.scanning = true;
-      const result = await BleManager.scan(uuids, seconds, false);
+      await BleManager.scan(uuids, seconds, false);
     } else {
       console.log('Already scanning...');
     }
-    //TODO: message start scanning success
+    // TODO: message start scanning success
   };
 
   stopScan = async () => {
@@ -93,23 +92,43 @@ export class BleWrapper {
   };
 
   connect = async (id) => {
-    return await BleManager.connect(id);
+    // const isConnected = await BleManager.isPeripheralConnected(id, []);
+    // console.log(`bleWrapper.connect: ${id} isConnected: ${isConnected}`);
+    // if(isConnected) {
+    //   this.channel.put(bleDeviceConnect.success({ id }));
+    // } else {
+      BleManager.connect(id);
+    // }
   };
 
   disconnect = async (id) => {
-    const isConnected = await BleManager.isPeripheralConnected(id, []);
-    if(isConnected) {
-      return await BleManager.disconnect(id);
+    try {
+      const isConnected = await BleManager.isPeripheralConnected(id, []);
+      if(isConnected) {
+        return await BleManager.disconnect(id);
+      }
+    } catch (error) {
+      console.log(`disconnect error ${error}`);
     }
+    return undefined;
   };
 
-  getServicesForDeviceId = async (id) => {
-    return await BleManager.retrieveServices(id);
+  getServicesForDeviceId = async (id) => BleManager.retrieveServices(id);
+
+  getSignalStrength = async (id) => {
+    try {
+      const isConnected = await BleManager.isPeripheralConnected(id, []);
+      if(isConnected) {
+        return await BleManager.readRSSI(id);
+      }
+    } catch (error) {
+      console.log(`getSignalStrength error ${error}`);
+    }
+    return 0;
   };
 
-  write = async (id, serviceUUID, characteristicUUID, data) => {
-    return await BleManager.write(id, serviceUUID, characteristicUUID, data);
-  };
+  write = async (id, serviceUUID, characteristicUUID, data) =>
+    BleManager.write(id, serviceUUID, characteristicUUID, data);
 
   handleUpdateState = ( { state } ) => {
     console.log(`bleWrapper.handleUpdateState: ${state}`);
@@ -117,7 +136,7 @@ export class BleWrapper {
   };
 
   handleDiscoverPeripheral = ( { id, name, rssi }) => {
-    //message discovered peripheral
+    // message discovered peripheral
     this.channel.put(bleDeviceFound.success({ id, name, rssi }));
   };
 
@@ -128,10 +147,10 @@ export class BleWrapper {
   };
 
   handleUpdateValueForCharacteristic = (data) => {
-    console.log('Received data from '
-      + data.peripheral
-      + ' characteristic '
-      + data.characteristic, data.value);
+    console.log(`Received data from ${
+       data.peripheral
+       } characteristic ${
+       data.characteristic}`, data.value);
     // TODO: message value
   };
 

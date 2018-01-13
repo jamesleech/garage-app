@@ -8,26 +8,22 @@ const StyledView = styled.View`
   flex: 1;
   margin-top: 6px;
   width: 100%;
-`; //#2980b9
+`; // #2980b9
 const ActivityIndicatorWrapper = styled.View`
   padding-left: 10px;
 `;
 
 class DeviceList extends Component {
-  keyExtractor = (device, index) => {
-    return device.id || device.uuid;
-  };
+  keyExtractor = (device) => device.id || device.uuid;
+
+  foundText = (length) => `Found ${length} ${length === 1 ? 'device' : 'devices'}`;
 
   render() {
     const { scanning, devices, onLinkDevice } = this.props;
     return (
       <StyledView>
         <RowView>
-          <RowText>Found {devices.length}
-            {devices.length === 1
-              ? ' device'
-              : ' devices'
-            }
+          <RowText>{this.foundText(devices.length)}
           </RowText>
           {scanning
             ?

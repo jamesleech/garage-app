@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import styled from "styled-components/native";
-import { SignInButton, SignInInput } from '../index';
+import { CommonInput, CommonButton } from '../index';
 
 const Wrapper = styled.View`
   padding: 20px;
@@ -11,7 +11,7 @@ class SignInForm extends Component {
     const { onSignIn } = this.props;
     return (
       <Wrapper>
-        <SignInInput
+        <CommonInput
           keyboardType='email-address'
           autoCapitalize='none'
           autoCorrect={false}
@@ -21,16 +21,16 @@ class SignInForm extends Component {
           onSubmitEditing={() => this.passwordInput.focus()}
           onChangeText={username => this.setState({username})}
         />
-        <SignInInput
+        <CommonInput
           secureTextEntry
           returnKeyType='go'
           placeholder='password'
           placeholderTextColor='rgba(255,255,255,0.5)'
-          innerRef={(input) => this.passwordInput = input}
+          innerRef={input => { this.passwordInput = input; }}
           onChangeText={password => this.setState({password})}
         />
-        <SignInButton
-          title='Login'
+        <CommonButton
+          label='Login'
           onPress={() => {
             onSignIn({ username: this.state.username, password: this.state.password });
           }} />

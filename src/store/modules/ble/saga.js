@@ -1,11 +1,11 @@
 import { channel } from 'redux-saga';
 import {
+  all,
   put,
   fork,
   call,
   take,
   select,
-  throttle,
   takeEvery,
   takeLatest,
 } from 'redux-saga/effects';
@@ -14,29 +14,24 @@ import {
   bleStart,
   bleScanStop,
   bleScanStart,
-  bleToggleDoor,
   bleUpdateState,
   bleDeviceConnect,
+  bleDeviceDisconnect,
   bleDeviceGetServices,
   bleDeviceConnectKnown,
-  bleDeviceDisconnect
+  bleWriteCharacteristic,
 } from './actions';
 import { BleWrapper } from './BleWrapper';
-import { createCommand } from './commands';
-import {NavigationActions} from 'react-navigation';
 import {linkDevice} from '../linkDevice';
-
-const GARAGE_SERVICE_UUIDS = "321CCACA-29A6-4D46-B2DB-9B5639948751";
-const GARAGE_DOOR_CHARACTERISTIC_UUID = "D7C7B570-EEDA-11E7-BD5D-FB4762172F1A";
 
 const getBleState = state => state.ble.on;
 const getKnownDevices = state => state.knownDevices.devices;
 
 // pipe ble channel messages
 // HACK? is there a better way?
-function* handleFromBleChannel(channel) {
+function* handleFromBleChannel(bleChannel) {
   while (true) {
-    const action = yield take(channel);
+    const action = yield take(bleChannel);
     yield put(action);
     // if(action.type !== 'jg/ble/DEVICE_FOUND_SUCCESS') {
     //   console.log(`handleFromBleChannel piping ${JSON.stringify(action)}`);
@@ -66,7 +61,7 @@ function* stopBluetoothSaga(bleWrapper) {
 }
 
 function* scanningSaga(bleWrapper) {
-  //wait for a start scan request
+  // wait for a start scan request
   while (yield take(bleScanStart.REQUEST)) {
     const on = yield select(getBleState); // check to see if bluetooth is actually on
 
@@ -91,9 +86,14 @@ function* scanningSaga(bleWrapper) {
 // device connect
 function* connectDeviceWorker(bleWrapper, action) {
   const { id } = action.payload;
-  yield console.log(`connectDeviceWorker ${JSON.stringify(id)}`);
+  yield call(console.log, `connectDeviceWorker: ${id}`);
   try {
-    yield call(bleWrapper.connect, id);
+    const bleOn = yield select(getBleState);
+    if(bleOn) {
+      yield call(bleWrapper.connect, id);
+    } else {
+      yield call(console.log,`connectDeviceWorker can NOT connect ${JSON.stringify(id)}, as bluetooth is not on.`);
+    }
   } catch (error) {
     yield call(console.error, `connectDeviceWorker exception: ${error}`);
     yield put(bleDeviceConnect.failure({ id, error }));
@@ -132,58 +132,64 @@ function* getDeviceServicesWorker(bleWrapper, action) {
 
 function* updateStateWorker(action) {
   const { payload } = action;
-  if(payload === 'on') { //TODO: remove magic string
+  if(payload === 'on') { // TODO: remove magic string
     yield put(bleDeviceConnectKnown.request());
   }
 }
 
-function* connectKnownDevicesWorker() {
-  yield call(console.log, 'connectKnownDevices: try to connect all known devices...');
-
-  const devices = yield select(getKnownDevices);
-
-  for (let device of devices.valueSeq()) {
-    // if(device.get('status') !== 'connected') { //TODO: remove magic string
-      yield put(bleDeviceConnect.request({id: device.get('id')}));
-    // }
-  }
-
-  yield put(bleDeviceConnectKnown.success());
-}
-
-function* linkDeviceNavigate(action) {
-  yield put(NavigationActions.navigate({
-    routeName: 'linkDevice',
-    params: {
-      deviceId: action.payload.id,
-    }
-  }))
-}
-
-function* toggleDoorWorker(bleWrapper, action) {
-  const { id } = action.payload;
-  yield call(console.log, `toggleDoorWorker: ${id}`);
-
+function* writeCharacteristic(bleWrapper, action) {
+  const { deviceId, serviceUuid, characteristicUuid, message } = action.payload;
   try {
-
-    //TODO: get a serial number
-    //TODO: manage rolling counter
-    //TODO: create a list of commands
-    const command = createCommand(4294967295,1024,0x0A);
-
     yield call(
       bleWrapper.write,
-      id,
-      GARAGE_SERVICE_UUIDS,
-      GARAGE_DOOR_CHARACTERISTIC_UUID,
-      command
+      deviceId,
+      serviceUuid,
+      characteristicUuid,
+      message
     );
-    yield put(bleToggleDoor.success({ id }));
+    yield put(bleWriteCharacteristic.success({ deviceId, serviceUuid, characteristicUuid }));
   } catch (error) {
-    yield call(console.error, `toggleDoorWorker exception: ${error}`);
-    yield put(bleToggleDoor.failure({ id, error }));
+    yield call(console.error, `writeCharacteristic exception: ${error}`);
+    yield put(bleWriteCharacteristic.failure({ deviceId, serviceUuid, characteristicUuid, error }));
     yield call(console.log, error);
   }
+}
+
+// function* getDeviceSignalStrengthWorker(bleWrapper, action) {
+//   try {
+//     const deviceId = action.payload.id;
+//     const rssi = yield call(bleWrapper.getSignalStrength, deviceId);
+//     yield call(console.log, `getDeviceSignalStrengthWorker: signal strength for ${deviceId} is ${rssi}`);
+//     yield put(bleDeviceSignalStrength.success( { id: deviceId, rssi }));
+//   } catch (error){
+//     yield call(console.error, `getDeviceSignalStrengthWorker exception: ${error}`);
+//   }
+// }
+//
+// function* updateDeviceSignalStrengthSaga() {
+//   while(true) {
+//     try {
+//       yield delay(1000);
+//       const state = yield select(getBleState);
+//       if(state) {
+//         const devices = yield select(getKnownDevices);
+//         const connectedDeviceIds = devices.filter(d => d.get('status') === 'connected').keys(); //TODO: remove magic string
+//         for (let id of connectedDeviceIds) {
+//           console.log(`updateDeviceSignalStrengthSaga: ${JSON.stringify(id)}`);
+//           yield put(bleDeviceSignalStrength.request({ id }));
+//         }
+//       }
+//     } catch (error){
+//       yield call(console.error, `updateDeviceSignalStrengthSaga exception: ${error}`);
+//     }
+//   }
+// }
+
+function* connectKnownDevicesWorker() {
+  yield call(console.log, 'connectKnownDevices: trying to connect all known devices...');
+  const devices = yield select(getKnownDevices);
+  yield all(devices.map(device => put(bleDeviceConnect.request({id: device.get('id')}))));
+  yield put(bleDeviceConnectKnown.success());
 }
 
 // ble saga
@@ -202,11 +208,13 @@ export function* saga() {
   yield takeEvery(bleDeviceDisconnect.REQUEST, disconnectDeviceWorker, bleWrapper);
 
   // connect known devices, every time bluetooth is turned on (at start up) and also every request to do so
-  yield takeLatest(bleDeviceConnectKnown.REQUEST, connectKnownDevicesWorker);
+  yield takeEvery(bleDeviceConnectKnown.REQUEST, connectKnownDevicesWorker);
+
+  // handle bluetooth state changes
   yield takeLatest(bleUpdateState.SUCCESS, updateStateWorker);
 
-  // only allow door toggle once per second
-  yield throttle(1000, bleToggleDoor.REQUEST, toggleDoorWorker, bleWrapper);
+  // device interactions
+  yield takeEvery(bleWriteCharacteristic.REQUEST, writeCharacteristic, bleWrapper);
 
   // fork saga's
   yield fork(scanningSaga, bleWrapper);
@@ -214,4 +222,8 @@ export function* saga() {
   // finally start bluetooth
   yield fork(stopBluetoothSaga, bleWrapper);
   yield fork(startBluetoothSaga, bleWrapper, fromBleChannel);
+
+  // keep signal strength updated
+  // yield takeEvery(bleDeviceSignalStrength.REQUEST, getDeviceSignalStrengthWorker, bleWrapper);
+  // yield fork(updateDeviceSignalStrengthSaga);
 }

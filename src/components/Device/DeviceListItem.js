@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components/native';
 import { View } from 'react-native';
 import {
-  RowView,
   RowText,
   DeviceSignalStrength
 } from '../index';
@@ -33,22 +32,10 @@ const DeviceListItem = ({ item, onLinkPress }) => {
         <ItemView>
           <RowText>{item.name || item.id}</RowText>
         </ItemView>
-        <DeviceSignalStrength strength = {item.rssi}/>
+        <DeviceSignalStrength strength={item.rssi}/>
       </View>
     </StyledTouchableOpacity>
   );
-
-{/*  <Wrapper>
-    <ItemGroup>
-      <ItemView>
-        <RowText>{item.name || item.id}</RowText>
-      </ItemView>
-      <DeviceSignalStrength strength = {item.rssi}/>
-    </ItemGroup>
-    <LinkTouchable onPress={pressed}>
-      <LinkText>Link</LinkText>
-    </LinkTouchable>
-  </Wrapper>*/}
 };
 
 export { DeviceListItem };

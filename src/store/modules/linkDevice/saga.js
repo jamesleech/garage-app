@@ -1,32 +1,43 @@
-import { linkDevice, getDeviceKey } from './index';
-import { saveDevice } from '../knownDevices';
+import { NavigationActions } from 'react-navigation';
 import { takeLatest, call, put } from 'redux-saga/effects';
-import {bleScanStop} from '../ble';
+import { linkDevice, startLinkDevice } from './index';
+import { saveDevice } from '../knownDevices';
+import { bleScanStop } from '../ble';
 
 function* linkDeviceWorker(action) {
   yield put(bleScanStop.request());
 
   const { device } = action.payload;
-  yield call(console.log,`linkDeviceWorker ${device.id} - ${device.name}`);
+  yield call(console.log,`linkDeviceWorker ${JSON.stringify(device)}`);
 
   device.status = 'notConnected';
   // TODO: navigate to screen to get secret key from user
-  device.key = '0123456789abcdef';
-  yield put(saveDevice.request({ device }));
 
-  yield put(linkDevice.success(device));
+  yield put(NavigationActions.navigate({
+    routeName: 'LinkDevice',
+    params: {
+      device,
+    }
+  }))
 }
 
-function* gotDeviceKeyWorker(action) {
-  const { device } = action.payload;
-  yield call(console.log,`linkDeviceWorker ${device.id} - ${device.name}`);
+function* requestSaveDeviceWorker(action) {
+  const device = action.payload;
+  yield call(console.log,`requestSaveDeviceWorker ${device.id} - ${device.name}`);
 
-  // add to persistent store
-  const saveResult = yield call(saveDevice.call(device));
-  yield call(console.log(`saveResult: ${JSON.stringify(saveResult)}`));
+  try {
+    // add to persistent store
+    const saveResult = yield call(saveDevice.call, device);
+    yield call(console.log, `requestSaveDeviceWorker - saveResult: ${JSON.stringify(saveResult)}`);
+    yield put(linkDevice.success(device));
+    yield put(NavigationActions.back());
+  } catch (error) {
+    yield call(console.log, `requestSaveDeviceWorker error: ${error}`);
+    yield put(linkDevice.failure(device));
+  }
 }
 
 export function* saga() {
-  yield takeLatest(linkDevice.REQUEST, linkDeviceWorker);
-  yield takeLatest(getDeviceKey.SUCCESS, gotDeviceKeyWorker);
+  yield takeLatest(startLinkDevice.REQUEST, linkDeviceWorker);
+  yield takeLatest(linkDevice.REQUEST, requestSaveDeviceWorker);
 }

@@ -1,35 +1,33 @@
+import { Map } from 'immutable';
 import {
   bleScanStart,
   bleScanStop,
   bleUpdateState,
   bleDeviceFound,
-  bleDeviceConnect,
-  bleDeviceDisconnect,
 } from './actions';
-import { List, Map } from 'immutable';
 
 const initialState = {
   on: false,
   scanning: false,
   devices: Map(
-   /* [
-      [
-      '4123-13123-33145-4536',
-      {
-        id: '4123-13123-33145-4536',
-        name: 'Garage Opener 4',
-        rssi: -31,
-      }
-      ],
-      [
-        '5555-13123-33145-4536',
-        {
-          id: '5555-13123-33145-4536',
-          name: 'James MacBook Pro',
-          rssi: -50,
-        }
-      ],
-  ]*/
+  //   [
+  //     [
+  //       '4123-13123-33145-4536',
+  //       {
+  //         id: '4123-13123-33145-4536',
+  //         name: 'Garage Opener 4',
+  //         rssi: -31,
+  //       }
+  //     ],
+  //     [
+  //       '5555-13123-33145-4536',
+  //       {
+  //         id: '5555-13123-33145-4536',
+  //         name: 'James MacBook Pro',
+  //         rssi: -50,
+  //       }
+  //     ],
+  // ]
   ),
 };
 
@@ -61,12 +59,13 @@ export const reducer = (state = initialState, action) => {
         ...state,
         scanning: true,
       };
-    case bleDeviceFound.SUCCESS:
+    case bleDeviceFound.SUCCESS: {
       const device = action.payload;
       return {
         ...state,
         devices: state.devices.set(device.id, device),
       };
+    }
     default:
       return state
   }

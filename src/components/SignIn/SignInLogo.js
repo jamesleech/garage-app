@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React  from "react";
 import styled from "styled-components/native";
 
 const logo = require('../../resources/images/logo.png');
@@ -20,13 +20,11 @@ const LogoText = styled.Text`
   opacity: 0.8;
 `;
 
-const SignInLogo = () => {
-  return (
+const SignInLogo = () => (
     <Wrapper>
       <Logo source={logo}/>
       <LogoText>Garage Opener</LogoText>
     </Wrapper>
   );
-};
 
 export { SignInLogo };

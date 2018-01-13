@@ -1,6 +1,6 @@
-import styled from 'styled-components/native';
+import styled from 'styled-components/native/index';
 
-const SignInInput = styled.TextInput`
+const CommonInput = styled.TextInput`
   height: 40px;
   background-color: rgba(255,255,255,0.15);
   margin-bottom: 10px;
@@ -9,4 +9,4 @@ const SignInInput = styled.TextInput`
   color: white;
 `;
 
-export { SignInInput };
+export { CommonInput };

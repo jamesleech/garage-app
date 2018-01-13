@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { NavigationActions } from 'react-navigation';
-import { SignInView, SignInLogo } from '../../components';
-import { SignInForm } from '../../components';
+import { SignInView, SignInLogo, SignInForm } from '../../components';
 import { signIn } from '../../store/modules/signIn';
 
 class SignInScreen extends Component {
@@ -28,11 +26,10 @@ function mapStateToProps(state) {
   }
 }
 
-SignInScreen = connect(
-  mapStateToProps,
+const screen = connect(mapStateToProps,
   {
     doSignIn: signIn
   }
 )(SignInScreen);
 
-export { SignInScreen };
+export { screen as SignInScreen };

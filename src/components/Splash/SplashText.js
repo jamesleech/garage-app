@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import styled from "styled-components/native";
 
 
@@ -14,13 +14,11 @@ const FormattedText = styled.Text`
   font-weight: bold;
 `;
 
-const SplashText = ({ children }) => {
-  return (
+const SplashText = ({ children }) => (
     <Wrapper>
       <FormattedText>{children}</FormattedText>
     </Wrapper>
-  )
-};
+  );
 
 
 export { SplashText };

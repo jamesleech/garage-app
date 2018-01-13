@@ -13,12 +13,10 @@ const SignInLoginText = styled.Text`
   font-weight: 700;
 `;
 
-const SignInButton = ({ onPress }) => {
-  return (
+const SignInButton = ({ onPress }) => (
     <SignInTouchable onPress={onPress}>
       <SignInLoginText>Login</SignInLoginText>
     </SignInTouchable>
   );
-};
 
 export { SignInButton };

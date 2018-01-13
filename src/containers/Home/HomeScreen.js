@@ -8,15 +8,6 @@ let HomeScreenNavigator = {};
 
 class HomeScreen extends React.Component {
 
-  constructor() {
-    super();
-    HomeScreenNavigator = TabNavigator({
-      Open: { screen: KnownDevicesScreen },
-      Link: { screen: ScanDevicesScreen },
-    });
-    HomeScreenNavigator.router = HomeScreen.router;
-  }
-
   static navigationOptions = ({navigation}) => {
     const {params = {}} = navigation.state;
     return {
@@ -25,7 +16,20 @@ class HomeScreen extends React.Component {
     };
   };
 
+  constructor() {
+    super();
+    HomeScreenNavigator = TabNavigator({
+      Open: { screen: KnownDevicesScreen },
+      Link: { screen: ScanDevicesScreen },
+    });
+    // this TabNavigator needs it's router set to its parent's router to be a sub element.
+    // the TabNavigator needs to be a sub element so the StatusBar can be changed to dark-content
+    HomeScreenNavigator.router = HomeScreen.router;
+  }
+
   componentDidMount() {
+    // grab the username from the store
+    // give it to the navigator so that it can be used in navigationOptions above
     this.props.navigation.setParams({
       username: this.props.username
     });
@@ -47,8 +51,6 @@ function mapStateToProps(state) {
   }
 }
 
-HomeScreen = connect(
-  mapStateToProps
-)(HomeScreen);
+const screen = connect(mapStateToProps)(HomeScreen);
 
-export { HomeScreen }
+export { screen as HomeScreen }

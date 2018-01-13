@@ -1,7 +1,6 @@
-import { fork, all, call, put, take } from 'redux-saga/effects';
+import { fork, all, call } from 'redux-saga/effects';
 import { splashSaga, restore } from './splash';
 import { signInSaga } from './signIn';
-import { homeSaga} from './home';
 import { bleSaga } from './ble';
 import { linkDeviceSaga } from './linkDevice';
 import { knownDevicesSaga } from './knownDevices';
@@ -11,17 +10,23 @@ function* restoreSaga() {
 }
 
 export function* rootSaga () {
-  yield all([
-    fork(splashSaga),
-    fork(signInSaga),
-    fork(knownDevicesSaga),
-  ]);
 
-  yield call(restoreSaga);
+  try {
+    yield all([
+      fork(splashSaga),
+      fork(signInSaga),
+      fork(knownDevicesSaga),
+    ]);
 
-  yield all([
-    fork(bleSaga),
-    fork(homeSaga),
-    fork(linkDeviceSaga),
-  ]);
+    yield all([
+      fork(bleSaga),
+      fork(linkDeviceSaga),
+    ]);
+
+    yield call(restoreSaga);
+
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 }

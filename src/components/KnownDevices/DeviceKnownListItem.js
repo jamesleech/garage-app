@@ -3,11 +3,9 @@ import styled from 'styled-components/native';
 import { View } from 'react-native';
 import Swipeout from 'react-native-swipeout';
 import {
-  RowView,
   RowText,
   DeviceStatus
 } from '../index';
-import {DeviceSignalStrength} from './DeviceSignalStrength';
 
 const StyledTouchableOpacity = styled.TouchableOpacity`
   display: flex;
@@ -24,20 +22,9 @@ const ItemView = styled.View`
   margin: 4px 4px;
 `;
 
-const ItemDivider = styled.View`
-  background-color: #2980b9;
-  height: 1px;
-  width: 95%;
-  align-self: center;
-`;
+const handlePress = (onPress, item) => () => onPress(item);
 
-const handlePress = (onPress, item) => {
-  return () => onPress(item);
-};
-
-const handleRemove = (onRemove, item) => {
-  return () => onRemove(item);
-};
+const handleRemove = (onRemove, item) => () => onRemove(item);
 
 const DeviceKnownListItem = ({item, onPress, onRemove}) => {
   const disabled = item.status!=='connected';
@@ -46,16 +33,15 @@ const DeviceKnownListItem = ({item, onPress, onRemove}) => {
     type: 'delete',
     onPress: handleRemove(onRemove, item),
   };
-//autoClose={true}
+
   return (
-    <Swipeout backgroundColor= 'transparent' right={[removeBtn]}>
+    <Swipeout backgroundColor='transparent' right={[removeBtn]} autoClose>
       <StyledTouchableOpacity onPress={handlePress(onPress, item)} disabled={disabled}>
         <View>
           <ItemView>
-            <RowText>{item.name}</RowText>
+            <RowText>{item.alias || item.name}</RowText>
           </ItemView>
           <DeviceStatus status={item.status}/>
-          <DeviceSignalStrength strength = {item.rssi}/>
         </View>
       </StyledTouchableOpacity>
     </Swipeout>

@@ -3,19 +3,21 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "lint": "./node_modules/.bin/eslint src",
+    "lint-fix": "./node_modules/.bin/eslint src --fix",
     "start": "node node_modules/react-native/local-cli/cli.js start",
+    "device": "react-native run-ios --device 1853b10f1edaf9d87e58e8e0514c6fe4823f24ca",
     "test": "jest"
   },
   "dependencies": {
     "events": "^1.1.1",
     "immutable": "^3.8.2",
-    "install": "^0.10.2",
-    "jssha": "^2.3.1",
-    "npm": "^5.6.0",
+    "node-forge": "^0.7.1",
     "react": "16.0.0",
     "react-native": "0.51.0",
     "react-native-ble-manager": "^6.2.4",
     "react-native-swipeout": "^2.3.3",
+    "react-native-vector-icons": "^4.4.3",
     "react-navigation": "^1.0.0-beta.22",
     "react-redux": "^5.0.6",
     "redux": "^3.7.2",
@@ -23,9 +25,20 @@
     "styled-components": "^2.4.0"
   },
   "devDependencies": {
+    "babel-eslint": "^8.2.1",
     "babel-jest": "22.0.4",
     "babel-preset-react-native": "4.0.0",
+    "eslint": "^4.15.0",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-prettier": "^2.4.0",
+    "eslint-plugin-react": "^7.5.1",
+    "eslint-plugin-react-native": "^3.2.1",
     "jest": "22.0.4",
+    "prettier": "^1.10.2",
+    "prettier-eslint": "^8.7.4",
     "react-test-renderer": "16.0.0"
   },
   "jest": {

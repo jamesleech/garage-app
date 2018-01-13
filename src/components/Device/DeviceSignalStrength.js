@@ -4,13 +4,11 @@ import {
   RowText,
 } from '../index';
 
-const DeviceSignalStrength = ({ strength }) => {
-  return (
+const DeviceSignalStrength = ({ strength }) => (
     <RowView>
       <RowText>Signal Strength:</RowText>
-      <RowText>{ strength ? strength : 'na' }</RowText>
+      <RowText>{ strength || 'na' }</RowText>
     </RowView>
   );
-};
 
 export { DeviceSignalStrength };

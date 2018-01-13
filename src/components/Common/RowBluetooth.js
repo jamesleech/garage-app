@@ -2,8 +2,7 @@ import React from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { RowView, RowRightItem, RowText } from './index';
 
-const RowBluetooth = ( { on }) => {
-  return (
+const RowBluetooth = ( { on }) => (
     <View>
       {!on
         ?
@@ -17,7 +16,6 @@ const RowBluetooth = ( { on }) => {
       }
     </View>
   );
-};
 
 
 export { RowBluetooth };

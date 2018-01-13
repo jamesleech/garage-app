@@ -1,25 +1,9 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
-import { signIn } from '../signIn';
+import { NavigationActions } from 'react-navigation'
+import { loadUser, signIn } from '../signIn';
 import { loadDevices } from '../knownDevices';
 import { restore } from './actions';
-import { loadUser } from '../signIn';
-import { NavigationActions } from 'react-navigation'
-import {AsyncStorage} from "react-native";
-
-// //Don't allow back button
-// const ResetNavigation = (navigation, targetRoute, params) => {
-//   const resetAction = NavigationActions.reset({
-//     index: 0,
-//     actions: [
-//       NavigationActions.navigate({
-//         routeName: targetRoute,
-//         params: params
-//       }),
-//     ],
-//   });
-//
-//   navigation.dispatch(resetAction);
-// };
+// import {AsyncStorage} from "react-native";
 
 function* restoreWorker() {
   try {
