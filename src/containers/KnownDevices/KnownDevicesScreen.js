@@ -62,12 +62,11 @@ function mapStateToProps(state) {
   }
 }
 
-KnownDevicesScreen = connect(
-  mapStateToProps,
+const screen = connect(mapStateToProps,
   {
     toggleDoor,
     removeDevice
   }
 )(KnownDevicesScreen);
 
-export { KnownDevicesScreen };
+export { screen as KnownDevicesScreen };

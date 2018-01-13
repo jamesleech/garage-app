@@ -59,8 +59,7 @@ function mapStateToProps(state) {
   };
 }
 
-ScanDevicesScreen = connect(
-  mapStateToProps,
+const screen = connect(mapStateToProps,
   {
     startScan: bleScanStart,
     stopScan: bleScanStop,
@@ -68,4 +67,4 @@ ScanDevicesScreen = connect(
   }
 )(ScanDevicesScreen);
 
-export { ScanDevicesScreen };
+export { screen as ScanDevicesScreen };

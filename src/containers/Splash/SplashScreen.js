@@ -23,8 +23,6 @@ function mapStateToProps(state) {
   }
 }
 
-SplashScreen = connect(
-  mapStateToProps
-)(SplashScreen);
+const screen = connect(mapStateToProps)(SplashScreen);
 
-export { SplashScreen }
+export { screen as SplashScreen }

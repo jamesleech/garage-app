@@ -68,15 +68,10 @@ class LinkDeviceScreen extends React.Component {
   }
 }
 
-function mapStateToProps(state) {
-  return {};
-}
-
-LinkDeviceScreen = connect(
-  mapStateToProps,
+const screen = connect(null,
   {
     doLink: linkDevice
   }
 )(LinkDeviceScreen);
 
-export { LinkDeviceScreen };
+export { screen as LinkDeviceScreen };

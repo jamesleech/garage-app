@@ -14,11 +14,9 @@ const ActivityIndicatorWrapper = styled.View`
 `;
 
 class DeviceList extends Component {
-  keyExtractor = (device, index) => device.id || device.uuid;
+  keyExtractor = (device) => device.id || device.uuid;
 
-  foundText(length) {
-    return `Found ${length} ${length === 1 ? 'device' : 'devices'}`;
-  }
+  foundText = (length) => `Found ${length} ${length === 1 ? 'device' : 'devices'}`;
 
   render() {
     const { scanning, devices, onLinkDevice } = this.props;

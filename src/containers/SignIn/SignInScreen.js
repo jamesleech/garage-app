@@ -26,11 +26,10 @@ function mapStateToProps(state) {
   }
 }
 
-SignInScreen = connect(
-  mapStateToProps,
+const screen = connect(mapStateToProps,
   {
     doSignIn: signIn
   }
 )(SignInScreen);
 
-export { SignInScreen };
+export { screen as SignInScreen };
