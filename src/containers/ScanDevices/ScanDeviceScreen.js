@@ -10,16 +10,12 @@ import {
   DeviceScanButton,
   DeviceList,
   TabContainer,
-  RowView,
-  RowText,
-  RowRightItem,
   RowBluetooth,
-  DeviceStatus,
 } from '../../components';
 
 class ScanDevicesScreen extends React.Component {
 
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = () => ({
       tabBarLabel: 'Scan',
       tabBarIcon: ({ tintColor, focused }) => (
         <Ionicons

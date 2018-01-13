@@ -10,7 +10,7 @@ class SplashScreen extends Component {
   render() {
     return (
       <SplashView>
-        <SplashText>James' Garage</SplashText>
+        <SplashText>James&apos; Garage</SplashText>
         <SplashSubText>Version 0.1</SplashSubText>
       </SplashView>
     )
