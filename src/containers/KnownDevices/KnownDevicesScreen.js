@@ -22,8 +22,8 @@ class KnownDevicesScreen extends React.Component {
     });
 
   onPressDevice = (device) => {
-    const { toggleDoor } = this.props;
-    toggleDoor({ id: device.id });
+    const { onToggleDoor } = this.props;
+    onToggleDoor({ id: device.id });
   };
 
   onRemoveDevice = (device) => {
@@ -35,8 +35,8 @@ class KnownDevicesScreen extends React.Component {
         {
           text: 'OK',
           onPress: () => {
-            const { removeDevice } = this.props;
-            removeDevice(device);
+            const { onRemoveDevice } = this.props;
+            onRemoveDevice(device);
           }
         }
       ]);
@@ -64,8 +64,8 @@ function mapStateToProps(state) {
 
 const screen = connect(mapStateToProps,
   {
-    toggleDoor,
-    removeDevice
+    onToggleDoor: toggleDoor,
+    onRemoveDevice: removeDevice
   }
 )(KnownDevicesScreen);
 

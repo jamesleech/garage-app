@@ -25,7 +25,11 @@
     "no-console": "off",
     "import/prefer-default-export": "off",
     "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
-    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }]
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+    "singleQuote": true,
+    "trailingComma": "es5",
+    "bracketSpacing": true,
+    "jsxBracketSameLine": true
   },
   "env": {
     "es6": true,

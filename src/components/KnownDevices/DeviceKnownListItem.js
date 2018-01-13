@@ -3,11 +3,9 @@ import styled from 'styled-components/native';
 import { View } from 'react-native';
 import Swipeout from 'react-native-swipeout';
 import {
-  RowView,
   RowText,
   DeviceStatus
 } from '../index';
-import {DeviceSignalStrength} from '../Device/DeviceSignalStrength';
 
 const StyledTouchableOpacity = styled.TouchableOpacity`
   display: flex;
@@ -22,13 +20,6 @@ const ItemView = styled.View`
   flex-direction: row;
   align-items: center;
   margin: 4px 4px;
-`;
-
-const ItemDivider = styled.View`
-  background-color: #2980b9;
-  height: 1px;
-  width: 95%;
-  align-self: center;
 `;
 
 const handlePress = (onPress, item) => () => onPress(item);

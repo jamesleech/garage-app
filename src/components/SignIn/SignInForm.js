@@ -26,7 +26,7 @@ class SignInForm extends Component {
           returnKeyType='go'
           placeholder='password'
           placeholderTextColor='rgba(255,255,255,0.5)'
-          innerRef={(input) => this.passwordInput = input}
+          innerRef={input => { this.passwordInput = input; }}
           onChangeText={password => this.setState({password})}
         />
         <CommonButton

@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { StatusBar, Text } from 'react-native';
+import { StatusBar } from 'react-native';
 import styled from 'styled-components/native/index';
 import { CommonInput, CommonButton } from '../../components';
 import { linkDevice } from '../../store/modules/linkDevice';
@@ -28,8 +28,8 @@ class LinkDeviceScreen extends React.Component {
   };
 
   doLinkDevice = () => {
-    const {params = {}} = this.props.navigation.state;
-    const device = params.device;
+    const { params = {} } = this.props.navigation.state;
+    const { device } = params;
     const { doLink } = this.props;
 
     device.alias = this.state.alias;
@@ -57,7 +57,7 @@ class LinkDeviceScreen extends React.Component {
           returnKeyType='go'
           placeholder='device key'
           placeholderTextColor='rgba(255,255,255,0.5)'
-          innerRef={(input) => this.deviceKey = input}
+          innerRef={input => { this.deviceKey = input; }}
           onChangeText={deviceKey => this.setState({deviceKey})}
         />
         <CommonButton
