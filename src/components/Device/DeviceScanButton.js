@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import { View, ActivityIndicator } from "react-native";
 
 const DeviceScanTouchable = styled.TouchableOpacity`
   width: 98%;
@@ -24,6 +23,7 @@ const DeviceScanText = styled.Text`
 
 const DeviceScanButton = ({ scanning, startScanning, stopScanning }) => {
   let text = '';
+  let onPress;
   if (scanning) {
     text = 'Stop';
     onPress = stopScanning;
@@ -33,7 +33,7 @@ const DeviceScanButton = ({ scanning, startScanning, stopScanning }) => {
   }
 
   return (
-    <DeviceScanTouchable onPress={ scanning ? stopScanning : startScanning }>
+    <DeviceScanTouchable onPress={onPress}>
       <DeviceScanText>{text}</DeviceScanText>
     </DeviceScanTouchable>
   );
