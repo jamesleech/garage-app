@@ -1,21 +1,51 @@
+// @flow
+import { Action } from '../../Action';
 import {
-  signIn,
-  signOut,
+  loadUser, signIn, signOut,
+  LoadUserPayload, SignInPayload,
 } from './actions';
 
-const initialState = {
-  loading: false,
-  signedIn: false,
-  signInError: null,
+type SignInError = {
+  message: string;
 };
 
-export const reducer = (state = initialState, action) => {
+type State = {
+  +loading: boolean;
+  +signedIn: boolean;
+  +signInError?: SignInError;
+  +username?: string;
+  +session?: string;
+}
+
+const initialState: State = {
+  loading: false,
+  signedIn: false,
+};
+
+export type Actions = Action<LoadUserPayload | SignInPayload>;
+
+export const reducer = (state: State = initialState, action: Actions): State => {
   switch (action.type) {
+    case loadUser.REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+    case loadUser.SUCCESS:
+      return {
+        ...state,
+        loading: false,
+      };
+    case loadUser.FAILURE:
+      return {
+        ...state,
+        loading: false,
+      };
     case signIn.REQUEST:
       return {
         ...state,
         loading: true,
-        signInError: null,
+        signInError: undefined,
         username: action.payload.username,
       };
     case signIn.SUCCESS:
@@ -23,16 +53,13 @@ export const reducer = (state = initialState, action) => {
         ...state,
         loading: false,
         signedIn: true,
-        signInError: null,
-        username: action.payload.username,
+        signInError: undefined,
       };
     case signIn.FAILURE:
       return {
         ...state,
         loading: false,
-        user: null,
         signedIn: false,
-        username: null,
         signInError: {
           message: action.payload.errorMessage,
         },
@@ -40,17 +67,16 @@ export const reducer = (state = initialState, action) => {
     case signOut.SUCCESS:
       return {
         ...state,
-        login: true,
         loading: false,
-        user: null,
-        session: null,
+        username: undefined,
+        session: undefined,
       };
     case signOut.FAILURE:
       return {
         ...state,
         loading: false,
-        user: null,
-        session: null,
+        username: undefined,
+        session: undefined,
       };
     default:
       return state

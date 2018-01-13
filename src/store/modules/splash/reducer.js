@@ -1,10 +1,20 @@
-import { restore } from './actions';
+// @flow
+import { restore, RestorePayload } from './actions';
+import { Action } from '../../Action';
 
-const initialState = {
+interface State {
+  +loading: boolean;
+  +username: string;
+}
+
+const initialState: State = {
   loading: true,
+  username: "",
 };
 
-export const reducer = (state = initialState, action) => {
+export type Actions = Action<RestorePayload>;
+
+export const reducer = (state: State = initialState, action: Actions): State => {
   switch (action.type) {
     case restore.REQUEST:
       return {
@@ -21,7 +31,7 @@ export const reducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        username: null
+        username: ""
       };
     default:
       return state;

@@ -1,5 +1,11 @@
-import { createAction } from '../../createAction';
+// @flow
+import { ActionCreator } from '../../ActionCreator';
+import { User } from '../';
 
 const ActionPrefix = 'jg/splash/';
 
-export const restore = createAction(`${ActionPrefix}RESTORE`);
+export interface RestorePayload {
+  user: User;
+}
+
+export const restore: ActionCreator<RestorePayload> = new ActionCreator(ActionPrefix, 'RESTORE');

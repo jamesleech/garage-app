@@ -1,20 +1,22 @@
-import {NavigationActions} from 'react-navigation';
-import {AsyncStorage} from "react-native";
-import { takeLatest, put, call } from 'redux-saga/effects';
+// @flow
+import { NavigationActions } from 'react-navigation';
+import { AsyncStorage } from "react-native";
+import { takeLatest, takeEvery, put, call } from 'redux-saga/effects';
+import { Action } from '../../Action';
 import {
-  loadUser,
-  signIn,
-  signOut,
+  loadUser, signIn, signOut, bcryptPassword,
+  SignInPayload
 } from './actions';
 
-function* signInWorker(action) {
+function* signInWorker(action: Action<SignInPayload>): Generator<*,*,*> {
   try {
     yield call(console.log, `signInWorker: ${JSON.stringify(action)}`);
 
-    const user = action.payload;
+    const { user } = action.payload;
 
+    // TODO: check password
     if(user.username) {
-      yield put(signIn.success(user));
+      yield put(signIn.success(action.payload));
     } else {
       yield put(signIn.failure({
         errorMessage: 'wrong username and/or password'
@@ -22,46 +24,47 @@ function* signInWorker(action) {
     }
   } catch (error) {
     yield call(console.error, `signInWorker exception: ${error}`);
-    yield put(signIn.failure(error));
+    yield put(signIn.failure({ error }));
   }
 }
 
-function* signOutWorker() {
+function* signOutWorker(): Generator<*,*,*> {
   try {
     yield call(AsyncStorage.removeItem, 'user');
     yield put(signOut.success());
   } catch (error) {
     yield call(console.error, `signOutWorker exception: ${error}`);
-    yield put(signOut.failure(error));
+    yield put(signOut.failure({ error }));
   }
 }
 
 // Don't allow back button
-const ResetNavigation = (targetRoute, params) => NavigationActions.reset({
-    index: 0,
-    actions: [
-      NavigationActions.navigate({
-        routeName: targetRoute,
-        params
-      }),
-    ],
-  });
+const ResetNavigation = (targetRoute: string, params) => NavigationActions.reset({
+  index: 0,
+  actions: [
+    NavigationActions.navigate({
+      routeName: targetRoute,
+      params
+    }),
+  ],
+});
 
-function* signedInNavigate(action) {
-  yield put(ResetNavigation('Home', { username: action.payload.username }));
+function* signedInNavigate(action: Action<SignInPayload>): Generator<*,*,*> {
+  const { user } = action.payload;
+  yield put(ResetNavigation('Home', { username: user.username }));
 }
 
-function* loadUserWorker() {
+function* loadUserWorker(): Generator<*,*,*> {
   try {
-    console.log(`loadUserWorker: start`);
+    yield call(console.log, `loadUserWorker: start`);
     const item = yield call(AsyncStorage.getItem, 'user');
-    console.log(`loadUserWorker: gotItem ${item}`);
+    yield call(console.log, `loadUserWorker: gotItem ${item}`);
     const user = JSON.parse(item);
 
     if(user && user.username) {
       user.loaded = true;
       console.log(`loadUserWorker: ${user.username}`);
-      yield put(loadUser.success(user));
+      yield put(loadUser.success({ user }));
     } else {
       yield put(loadUser.failure({
         errorMessage: 'failed to load previous user details'
@@ -75,15 +78,25 @@ function* loadUserWorker() {
   }
 }
 
-function* saveUserWorker(action) {
-  const user = action.payload;
+function* saveUserWorker(action: Action<SignInPayload>): Generator<*,*,*> {
+  const { user } = action.payload;
   if(!user.loaded) {
     yield call(console.log, `saveUserWorker: saving ${JSON.stringify(user)}`);
-    yield call(AsyncStorage.setItem, 'user', JSON.stringify(user));
+    const result = yield call(bcryptPassword.call, user.password);
+    if(result.type === bcryptPassword.SUCCESS) {
+      user.password = result.payload.password;
+      yield call(AsyncStorage.setItem, 'user', JSON.stringify(user));
+    }
   }
 }
 
-export function* saga() {
+function* bcryptPasswordWorker(action): Generator<*,*,*> {
+  // TODO: bcrypt password, for now just return the password
+  yield put(bcryptPassword.success(action.payload));
+}
+
+export function* saga(): Generator<*,*,*> {
+  yield takeEvery(bcryptPassword.REQUEST, bcryptPasswordWorker);
   yield takeLatest(loadUser.REQUEST, loadUserWorker);
 
   yield takeLatest(signIn.REQUEST, signInWorker);

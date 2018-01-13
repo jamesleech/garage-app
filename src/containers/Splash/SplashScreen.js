@@ -17,12 +17,5 @@ class SplashScreen extends Component {
   }
 }
 
-function mapStateToProps(state) {
-  return {
-    splash: state.splash
-  }
-}
-
-const screen = connect(mapStateToProps)(SplashScreen);
-
-export { screen as SplashScreen }
+// const screen = connect()(SplashScreen);
+export { SplashScreen }

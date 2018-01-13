@@ -1,11 +1,11 @@
+// @flow
 import { call, put, takeLatest } from 'redux-saga/effects';
-import { NavigationActions } from 'react-navigation'
-import { loadUser, signIn } from '../signIn';
-import { loadDevices } from '../knownDevices';
-import { restore } from './actions';
-// import {AsyncStorage} from "react-native";
+import { NavigationActions } from 'react-navigation';
+import { loadUser, signIn, loadDevices } from '../';
+import { restore, RestorePayload } from './actions';
+import { Action } from '../../Action';
 
-function* restoreWorker() {
+function* restoreWorker(): Generator<*,*,*> {
   try {
     // yield delay(500);
     // yield call(AsyncStorage.clear);
@@ -18,11 +18,10 @@ function* restoreWorker() {
       const user = userResult.payload;
       // no web login, currently only bluetooth enabled
       if(user.username) {
-        yield put(restore.success(user));
-
         yield call(console.log, 'restoreWorker.loadDevices');
         const result = yield call(loadDevices.call);
         yield call(console.log, `restoreWorker: load devices results: ${JSON.stringify(result)}`);
+        yield put(restore.success(user));
       } else {
         yield put(restore.failure({
           errorMessage: 'failed to load previous details'
@@ -41,17 +40,17 @@ function* restoreWorker() {
   }
 }
 
-function* signInNavigate() {
+function* signInNavigate(): Generator<*,*,*> {
   yield put(NavigationActions.navigate({ routeName: 'SignIn' }));
 }
 
-function* signedInNavigate(action) {
-  const user = action.payload;
+function* signedInNavigate(action: Action<RestorePayload>): Generator<*,*,*> {
+  const { user } = action.payload;
   yield call(console.log, 'signedInNavigate');
-  yield put(signIn.success(user));
+  yield put(signIn.success({ user }));
 }
 
-export function* saga() {
+export function* saga(): Generator<*,*,*> {
   yield takeLatest(restore.REQUEST, restoreWorker);
   yield takeLatest(restore.FAILURE, signInNavigate);
   yield takeLatest(restore.SUCCESS, signedInNavigate);

@@ -1,7 +1,29 @@
-import { createAction } from '../../createAction';
+// @flow
+import { ActionCreator } from '../../ActionCreator';
 
 const ActionPrefix = 'jg/signIn/';
 
-export const signIn = createAction(`${ActionPrefix}SIGN_IN`);
-export const signOut = createAction(`${ActionPrefix}SIGN_OUT`);
-export const loadUser = createAction(`${ActionPrefix}LOAD_USER`);
+export type User = {
+  username: string;
+  password: string;
+  loaded?: boolean;
+}
+
+export type SignInPayload = {
+  user: User;
+  errorMessage?: string;
+}
+export type SignOutPayload = {
+  error: any;
+}
+
+export interface LoadUserPayload extends SignInPayload {
+}
+export interface BCryptPasswordPayload {
+  password: string;
+}
+
+export const signIn: ActionCreator<SignInPayload> = new ActionCreator(ActionPrefix, 'SIGN_IN');
+export const signOut: ActionCreator<SignOutPayload> = new ActionCreator(ActionPrefix, 'SIGN_OUT');
+export const bcryptPassword: ActionCreator<BCryptPasswordPayload> = new ActionCreator(ActionPrefix, 'BCRYPT_PASSWORD');
+export const loadUser: ActionCreator<LoadUserPayload> = new ActionCreator(ActionPrefix, 'LOAD_USER');

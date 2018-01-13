@@ -34,5 +34,8 @@
   "env": {
     "es6": true,
     "react-native/react-native": true
+  },
+  "globals": {
+    "Generator": true
   }
 }

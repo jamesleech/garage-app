@@ -1,12 +1,35 @@
+// @flow
 import React, { Component } from "react";
 import styled from "styled-components/native";
 import { CommonInput, CommonButton } from '../index';
+import { ActionFunc } from '../../store/Action';
+import type { SignInPayload } from '../../store/modules/signIn/actions';
 
 const Wrapper = styled.View`
   padding: 20px;
 `;
 
-class SignInForm extends Component {
+type Props = {
+  onSignIn: ActionFunc<SignInPayload>
+};
+
+type State = {
+  username: string,
+  password: string,
+};
+
+class SignInForm extends Component<Props, State> {
+
+  passwordInput: ?CommonInput;
+
+  handleSignIn = (onSignIn: ActionFunc<SignInPayload>) => {
+    onSignIn({
+      user: {
+        username: this.state.username, password: this.state.password
+      }
+    });
+  };
+
   render() {
     const { onSignIn } = this.props;
     return (
@@ -18,7 +41,7 @@ class SignInForm extends Component {
           returnKeyType='next'
           placeholder='username'
           placeholderTextColor='rgba(255,255,255,0.5)'
-          onSubmitEditing={() => this.passwordInput.focus()}
+          onSubmitEditing={() => this.passwordInput && this.passwordInput.focus()}
           onChangeText={username => this.setState({username})}
         />
         <CommonInput
@@ -31,9 +54,7 @@ class SignInForm extends Component {
         />
         <CommonButton
           label='Login'
-          onPress={() => {
-            onSignIn({ username: this.state.username, password: this.state.password });
-          }} />
+          onPress={() => this.handleSignIn(onSignIn)} />
       </Wrapper>
     );
   }

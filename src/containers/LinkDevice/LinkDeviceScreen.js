@@ -70,7 +70,7 @@ class LinkDeviceScreen extends React.Component {
 
 const screen = connect(null,
   {
-    doLink: linkDevice
+    doLink: linkDevice.request
   }
 )(LinkDeviceScreen);
 

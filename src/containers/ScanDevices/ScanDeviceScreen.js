@@ -61,9 +61,9 @@ function mapStateToProps(state) {
 
 const screen = connect(mapStateToProps,
   {
-    startScan: bleScanStart,
-    stopScan: bleScanStop,
-    linkDevice: startLinkDevice,
+    startScan: bleScanStart.request,
+    stopScan: bleScanStop.request,
+    linkDevice: startLinkDevice.request,
   }
 )(ScanDevicesScreen);
 

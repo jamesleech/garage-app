@@ -9,6 +9,10 @@ class SignInScreen extends Component {
     headerLeft: null
   };
 
+  static mapDispatchToProps = {
+    doSignIn: signIn.request
+  };
+
   render() {
     const { doSignIn } = this.props;
     return (
@@ -20,16 +24,6 @@ class SignInScreen extends Component {
   }
 }
 
-function mapStateToProps(state) {
-  return {
-    splash: state.splash
-  }
-}
-
-const screen = connect(mapStateToProps,
-  {
-    doSignIn: signIn
-  }
-)(SignInScreen);
+const screen = connect(null, SignInScreen.mapDispatchToProps)(SignInScreen);
 
 export { screen as SignInScreen };

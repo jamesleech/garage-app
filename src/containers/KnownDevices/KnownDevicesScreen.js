@@ -64,8 +64,8 @@ function mapStateToProps(state) {
 
 const screen = connect(mapStateToProps,
   {
-    onToggleDoor: toggleDoor,
-    onRemoveDevice: removeDevice
+    onToggleDoor: toggleDoor.request,
+    onRemoveDevice: removeDevice.request
   }
 )(KnownDevicesScreen);
 
