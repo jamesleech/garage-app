@@ -15,7 +15,7 @@ export const createAction = (prefix, additionalActions = []) => {
     error: true,
   });
 
-  action.call = function*(payload) {
+  action.call = function* (payload) {
     yield put(action(payload));
     return yield take([action.SUCCESS, action.FAILURE]);
   };

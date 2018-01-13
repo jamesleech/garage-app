@@ -1,7 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { ActivityIndicator, View, Text, Alert } from 'react-native';
-import styled from "styled-components/native";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   TabContainer,
@@ -10,12 +8,8 @@ import {
 } from '../../components';
 import { removeDevice, toggleDoor } from '../../store/modules/knownDevices';
 
-const StyledSwitch = styled.Switch`
-  margin-left: auto;
-`;
-
 class KnownDevicesScreen extends React.Component {
-  static navigationOptions = ({navigation}) => ({
+  static navigationOptions = () => ({
       tabBarLabel: 'Devices',
       tabBarIcon: ({ tintColor, focused }) => (
         <Ionicons

@@ -1,19 +1,18 @@
 import {
+  AppState,
+  NativeModules,
+  // Platform,
+  // PermissionsAndroid,
+  NativeEventEmitter,
+} from 'react-native';
+import BleManager from 'react-native-ble-manager';
+import {
   bleUpdateState,
   bleScanStop,
   bleDeviceConnect,
   bleDeviceDisconnect,
   bleDeviceFound,
 } from './actions';
-
-import {
-  AppState,
-  NativeModules,
-  Platform,
-  // PermissionsAndroid,
-  NativeEventEmitter,
-} from 'react-native';
-import BleManager from 'react-native-ble-manager';
 
 const bleManagerEmitter = new NativeEventEmitter(NativeModules.BleManager);
 
@@ -72,7 +71,7 @@ export class BleWrapper {
     if (!this.scanning) {
       console.log('Scanning...');
       this.scanning = true;
-      const result = await BleManager.scan(uuids, seconds, false);
+      await BleManager.scan(uuids, seconds, false);
     } else {
       console.log('Already scanning...');
     }
@@ -92,7 +91,7 @@ export class BleWrapper {
     }
   };
 
-  connect = async (id) => await BleManager.connect(id);
+  connect = async (id) => BleManager.connect(id);
 
   disconnect = async (id) => {
     try {
@@ -103,24 +102,25 @@ export class BleWrapper {
     } catch (error) {
       console.log(`disconnect error ${error}`);
     }
+    return undefined;
   };
 
-  getServicesForDeviceId = async (id) => await BleManager.retrieveServices(id);
+  getServicesForDeviceId = async (id) => BleManager.retrieveServices(id);
 
   getSignalStrength = async (id) => {
     try {
       const isConnected = await BleManager.isPeripheralConnected(id, []);
       if(isConnected) {
         return await BleManager.readRSSI(id);
-      } 
-        return 0;
-      
+      }
     } catch (error) {
       console.log(`getSignalStrength error ${error}`);
     }
+    return 0;
   };
 
-  write = async (id, serviceUUID, characteristicUUID, data) => await BleManager.write(id, serviceUUID, characteristicUUID, data);
+  write = async (id, serviceUUID, characteristicUUID, data) =>
+    BleManager.write(id, serviceUUID, characteristicUUID, data);
 
   handleUpdateState = ( { state } ) => {
     console.log(`bleWrapper.handleUpdateState: ${state}`);

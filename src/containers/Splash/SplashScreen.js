@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { SplashView, SplashText, SplashSubText } from '../../components';
 
 class SplashScreen extends Component {
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = () => ({
     header: null
   });
 

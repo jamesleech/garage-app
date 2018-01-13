@@ -18,18 +18,6 @@ const LinkDeviceView = ({ children }) => (
     </Wrapper>
   );
 
-const SignInTouchable = styled.TouchableOpacity`
-  background-color: #3498db;
-  padding-top: 20px;
-  padding-bottom: 20px;
-`;
-
-const SignInLoginText = styled.Text`
-  text-align: center;
-  color: white;
-  font-weight: 700;
-`;
-
 class LinkDeviceScreen extends React.Component {
 
   static navigationOptions = ({navigation}) => {

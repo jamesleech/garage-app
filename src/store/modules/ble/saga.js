@@ -1,11 +1,11 @@
-import { channel, delay } from 'redux-saga';
+import { channel } from 'redux-saga';
 import {
+  all,
   put,
   fork,
   call,
   take,
   select,
-  throttle,
   takeEvery,
   takeLatest,
 } from 'redux-saga/effects';
@@ -14,17 +14,14 @@ import {
   bleStart,
   bleScanStop,
   bleScanStart,
-  bleToggleDoor,
   bleUpdateState,
   bleDeviceConnect,
   bleDeviceDisconnect,
   bleDeviceGetServices,
   bleDeviceConnectKnown,
-  bleDeviceSignalStrength, bleWriteCharacteristic,
+  bleWriteCharacteristic,
 } from './actions';
 import { BleWrapper } from './BleWrapper';
-import { createMsg } from '../knownDevices/messages';
-import {NavigationActions} from 'react-navigation';
 import {linkDevice} from '../linkDevice';
 
 const getBleState = state => state.ble.on;
@@ -32,9 +29,9 @@ const getKnownDevices = state => state.knownDevices.devices;
 
 // pipe ble channel messages
 // HACK? is there a better way?
-function* handleFromBleChannel(channel) {
+function* handleFromBleChannel(bleChannel) {
   while (true) {
-    const action = yield take(channel);
+    const action = yield take(bleChannel);
     yield put(action);
     // if(action.type !== 'jg/ble/DEVICE_FOUND_SUCCESS') {
     //   console.log(`handleFromBleChannel piping ${JSON.stringify(action)}`);
@@ -190,15 +187,8 @@ function* writeCharacteristic(bleWrapper, action) {
 
 function* connectKnownDevicesWorker() {
   yield call(console.log, 'connectKnownDevices: try to connect all known devices...');
-
   const devices = yield select(getKnownDevices);
-
-  for (const device of devices.valueSeq()) {
-    // if(device.get('status') !== 'connected') { //TODO: remove magic string
-      yield put(bleDeviceConnect.request({id: device.get('id')}));
-    // }
-  }
-
+  yield all(devices.map(device => put(bleDeviceConnect.request({id: device.get('id')}))));
   yield put(bleDeviceConnectKnown.success());
 }
 
@@ -225,7 +215,6 @@ export function* saga() {
 
   // device interactions
   yield takeEvery(bleWriteCharacteristic.REQUEST, writeCharacteristic, bleWrapper);
-
 
   // fork saga's
   yield fork(scanningSaga, bleWrapper);

@@ -33,7 +33,7 @@ const bleUpdateStateReducer = (state, payload) => {
     if (!on) { // bluetooth not on, set all devices as not connected
       devices = state.devices.map(device => device.setIn(['status'], 'notConnected'));
     } else {
-      devices = { state };
+      devices = state.devices;
     }
     return {
       ...state,

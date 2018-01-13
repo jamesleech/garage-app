@@ -1,12 +1,10 @@
+import { Map } from 'immutable';
 import {
   bleScanStart,
   bleScanStop,
   bleUpdateState,
   bleDeviceFound,
-  bleDeviceConnect,
-  bleDeviceDisconnect, bleDeviceSignalStrength,
 } from './actions';
-import { List, Map } from 'immutable';
 
 const initialState = {
   on: false,
@@ -61,12 +59,13 @@ export const reducer = (state = initialState, action) => {
         ...state,
         scanning: true,
       };
-    case bleDeviceFound.SUCCESS:
+    case bleDeviceFound.SUCCESS: {
       const device = action.payload;
       return {
         ...state,
         devices: state.devices.set(device.id, device),
       };
+    }
     default:
       return state
   }

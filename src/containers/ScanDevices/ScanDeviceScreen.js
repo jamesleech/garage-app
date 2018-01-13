@@ -19,7 +19,7 @@ import {
 
 class ScanDevicesScreen extends React.Component {
 
-  static navigationOptions = ({navigation}) => ({
+  static navigationOptions = ({ navigation }) => ({
       tabBarLabel: 'Scan',
       tabBarIcon: ({ tintColor, focused }) => (
         <Ionicons
