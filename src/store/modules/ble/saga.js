@@ -86,13 +86,13 @@ function* scanningSaga(bleWrapper) {
 // device connect
 function* connectDeviceWorker(bleWrapper, action) {
   const { id } = action.payload;
+  yield call(console.log, `connectDeviceWorker: ${id}`);
   try {
     const bleOn = yield select(getBleState);
     if(bleOn) {
-      yield console.log(`connectDeviceWorker ${JSON.stringify(id)}`);
       yield call(bleWrapper.connect, id);
     } else {
-      yield console.log(`connectDeviceWorker can NOT connect ${JSON.stringify(id)}, as bluetooth is not on.`);
+      yield call(console.log,`connectDeviceWorker can NOT connect ${JSON.stringify(id)}, as bluetooth is not on.`);
     }
   } catch (error) {
     yield call(console.error, `connectDeviceWorker exception: ${error}`);
@@ -186,7 +186,7 @@ function* writeCharacteristic(bleWrapper, action) {
 // }
 
 function* connectKnownDevicesWorker() {
-  yield call(console.log, 'connectKnownDevices: try to connect all known devices...');
+  yield call(console.log, 'connectKnownDevices: trying to connect all known devices...');
   const devices = yield select(getKnownDevices);
   yield all(devices.map(device => put(bleDeviceConnect.request({id: device.get('id')}))));
   yield put(bleDeviceConnectKnown.success());
@@ -208,7 +208,7 @@ export function* saga() {
   yield takeEvery(bleDeviceDisconnect.REQUEST, disconnectDeviceWorker, bleWrapper);
 
   // connect known devices, every time bluetooth is turned on (at start up) and also every request to do so
-  yield takeLatest(bleDeviceConnectKnown.REQUEST, connectKnownDevicesWorker);
+  yield takeEvery(bleDeviceConnectKnown.REQUEST, connectKnownDevicesWorker);
 
   // handle bluetooth state changes
   yield takeLatest(bleUpdateState.SUCCESS, updateStateWorker);

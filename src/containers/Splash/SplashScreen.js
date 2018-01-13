@@ -8,8 +8,6 @@ class SplashScreen extends Component {
   });
 
   render() {
-    console.log(`Splash.render ${JSON.stringify(this.props)}`);
-
     return (
       <SplashView>
         <SplashText>James' Garage</SplashText>

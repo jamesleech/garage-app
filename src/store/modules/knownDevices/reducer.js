@@ -25,30 +25,17 @@ const initialState = {
     ]),
 };
 
-const bleUpdateStateReducer = (state, payload) => {
-  const on = payload === 'on'; // TODO: remove magic string
-
-  try {
-    let devices;
-    if (!on) { // bluetooth not on, set all devices as not connected
-      devices = state.devices.map(device => device.setIn(['status'], 'notConnected'));
-    } else {
-      devices = state.devices;
-    }
-    return {
-      ...state,
-      devices
-    };
-  } catch (error)  {
-    console.error(`bleUpdateStateReducer: ${error}`);
-    return state;
-  }
-};
-
 export const reducer = (state = initialState, action) => {
   switch (action.type) {
-    case bleUpdateState.SUCCESS:
-      return bleUpdateStateReducer(state, action.payload);
+    case bleUpdateState.SUCCESS: {
+      const on = (action.payload === 'on'); // TODO: remove magic string
+      return {
+        ...state,
+        devices: !on
+          ? state.devices.map(device => device.setIn(['status'], 'notConnected'))
+          : state.devices
+      };
+    }
     case bleDeviceConnect.REQUEST:
       return {
         ...state,

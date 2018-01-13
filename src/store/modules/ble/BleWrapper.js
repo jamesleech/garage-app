@@ -91,7 +91,15 @@ export class BleWrapper {
     }
   };
 
-  connect = async (id) => BleManager.connect(id);
+  connect = async (id) => {
+    // const isConnected = await BleManager.isPeripheralConnected(id, []);
+    // console.log(`bleWrapper.connect: ${id} isConnected: ${isConnected}`);
+    // if(isConnected) {
+    //   this.channel.put(bleDeviceConnect.success({ id }));
+    // } else {
+      BleManager.connect(id);
+    // }
+  };
 
   disconnect = async (id) => {
     try {

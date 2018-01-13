@@ -18,12 +18,13 @@ export function* rootSaga () {
       fork(knownDevicesSaga),
     ]);
 
-    yield call(restoreSaga);
-
     yield all([
       fork(bleSaga),
       fork(linkDeviceSaga),
     ]);
+
+    yield call(restoreSaga);
+
   } catch (error) {
     console.log(error);
     throw error;
