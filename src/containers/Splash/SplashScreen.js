@@ -13,9 +13,9 @@ class SplashScreen extends Component {
         <SplashText>James&apos; Garage</SplashText>
         <SplashSubText>Version 0.1</SplashSubText>
       </SplashView>
-    )
+    );
   }
 }
 
 // const screen = connect()(SplashScreen);
-export { SplashScreen }
+export { SplashScreen };

@@ -1,9 +1,27 @@
+// @flow
 import { ActionCreator } from '../../ActionCreator';
+import type { BleDevice } from '../ble';
 
 const ActionPrefix = 'jg/knownDevices/';
 
-export const saveDevice = new ActionCreator(ActionPrefix, 'SAVE_DEVICE');
-export const loadDevices = new ActionCreator(ActionPrefix, 'LOAD_DEVICES');
-export const removeDevice = new ActionCreator(ActionPrefix, 'REMOVE_DEVICE');
+export type LoadDevicesPayload = {
+  devices: any, // TODO: BleDevice[]
+};
 
-export const toggleDoor = new ActionCreator(ActionPrefix, 'TOGGLE_DOOR');
+export type RemoveDevicePayload = {
+  device: BleDevice,
+};
+
+export type SaveDevicePayload = {
+  device: BleDevice,
+};
+
+export type ToggleDoorPayload = {
+  device: BleDevice,
+  errorMessage?: string,
+};
+
+export const saveDevice: ActionCreator<SaveDevicePayload> = new ActionCreator(ActionPrefix, 'SAVE_DEVICE');
+export const loadDevices: ActionCreator<LoadDevicesPayload> = new ActionCreator(ActionPrefix, 'LOAD_DEVICES');
+export const removeDevice: ActionCreator<RemoveDevicePayload> = new ActionCreator(ActionPrefix, 'REMOVE_DEVICE');
+export const toggleDoor: ActionCreator<ToggleDoorPayload> = new ActionCreator(ActionPrefix, 'TOGGLE_DOOR');

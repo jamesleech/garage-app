@@ -1,6 +1,7 @@
 // @flow
-import { restore, RestorePayload } from './actions';
-import { Action } from '../../Action';
+import { restore } from './actions';
+import type { RestorePayload } from './actions';
+import type { Action } from '../../Action';
 
 interface State {
   +loading: boolean;

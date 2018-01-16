@@ -5,7 +5,7 @@ const ActionPrefix = 'jg/signIn/';
 
 export type User = {
   username: string;
-  password: string;
+  password?: string;
   loaded?: boolean;
 }
 
@@ -14,7 +14,7 @@ export type SignInPayload = {
   errorMessage?: string;
 }
 export type SignOutPayload = {
-  error: any;
+  error?: any;
 }
 
 export interface LoadUserPayload extends SignInPayload {

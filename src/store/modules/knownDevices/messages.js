@@ -1,3 +1,4 @@
+// @flow
 import * as forge from 'node-forge';
 
 const key = '0123456789abcdef';
@@ -14,7 +15,7 @@ function getMsgHMAC(deviceKey, msgArray) {
 }
 
 // returns a byte array to send to the device
-export function createMsg(serialNumber, counter, command) {
+export function createMsg(serialNumber: number, counter: number, command: number) {
   // use a Uint32Array to create a buffer of bytes from the serial number and counter
   const serialCounter = new Uint32Array(2);
   serialCounter[0] = serialNumber;  // create serialNumber bytes 4, uint_32_t
@@ -35,8 +36,6 @@ export function createMsg(serialNumber, counter, command) {
   for (let i = 0; i<11; i++) {
     msgWithHmac[9+i] = hmac[i];
   }
-  console.log(`msgWithHmac: ${msgWithHmac}`);
-
   // use first 11 bytes of hmac
   // for(let i = 0; i < 11; i++) {
   //   msg[9 + i] = hmac[i];

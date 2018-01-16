@@ -2,36 +2,39 @@
 import { NavigationActions } from 'react-navigation';
 import { AsyncStorage } from "react-native";
 import { takeLatest, takeEvery, put, call } from 'redux-saga/effects';
-import { Action } from '../../Action';
+import type { Action } from '../../Action';
+import type { SignInPayload, User } from './actions';
 import {
   loadUser, signIn, signOut, bcryptPassword,
-  SignInPayload
 } from './actions';
 
 function* signInWorker(action: Action<SignInPayload>): Generator<*,*,*> {
+  yield call(console.log, `signInWorker: ${JSON.stringify(action)}`);
+  const { user } = action.payload;
+
   try {
-    yield call(console.log, `signInWorker: ${JSON.stringify(action)}`);
-
-    const { user } = action.payload;
-
     // TODO: check password
     if(user.username) {
       yield put(signIn.success(action.payload));
     } else {
       yield put(signIn.failure({
+        user,
         errorMessage: 'wrong username and/or password'
       }));
     }
   } catch (error) {
     yield call(console.error, `signInWorker exception: ${error}`);
-    yield put(signIn.failure({ error }));
+    yield put(signIn.failure({
+      user,
+      errorMessage: error
+    }));
   }
 }
 
 function* signOutWorker(): Generator<*,*,*> {
   try {
     yield call(AsyncStorage.removeItem, 'user');
-    yield put(signOut.success());
+    yield put(signOut.success({}));
   } catch (error) {
     yield call(console.error, `signOutWorker exception: ${error}`);
     yield put(signOut.failure({ error }));
@@ -55,24 +58,28 @@ function* signedInNavigate(action: Action<SignInPayload>): Generator<*,*,*> {
 }
 
 function* loadUserWorker(): Generator<*,*,*> {
+
+  let user: User = { username: "" };
   try {
     yield call(console.log, `loadUserWorker: start`);
     const item = yield call(AsyncStorage.getItem, 'user');
     yield call(console.log, `loadUserWorker: gotItem ${item}`);
-    const user = JSON.parse(item);
-
-    if(user && user.username) {
-      user.loaded = true;
-      console.log(`loadUserWorker: ${user.username}`);
-      yield put(loadUser.success({ user }));
-    } else {
-      yield put(loadUser.failure({
-        errorMessage: 'failed to load previous user details'
-      }));
-    }
+    user = JSON.parse(item);
   } catch (error) {
     yield call(console.error, `loadUserWorker exception: ${error}`);
     yield put(loadUser.failure({
+      user,
+      errorMessage: 'failed to load previous user details'
+    }));
+  }
+
+  if(user && user.username) {
+    user.loaded = true;
+    console.log(`loadUserWorker: ${user.username}`);
+    yield put(loadUser.success({ user }));
+  } else {
+    yield put(loadUser.failure({
+      user,
       errorMessage: 'failed to load previous user details'
     }));
   }

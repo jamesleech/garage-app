@@ -2,7 +2,7 @@
 import React, { Component } from "react";
 import styled from "styled-components/native";
 import { CommonInput, CommonButton } from '../index';
-import { ActionFunc } from '../../store/Action';
+import type { ActionFunc } from '../../store/Action';
 import type { SignInPayload } from '../../store/modules/signIn/actions';
 
 const Wrapper = styled.View`

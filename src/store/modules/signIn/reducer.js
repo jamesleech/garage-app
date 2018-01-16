@@ -1,12 +1,13 @@
 // @flow
-import { Action } from '../../Action';
+import type { Action } from '../../Action';
+import type { SignInPayload } from './actions';
 import {
   loadUser, signIn, signOut,
-  LoadUserPayload, SignInPayload,
+  LoadUserPayload,
 } from './actions';
 
 type SignInError = {
-  message: string;
+  message?: string;
 };
 
 type State = {
@@ -46,7 +47,7 @@ export const reducer = (state: State = initialState, action: Actions): State => 
         ...state,
         loading: true,
         signInError: undefined,
-        username: action.payload.username,
+        username: action.payload.user.username,
       };
     case signIn.SUCCESS:
       return {
@@ -79,6 +80,6 @@ export const reducer = (state: State = initialState, action: Actions): State => 
         session: undefined,
       };
     default:
-      return state
+      return state;
   }
 };

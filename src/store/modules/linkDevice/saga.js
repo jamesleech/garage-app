@@ -1,10 +1,11 @@
+// @flow
 import { NavigationActions } from 'react-navigation';
 import { takeLatest, call, put } from 'redux-saga/effects';
 import { linkDevice, startLinkDevice } from './index';
 import { saveDevice } from '../knownDevices';
 import { bleScanStop } from '../ble';
 
-function* linkDeviceWorker(action) {
+function* linkDeviceWorker(action): Generator<*,*,*> {
   yield put(bleScanStop.request());
 
   const { device } = action.payload;
@@ -18,10 +19,10 @@ function* linkDeviceWorker(action) {
     params: {
       device,
     }
-  }))
+  }));
 }
 
-function* requestSaveDeviceWorker(action) {
+function* requestSaveDeviceWorker(action): Generator<*,*,*> {
   const device = action.payload;
   yield call(console.log,`requestSaveDeviceWorker ${device.id} - ${device.name}`);
 
@@ -37,7 +38,7 @@ function* requestSaveDeviceWorker(action) {
   }
 }
 
-export function* saga() {
+export function* saga(): Generator<*,*,*> {
   yield takeLatest(startLinkDevice.REQUEST, linkDeviceWorker);
   yield takeLatest(linkDevice.REQUEST, requestSaveDeviceWorker);
 }

@@ -1,3 +1,4 @@
+// @flow
 import { fork, all, call } from 'redux-saga/effects';
 import { splashSaga, restore } from './splash';
 import { signInSaga } from './signIn';
@@ -9,7 +10,7 @@ function* restoreSaga() {
   yield call(restore.call, {});
 }
 
-export function* rootSaga () {
+export function* rootSaga(): Generator<*,*,*> {
 
   try {
     yield all([

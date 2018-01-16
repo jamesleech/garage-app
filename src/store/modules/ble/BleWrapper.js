@@ -1,24 +1,36 @@
-import {
-  AppState,
-  NativeModules,
+// @flow
   // Platform,
   // PermissionsAndroid,
-  NativeEventEmitter,
-} from 'react-native';
+// import type { EmitterSubscription } from 'react-native';
+import { AppState, NativeModules, NativeEventEmitter } from 'react-native';
+import type { Channel } from "redux-saga";
 import BleManager from 'react-native-ble-manager';
 import {
   bleUpdateState,
   bleScanStop,
   bleDeviceConnect,
   bleDeviceDisconnect,
-  bleDeviceFound,
+  bleDeviceFound, bleScanStart,
 } from './actions';
+import type {Device} from './actions';
 
 const bleManagerEmitter = new NativeEventEmitter(NativeModules.BleManager);
 
 export class BleWrapper {
+  appState: string;
+  scanning: boolean;
+  channel: Channel;
 
-  constructor(channel) {
+  // TODO: EmitterSubscription
+  listenerUpdateState: any;
+  listenerConnect: any;
+  listenerDiscover: any;
+  listenerStopScan: any;
+  listenerDisconnect: any;
+  listenerUpdate: any;
+
+  // listenerUpdateState: EmitterSubscription;
+  constructor(channel: Channel) {
     this.appState = '';
     this.scanning = false;
     this.channel = channel;
@@ -67,7 +79,7 @@ export class BleWrapper {
     this.listenerUpdate.remove();
   };
 
-  startScan = async (uuids, seconds) => {
+  startScan = async (uuids: string[], seconds: number) => {
     if (!this.scanning) {
       console.log('Scanning...');
       this.scanning = true;
@@ -76,6 +88,7 @@ export class BleWrapper {
       console.log('Already scanning...');
     }
     // TODO: message start scanning success
+    this.channel.put(bleScanStart.success({}));
   };
 
   stopScan = async () => {
@@ -101,7 +114,7 @@ export class BleWrapper {
     // }
   };
 
-  disconnect = async (id) => {
+  disconnect = async (id: string) => {
     try {
       const isConnected = await BleManager.isPeripheralConnected(id, []);
       if(isConnected) {
@@ -113,9 +126,9 @@ export class BleWrapper {
     return undefined;
   };
 
-  getServicesForDeviceId = async (id) => BleManager.retrieveServices(id);
+  getServicesForDeviceId = async (id: string) => BleManager.retrieveServices(id);
 
-  getSignalStrength = async (id) => {
+  getSignalStrength = async (id: string) => {
     try {
       const isConnected = await BleManager.isPeripheralConnected(id, []);
       if(isConnected) {
@@ -127,7 +140,7 @@ export class BleWrapper {
     return 0;
   };
 
-  write = async (id, serviceUUID, characteristicUUID, data) =>
+  write = async (id: string, serviceUUID: string, characteristicUUID: string, data: []) =>
     BleManager.write(id, serviceUUID, characteristicUUID, data);
 
   handleUpdateState = ( { state } ) => {
@@ -135,7 +148,7 @@ export class BleWrapper {
     this.channel.put(bleUpdateState.success(state));
   };
 
-  handleDiscoverPeripheral = ( { id, name, rssi }) => {
+  handleDiscoverPeripheral = ( { id, name, rssi} : Device) => {
     // message discovered peripheral
     this.channel.put(bleDeviceFound.success({ id, name, rssi }));
   };
@@ -165,7 +178,7 @@ export class BleWrapper {
     // TODO: message that peripheral disconnected
   };
 
-  handleAppStateChange = async (nextAppState) => {
+  handleAppStateChange = async (nextAppState: string) => {
     if (this.appState.match(/inactive|background/) && nextAppState === 'active') {
       console.log('App has come to the foreground!');
       BleManager.checkState();

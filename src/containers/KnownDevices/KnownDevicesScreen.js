@@ -51,7 +51,7 @@ class KnownDevicesScreen extends React.Component {
           devices={devices}
           onPressDevice={this.onPressDevice}
           onRemoveDevice={this.onRemoveDevice} />
-    </TabContainer>)
+    </TabContainer>);
   }
 }
 
@@ -59,7 +59,7 @@ function mapStateToProps(state) {
   return {
     bluetoothPower: state.ble.on,
     devices: state.knownDevices.devices.toList().toJS(),
-  }
+  };
 }
 
 const screen = connect(mapStateToProps,

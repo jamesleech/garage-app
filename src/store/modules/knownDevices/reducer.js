@@ -1,9 +1,26 @@
-import {Map} from "immutable";
-import {bleDeviceConnect, bleDeviceDisconnect, bleDeviceSignalStrength, bleUpdateState} from '../ble/actions';
-import { loadDevices, removeDevice } from './index';
+// @flow
+import { Map } from "immutable";
+import type {
+  bleUpdateStatePayload,
+  bleDeviceConnectPayload,
+  bleDeviceDisconnectPayload,
+  bleDeviceSignalStrengthPayload,
+} from '../ble/actions';
+import { bleDeviceConnect, bleDeviceDisconnect, bleDeviceSignalStrength, bleUpdateState } from '../ble/actions';
+
+import type { RemoveDevicePayload, LoadDevicesPayload } from './index';
+import { removeDevice, loadDevices } from './index';
+
+import type { LinkDevicePayload } from '../linkDevice';
 import { linkDevice } from '../linkDevice';
 
-const initialState = {
+import type { Action } from '../../Action';
+
+type State = {
+  +devices: Map<string, Map<string,*>>;
+}
+
+const initialState: State = {
   devices: Map(
     [
       // [
@@ -25,8 +42,28 @@ const initialState = {
     ]),
 };
 
-export const reducer = (state = initialState, action) => {
+export type Actions = Action<
+  bleUpdateStatePayload | bleDeviceConnectPayload | bleDeviceDisconnectPayload | bleDeviceSignalStrengthPayload
+  | LinkDevicePayload | RemoveDevicePayload | LoadDevicesPayload>;
+
+export const reducer = (state: State = initialState, action: Actions) => {
   switch (action.type) {
+    case loadDevices.SUCCESS: {
+      const { devices } = (action.payload: LoadDevicesPayload | any);
+      const devicesMap = Map(devices.map((item) => [ item.id, Map(item) ]));
+      console.log(`loadDevices.SUCCESS: ${JSON.stringify(devices)}`);
+      return {
+        ...state,
+        devices: state.devices.merge(devicesMap),
+      };
+    }
+    case linkDevice.SUCCESS: {
+      const device = Map(action.payload);
+      return {
+        ...state,
+        devices: state.devices.set(device.get('id'), device),
+      };
+    }
     case bleUpdateState.SUCCESS: {
       const on = (action.payload === 'on'); // TODO: remove magic string
       return {
@@ -36,70 +73,63 @@ export const reducer = (state = initialState, action) => {
           : state.devices
       };
     }
-    case bleDeviceConnect.REQUEST:
+    case bleDeviceConnect.REQUEST: {
+      const { device } = (action.payload: bleDeviceConnectPayload | any);
       return {
         ...state,
-        devices: state.devices.setIn([action.payload.id, 'status'], 'connecting'),
+        devices: state.devices.setIn([device.id, 'status'], 'connecting'),
       };
-    case bleDeviceConnect.SUCCESS:
+    }
+    case bleDeviceConnect.SUCCESS: {
+      const { device } = (action.payload: bleDeviceConnectPayload | any);
       return {
         ...state,
-        devices: state.devices.setIn([action.payload.id, 'status'], 'connected'),
+        devices: state.devices.setIn([device.id, 'status'], 'connected'),
       };
-    case bleDeviceConnect.FAILURE:
+    }
+    case bleDeviceConnect.FAILURE: {
+      const { device } = (action.payload: bleDeviceConnectPayload | any);
       return {
         ...state,
-        devices: state.devices.setIn([action.payload.id, 'status'], 'notConnected'),
+        devices: state.devices.setIn([device.id, 'status'], 'notConnected'),
       };
+    }
     case bleDeviceDisconnect.REQUEST: {
-      const {disconnectingDevice} = action.payload;
-      if (disconnectingDevice && state.devices.has(disconnectingDevice.id)) {
+      const { device } = (action.payload: bleDeviceDisconnectPayload | any);
+      if (device && state.devices.has(device.id)) {
         return {
           ...state,
-          devices: state.devices.setIn([disconnectingDevice.id, 'status'], 'disconnecting'),
+          devices: state.devices.setIn([device.id, 'status'], 'disconnecting'),
         };
       }
       return state;
     }
     case bleDeviceDisconnect.SUCCESS: {
-      const {disconnectedDevice} = action.payload;
+      const { device } = (action.payload: bleDeviceDisconnectPayload | any);
       // need to test if the device is still a known device, could have just been removed and disconnected.
-      if (disconnectedDevice && state.devices.has(disconnectedDevice.id)) {
+      if (device && state.devices.has(device.id)) {
         return {
           ...state,
-          devices: state.devices.setIn([disconnectedDevice.id, 'status'], 'notConnected'),
+          devices: state.devices.setIn([device.id, 'status'], 'notConnected'),
         };
       }
       return state;
     }
-    case bleDeviceSignalStrength.SUCCESS:
+    case bleDeviceSignalStrength.SUCCESS: {
+      const { device } = (action.payload: bleDeviceSignalStrengthPayload | any);
       return {
         ...state,
-        devices: state.devices.setIn([action.payload.id, 'rssi'], action.payload.rssi),
-      };
-    case loadDevices.SUCCESS: {
-      const devices = Map(action.payload.map((item) => [ item.id, Map(item) ]));
-      console.log(`loadDevices.SUCCESS: ${devices}`);
-      return {
-        ...state,
-        devices: state.devices.merge(devices),
-      };
-    }
-    case linkDevice.SUCCESS: {
-      const linkedDevice = Map(action.payload);
-      return {
-        ...state,
-        devices: state.devices.set(linkedDevice.get('id'), linkedDevice),
+        devices: state.devices.setIn([device.id, 'rssi'], device.rssi),
       };
     }
     case removeDevice.SUCCESS: {
-      const removeDeviceId = action.payload.id;
+      const { device } = (action.payload: RemoveDevicePayload | any);
       return {
         ...state,
-        devices: state.devices.delete(removeDeviceId),
+        devices: state.devices.delete(device.id),
       };
     }
     default:
-      return state
+      return state;
   }
 };

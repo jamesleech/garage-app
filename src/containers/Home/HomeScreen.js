@@ -48,9 +48,9 @@ function mapStateToProps(state) {
   return {
     username: state.signIn.username,
     linkedDevice: state.ble.linkedDevice,
-  }
+  };
 }
 
 const screen = connect(mapStateToProps)(HomeScreen);
 
-export { screen as HomeScreen }
+export { screen as HomeScreen };

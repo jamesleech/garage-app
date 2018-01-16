@@ -1,10 +1,10 @@
 // @flow
 import { ActionCreator } from '../../ActionCreator';
-import { User } from '../';
+import { User } from '../index';
 
 const ActionPrefix = 'jg/splash/';
 
-export interface RestorePayload {
+export type RestorePayload = {
   user: User;
 }
 

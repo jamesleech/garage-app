@@ -1,9 +1,10 @@
 // @flow
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { NavigationActions } from 'react-navigation';
-import { loadUser, signIn, loadDevices } from '../';
-import { restore, RestorePayload } from './actions';
-import { Action } from '../../Action';
+import { loadUser, signIn, loadDevices } from '../index';
+import { restore } from './actions';
+import type { RestorePayload } from './actions';
+import type { Action } from '../../Action';
 
 function* restoreWorker(): Generator<*,*,*> {
   try {
@@ -21,20 +22,23 @@ function* restoreWorker(): Generator<*,*,*> {
         yield call(console.log, 'restoreWorker.loadDevices');
         const result = yield call(loadDevices.call);
         yield call(console.log, `restoreWorker: load devices results: ${JSON.stringify(result)}`);
-        yield put(restore.success(user));
+        yield put(restore.success({ user }));
       } else {
         yield put(restore.failure({
+          user,
           errorMessage: 'failed to load previous details'
         }));
       }
     } else {
       yield put(restore.failure({
+        user: null,
         errorMessage: 'failed to load previous details'
       }));
     }
   } catch (exception) {
     yield call(console.error, `restoreWorker exception: ${exception}`);
     yield put(restore.failure({
+      user: null,
       errorMessage: 'failed to load previous details'
     }));
   }

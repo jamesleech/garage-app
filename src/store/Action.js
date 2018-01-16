@@ -1,3 +1,4 @@
+// @flow
 export type ActionFunc<T> = (payload: T) => Action<T>;
 
 export type Action<T> = {

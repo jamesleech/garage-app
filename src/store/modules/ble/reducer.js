@@ -1,3 +1,4 @@
+// @flow
 import { Map } from 'immutable';
 import {
   bleScanStart,
@@ -5,8 +6,21 @@ import {
   bleUpdateState,
   bleDeviceFound,
 } from './actions';
+import type {
+  bleScanStartPayload, bleScanStopPayload, bleDeviceFoundPayload, bleUpdateStatePayload, Device,
+} from './actions';
+import type {Action} from '../../Action';
 
-const initialState = {
+type State = {
+  +on: boolean,
+  +scanning: boolean,
+  +devices: Map<string, Device>,
+}
+
+export type Actions = Action<
+  bleUpdateStatePayload | bleScanStartPayload | bleScanStopPayload | bleDeviceFoundPayload>;
+
+const initialState: State = {
   on: false,
   scanning: false,
   devices: Map(
@@ -31,7 +45,7 @@ const initialState = {
   ),
 };
 
-export const reducer = (state = initialState, action) => {
+export const reducer = (state: State = initialState, action: Actions) => {
   switch (action.type) {
     case bleUpdateState.SUCCESS:
       return {
@@ -60,13 +74,13 @@ export const reducer = (state = initialState, action) => {
         scanning: true,
       };
     case bleDeviceFound.SUCCESS: {
-      const device = action.payload;
+      const { device } = action.payload;
       return {
         ...state,
         devices: state.devices.set(device.id, device),
       };
     }
     default:
-      return state
+      return state;
   }
 };

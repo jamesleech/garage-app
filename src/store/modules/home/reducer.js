@@ -1,10 +1,16 @@
-const initialState = {
-  loading: false,
-};
-
-export const reducer = (state = initialState, action) => {
-  switch (action.type) {
-    default:
-      return state
-  }
-};
+// // @flow
+//
+// type State = {
+//   +loading: boolean,
+// }
+//
+// const initialState: State = {
+//   loading: false,
+// };
+//
+// export const reducer = (state: State = initialState, action: Actions) => {
+//   switch (action.type) {
+//     default:
+//       return state;
+//   }
+// };
