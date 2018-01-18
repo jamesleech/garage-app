@@ -7,14 +7,14 @@ import {
   bleDeviceFound,
 } from './actions';
 import type {
-  bleScanStartPayload, bleScanStopPayload, bleDeviceFoundPayload, bleUpdateStatePayload, Device,
+  BleDevice, bleScanStartPayload, bleScanStopPayload, bleDeviceFoundPayload, bleUpdateStatePayload,
 } from './actions';
 import type {Action} from '../../Action';
 
 type State = {
   +on: boolean,
   +scanning: boolean,
-  +devices: Map<string, Device>,
+  +devices: Map<string, BleDevice>,
 }
 
 export type Actions = Action<
@@ -47,11 +47,13 @@ const initialState: State = {
 
 export const reducer = (state: State = initialState, action: Actions) => {
   switch (action.type) {
-    case bleUpdateState.SUCCESS:
+    case bleUpdateState.SUCCESS: {
+      const bleUpdate = (action.payload: bleUpdateStatePayload | any);
       return {
         ...state,
-        on: action.payload === 'on',
+        on: bleUpdate.state === 'on',
       };
+    }
     case bleScanStart.REQUEST:
       return {
         ...state,
@@ -74,7 +76,7 @@ export const reducer = (state: State = initialState, action: Actions) => {
         scanning: true,
       };
     case bleDeviceFound.SUCCESS: {
-      const { device } = action.payload;
+      const { device } = (action.payload: bleDeviceFoundPayload | any);
       return {
         ...state,
         devices: state.devices.set(device.id, device),

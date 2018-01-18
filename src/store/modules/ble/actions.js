@@ -6,10 +6,14 @@ const ActionPrefix = 'jg/ble/';
 export type BleDevice = {
   +id: string,
   name?: string,
+  status?: string,
   rssi?: string,
 }
 
-export type bleUpdateStatePayload = {};
+export type bleUpdateStatePayload = {
+  state: string;
+};
+
 export type bleScanStartPayload = {};
 export type bleScanStopPayload = {};
 export type bleStartPayload = {};
@@ -19,14 +23,19 @@ export type bleDeviceFoundPayload = {
   device: BleDevice,
 };
 export type bleDeviceConnectPayload = {
-  device: BleDevice,
+  id: string,
 };
 export type bleDeviceDisconnectPayload = {
-  device: BleDevice,
-  errorMessage: string,
+  id: string,
+  errorMessage?: string,
 };
+export type bleDeviceGetServicesPayload = {
+  id: string;
+  services?: Array<any>; // TODO: define this
+}
+
 export type bleDeviceSignalStrengthPayload = {
-  device: BleDevice,
+  // device: BleDevice,
 };
 
 export const bleStart: ActionCreator<bleStartPayload> = new ActionCreator(ActionPrefix, 'START');
@@ -42,7 +51,7 @@ export const bleDeviceFound = new ActionCreator(ActionPrefix, 'DEVICE_FOUND');
 export const bleDeviceConnect: ActionCreator<bleDeviceConnectPayload> = new ActionCreator(ActionPrefix, 'DEVICE_CONNECT');
 export const bleDeviceDisconnect: ActionCreator<bleDeviceDisconnectPayload> = new ActionCreator(ActionPrefix, 'DEVICE_DISCONNECT');
 
-export const bleDeviceGetServices = new ActionCreator(ActionPrefix, 'DEVICE_GET_SERVICES');
+export const bleDeviceGetServices:ActionCreator<bleDeviceGetServicesPayload> = new ActionCreator(ActionPrefix, 'DEVICE_GET_SERVICES');
 
 export const bleDeviceConnectKnown = new ActionCreator(ActionPrefix, 'DEVICE_CONNECT_KNOWN');
 export const bleDeviceDisconnectKnown = new ActionCreator(ActionPrefix, 'DEVICE_CONNECT_KNOWN');

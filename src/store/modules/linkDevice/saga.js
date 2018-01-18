@@ -4,10 +4,11 @@ import { takeLatest, call, put } from 'redux-saga/effects';
 import { linkDevice, startLinkDevice } from './index';
 import { saveDevice } from '../knownDevices';
 import { bleScanStop } from '../ble';
+import type { StartLinkDevicePayload, LinkDevicePayload } from './actions';
+import type { Action } from '../../Action';
 
-function* linkDeviceWorker(action): Generator<*,*,*> {
+function* linkDeviceWorker(action: Action<StartLinkDevicePayload>): Generator<*,*,*> {
   yield put(bleScanStop.request());
-
   const { device } = action.payload;
   yield call(console.log,`linkDeviceWorker ${JSON.stringify(device)}`);
 
@@ -22,19 +23,19 @@ function* linkDeviceWorker(action): Generator<*,*,*> {
   }));
 }
 
-function* requestSaveDeviceWorker(action): Generator<*,*,*> {
-  const device = action.payload;
-  yield call(console.log,`requestSaveDeviceWorker ${device.id} - ${device.name}`);
+function* requestSaveDeviceWorker(action: Action<LinkDevicePayload>): Generator<*,*,*> {
+  const { device } = action.payload;
+  // yield call(console.log,`requestSaveDeviceWorker ${device.id} - ${device.name}`);
 
   try {
     // add to persistent store
     const saveResult = yield call(saveDevice.call, device);
     yield call(console.log, `requestSaveDeviceWorker - saveResult: ${JSON.stringify(saveResult)}`);
-    yield put(linkDevice.success(device));
+    yield put(linkDevice.success({ device }));
     yield put(NavigationActions.back());
   } catch (error) {
     yield call(console.log, `requestSaveDeviceWorker error: ${error}`);
-    yield put(linkDevice.failure(device));
+    yield put(linkDevice.failure({ device }));
   }
 }
 

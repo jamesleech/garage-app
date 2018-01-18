@@ -12,9 +12,23 @@ import {
   bleDeviceDisconnect,
   bleDeviceFound, bleScanStart,
 } from './actions';
-import type {Device} from './actions';
+import type { BleDevice } from './actions';
 
 const bleManagerEmitter = new NativeEventEmitter(NativeModules.BleManager);
+
+type BleUpdateState = {
+  state: string;
+};
+
+type BleUpdateValueForCharacteristic = {
+  peripheral: string; // the id of the peripheral
+  characteristic: string;  // the UUID of the characteristic
+  value: Array<any>; // the read value
+}
+
+type BlePeripheral = {
+  peripheral: string;
+}
 
 export class BleWrapper {
   appState: string;
@@ -79,7 +93,7 @@ export class BleWrapper {
     this.listenerUpdate.remove();
   };
 
-  startScan = async (uuids: string[], seconds: number) => {
+  startScan = async (uuids: string[] | null, seconds: number) => {
     if (!this.scanning) {
       console.log('Scanning...');
       this.scanning = true;
@@ -104,7 +118,7 @@ export class BleWrapper {
     }
   };
 
-  connect = async (id) => {
+  connect = async (id: string) => {
     // const isConnected = await BleManager.isPeripheralConnected(id, []);
     // console.log(`bleWrapper.connect: ${id} isConnected: ${isConnected}`);
     // if(isConnected) {
@@ -143,12 +157,12 @@ export class BleWrapper {
   write = async (id: string, serviceUUID: string, characteristicUUID: string, data: []) =>
     BleManager.write(id, serviceUUID, characteristicUUID, data);
 
-  handleUpdateState = ( { state } ) => {
+  handleUpdateState = ( { state }: BleUpdateState ) => {
     console.log(`bleWrapper.handleUpdateState: ${state}`);
-    this.channel.put(bleUpdateState.success(state));
+    this.channel.put(bleUpdateState.success({ state }));
   };
 
-  handleDiscoverPeripheral = ( { id, name, rssi} : Device) => {
+  handleDiscoverPeripheral = ( { id, name, rssi}: BleDevice) => {
     // message discovered peripheral
     this.channel.put(bleDeviceFound.success({ id, name, rssi }));
   };
@@ -159,7 +173,7 @@ export class BleWrapper {
     this.channel.put(bleScanStop.success());
   };
 
-  handleUpdateValueForCharacteristic = (data) => {
+  handleUpdateValueForCharacteristic = (data: BleUpdateValueForCharacteristic) => {
     console.log(`Received data from ${
        data.peripheral
        } characteristic ${
@@ -167,12 +181,12 @@ export class BleWrapper {
     // TODO: message value
   };
 
-  handleConnectPeripheral = (data) => {
+  handleConnectPeripheral = (data: BlePeripheral) => {
     console.log(`handleConnectPeripheral: Connected to ${JSON.stringify(data)}`);
     this.channel.put(bleDeviceConnect.success({ id: data.peripheral }));
   };
 
-  handleDisconnectedPeripheral = (data) => {
+  handleDisconnectedPeripheral = (data: BlePeripheral ) => {
     console.log(`Disconnected from ${JSON.stringify(data)}`);
     this.channel.put(bleDeviceDisconnect.success({ id: data.peripheral }));
     // TODO: message that peripheral disconnected

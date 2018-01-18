@@ -1,4 +1,0 @@
-// @flow
-
-// export function* saga() {
-// }

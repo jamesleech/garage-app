@@ -4,7 +4,7 @@ import { AsyncStorage } from 'react-native';
 import { bleDeviceDisconnect, bleDeviceConnect, bleWriteCharacteristic} from '../ble';
 import { loadDevices, saveDevice, removeDevice, toggleDoor } from '.';
 import { createMsg } from './messages';
-import type { Device } from '../ble';
+import type { BleDevice } from '../ble';
 
 const GARAGE_SERVICE_UUID = "321CCACA-29A6-4D46-B2DB-9B5639948751";
 const GARAGE_DOOR_CHARACTERISTIC_UUID = "D7C7B570-EEDA-11E7-BD5D-FB4762172F1A";
@@ -22,7 +22,7 @@ function* loadDevicesWorker(): Generator<*,*,*> {
     const deviceKeys = keysResult.filter(key => key.startsWith(deviceKey));
     yield call(console.log, `loadDevicesWorker.filtered keys: ${deviceKeys}`);
 
-    const devices: Array<Device> = [];
+    const devices: Array<BleDevice> = [];
 
     if(deviceKeys.length > 0) {
       yield call(console.log, `loadDevicesWorker: loading (${deviceKeys.length}) devices`);
@@ -117,12 +117,12 @@ function* toggleDoorWorker(action): Generator<*,*,*> {
 }
 
 function* removeDeviceWorker(action): Generator<*,*,*> {
-  const device: Device = action.payload;
+  const device: BleDevice = action.payload;
   yield call(console.log,`removeDeviceWorker: ${device.id} - ${device.name ? device.name : ''}`);
 
   try {
     if(device && device.id) {
-      yield put(bleDeviceDisconnect.request({ device }));
+      yield put(bleDeviceDisconnect.request({ id: device.id }));
       yield call(AsyncStorage.removeItem, deviceKeyId(device.id));
       yield put(removeDevice.success({ device }));
     } else {

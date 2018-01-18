@@ -5,7 +5,7 @@ import type { BleDevice } from '../ble';
 const ActionPrefix = 'jg/knownDevices/';
 
 export type LoadDevicesPayload = {
-  devices: any, // TODO: BleDevice[]
+  devices: Array<BleDevice>
 };
 
 export type RemoveDevicePayload = {
