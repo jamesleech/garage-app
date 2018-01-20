@@ -1,5 +1,5 @@
 // @flow
-import { put, take } from 'redux-saga/effects';
+import { call, put, take } from 'redux-saga/effects';
 import type { Action, ActionFunc } from './Action';
 
 export class ActionCreator<T> {

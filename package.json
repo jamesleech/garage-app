@@ -8,6 +8,7 @@
     "flow": "flow",
     "flow-stop": "flow stop",
     "start": "node node_modules/react-native/local-cli/cli.js start",
+    "sim": "react-native run-ios",
     "device": "react-native run-ios --device",
     "test": "jest"
   },
@@ -20,7 +21,7 @@
     "react-native-ble-manager": "^6.2.6",
     "react-native-swipeout": "^2.3.3",
     "react-native-vector-icons": "^4.5.0",
-    "react-navigation": "^1.0.0-beta.26",
+    "react-navigation": "^1.0.0-beta.27",
     "react-redux": "^5.0.6",
     "redux": "^3.7.2",
     "redux-saga": "^0.16.0",
@@ -31,19 +32,20 @@
     "babel-jest": "22.0.4",
     "babel-preset-flow": "^6.23.0",
     "babel-preset-react-native": "4.0.0",
-    "eslint": "^4.15.0",
+    "eslint": "^4.16.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
-    "eslint-plugin-prettier": "^2.4.0",
+    "eslint-plugin-prettier": "^2.5.0",
     "eslint-plugin-react": "^7.5.1",
     "eslint-plugin-react-native": "^3.2.1",
     "flow-bin": "^0.63.1",
     "jest": "22.0.4",
     "prettier": "^1.10.2",
-    "prettier-eslint": "^8.7.4",
-    "react-test-renderer": "16.0.0"
+    "prettier-eslint": "^8.8.0",
+    "react-test-renderer": "16.0.0",
+    "remote-redux-devtools": "^0.5.12"
   },
   "jest": {
     "preset": "react-native"

@@ -1,5 +1,7 @@
+// @flow
 import React from 'react';
 import styled from 'styled-components/native';
+import type { ActionFunc} from '../../store';
 
 const SignInTouchable = styled.TouchableOpacity`
   background-color: #3498db;
@@ -13,7 +15,11 @@ const SignInLoginText = styled.Text`
   font-weight: 700;
 `;
 
-const SignInButton = ({ onPress }) => (
+type Props = {
+  onPress: ActionFunc<>
+}
+
+const SignInButton = ({ onPress }: Props) => (
     <SignInTouchable onPress={onPress}>
       <SignInLoginText>Login</SignInLoginText>
     </SignInTouchable>

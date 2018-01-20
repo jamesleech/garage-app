@@ -1,4 +1,6 @@
+// @flow
 import React from 'react';
+import type { Node } from 'react';
 import styled from "styled-components/native";
 import { StatusBar } from "react-native";
 
@@ -7,7 +9,10 @@ const Wrapper = styled.KeyboardAvoidingView`
   background-color: #2980b9;
 `;
 
-const SignInView = ({ children }) => (
+type Props = {
+  children: Node;
+}
+const SignInView = ({ children }: Props) => (
     <Wrapper behavior='padding'>
       <StatusBar barStyle='dark-content' />
       {children}

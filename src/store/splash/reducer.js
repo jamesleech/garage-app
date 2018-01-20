@@ -1,16 +1,13 @@
 // @flow
 import { restore } from './actions';
-import type { RestorePayload } from './actions';
-import type { Action } from '../../Action';
+import type { Action, RestorePayload } from '../index';
 
-interface State {
+type State = {
   +loading: boolean;
-  +username: string;
 }
 
 const initialState: State = {
   loading: true,
-  username: "",
 };
 
 export type Actions = Action<RestorePayload>;
@@ -22,17 +19,16 @@ export const reducer = (state: State = initialState, action: Actions): State => 
         ...state,
         loading: true,
       };
-    case restore.SUCCESS:
+    case restore.SUCCESS: {
       return {
         ...state,
         loading: false,
-        ...action.payload,
       };
+    }
     case restore.FAILURE:
       return {
         ...state,
         loading: false,
-        username: ""
       };
     default:
       return state;

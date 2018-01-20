@@ -1,3 +1,4 @@
+// @flow
 import React from 'react';
 import { connect } from 'react-redux';
 import { Alert } from 'react-native';
@@ -7,9 +8,22 @@ import {
   DeviceKnownList,
   RowBluetooth,
 } from '../../components';
-import { removeDevice, toggleDoor } from '../../store/modules/knownDevices';
+import { removeDevice, toggleDoor } from '../../store';
+import type {
+  ActionFunc,
+  BleDevice,
+  RemoveDevicePayload,
+  ToggleDoorPayload
+} from '../../store';
 
-class KnownDevicesScreen extends React.Component {
+type Props = {
+  onRemoveDevice: ActionFunc<RemoveDevicePayload>;
+  onToggleDoor: ActionFunc<ToggleDoorPayload>;
+  bluetoothPower: boolean;
+  devices: Array<BleDevice>;
+}
+
+class KnownDevicesScreen extends React.Component<Props> {
   static navigationOptions = () => ({
       tabBarLabel: 'Devices',
       tabBarIcon: ({ tintColor, focused }) => (
@@ -21,12 +35,22 @@ class KnownDevicesScreen extends React.Component {
       ),
     });
 
-  onPressDevice = (device) => {
-    const { onToggleDoor } = this.props;
-    onToggleDoor({ id: device.id });
+  static mapStateToProps = (state) => ({
+    bluetoothPower: state.ble.on,
+    devices: state.knownDevices.devices.toList().toJS(),
+  });
+
+  static mapDispatchToProps = {
+    onToggleDoor: toggleDoor.request,
+    onRemoveDevice: removeDevice.request
   };
 
-  onRemoveDevice = (device) => {
+  onPressDevice = (device: BleDevice) => {
+    const { onToggleDoor } = this.props;
+    onToggleDoor({ device });
+  };
+
+  onRemoveDevice = (device: BleDevice) => {
     Alert.alert(
       'Remove Device',
       'Removing the linked device will also remove it\'s key',
@@ -47,26 +71,15 @@ class KnownDevicesScreen extends React.Component {
     return (
       <TabContainer>
         <RowBluetooth on={ bluetoothPower }/>
-        <DeviceKnownList
-          devices={devices}
-          onPressDevice={this.onPressDevice}
-          onRemoveDevice={this.onRemoveDevice} />
-    </TabContainer>);
+          <DeviceKnownList
+            devices={devices}
+            onPressDevice={this.onPressDevice}
+            onRemoveDevice={this.onRemoveDevice}/>
+      </TabContainer>
+    );
   }
 }
 
-function mapStateToProps(state) {
-  return {
-    bluetoothPower: state.ble.on,
-    devices: state.knownDevices.devices.toList().toJS(),
-  };
-}
-
-const screen = connect(mapStateToProps,
-  {
-    onToggleDoor: toggleDoor.request,
-    onRemoveDevice: removeDevice.request
-  }
-)(KnownDevicesScreen);
+const screen = connect(KnownDevicesScreen.mapStateToProps,KnownDevicesScreen.mapDispatchToProps)(KnownDevicesScreen);
 
 export { screen as KnownDevicesScreen };

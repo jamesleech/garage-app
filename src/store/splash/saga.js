@@ -1,10 +1,11 @@
 // @flow
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { NavigationActions } from 'react-navigation';
+// import { AsyncStorage } from 'react-native';
 import { loadUser, signIn, loadDevices } from '../index';
 import { restore } from './actions';
 import type { RestorePayload } from './actions';
-import type { Action } from '../../Action';
+import type { Action, LoadUserPayload, LoadDevicesPayload } from '../index';
 
 function* restoreWorker(): Generator<*,*,*> {
   try {
@@ -12,15 +13,15 @@ function* restoreWorker(): Generator<*,*,*> {
     // yield call(AsyncStorage.clear);
 
     yield call(console.log, 'restoreWorker.loadUsername');
-    const userResult = yield call(loadUser.call);
+    const userResult: Action<LoadUserPayload> = yield call(loadUser.call);
     yield call(console.log, `restoreWorker.loadUsername: ${JSON.stringify(userResult)}`);
 
     if(userResult.type === loadUser.SUCCESS) {
-      const user = userResult.payload;
+      const { user } = userResult.payload;
       // no web login, currently only bluetooth enabled
       if(user.username) {
         yield call(console.log, 'restoreWorker.loadDevices');
-        const result = yield call(loadDevices.call);
+        const result: Action<LoadDevicesPayload> = yield call(loadDevices.call);
         yield call(console.log, `restoreWorker: load devices results: ${JSON.stringify(result)}`);
         yield put(restore.success({ user }));
       } else {
@@ -49,8 +50,8 @@ function* signInNavigate(): Generator<*,*,*> {
 }
 
 function* signedInNavigate(action: Action<RestorePayload>): Generator<*,*,*> {
-  const { user } = action.payload;
   yield call(console.log, 'signedInNavigate');
+  const { user } = action.payload;
   yield put(signIn.success({ user }));
 }
 

@@ -1,10 +1,16 @@
 // @flow
-import { takeLatest, call, put, throttle } from 'redux-saga/effects';
+import { takeLatest, all, call, put, throttle } from 'redux-saga/effects';
 import { AsyncStorage } from 'react-native';
 import { bleDeviceDisconnect, bleDeviceConnect, bleWriteCharacteristic} from '../ble';
-import { loadDevices, saveDevice, removeDevice, toggleDoor } from '.';
+import { loadDevices, saveDevice, removeDevice, toggleDoor } from './index';
 import { createMsg } from './messages';
-import type { BleDevice } from '../ble';
+import type {
+  Action,
+  BleDevice,
+  LoadDevicesPayload,
+  RemoveDevicePayload
+} from '../index';
+import type {SaveDevicePayload, ToggleDoorPayload} from './actions';
 
 const GARAGE_SERVICE_UUID = "321CCACA-29A6-4D46-B2DB-9B5639948751";
 const GARAGE_DOOR_CHARACTERISTIC_UUID = "D7C7B570-EEDA-11E7-BD5D-FB4762172F1A";
@@ -42,25 +48,26 @@ function* loadDevicesWorker(): Generator<*,*,*> {
 
   } catch (error){
     yield call(console.log, `loadDevicesWorks error: ${error}`);
-    yield put(loadDevices.failure(error));
+    yield put(loadDevices.failure({
+      devices: [],
+      error
+    }));
   }
 }
 
-function* connectLoadedDevicesWorker(action): Generator<*,*,*> {
-  yield call(console.log, `connectLoadedDevicesWorker`);
+function* connectLoadedDevicesWorker(action: Action<LoadDevicesPayload>): Generator<*,*,*> {
   try {
-    const devices = action.payload;
-    for(let i = 0; i< devices.length; i++) {
-      yield put(bleDeviceConnect.request(devices[i]));
-    }
+    const {devices} = action.payload;
+    yield call(console.log, `connectLoadedDevicesWorker ${JSON.stringify(devices)}`);
+    yield all(devices.map(device => put(bleDeviceConnect.request({device}))));
   } catch (error) {
     yield call(console.log, `connectLoadedDevicesWorker error: ${error}`);
   }
 }
 
-function* saveDeviceWorker(action): Generator<*,*,*> {
-  const device = action.payload;
-  yield call(console.log, `saveDeviceWorker: ${deviceKeyId(device.id)} - ${JSON.stringify(device)}`);
+function* saveDeviceWorker(action: Action<SaveDevicePayload>): Generator<*,*,*> {
+  const {device} = action.payload;
+  yield call(console.log, `saveDeviceWorker: ${JSON.stringify(action.payload)}`);
 
   try {
     // validate the device
@@ -69,20 +76,20 @@ function* saveDeviceWorker(action): Generator<*,*,*> {
       // add to persistent store
       yield call(AsyncStorage.setItem, deviceKeyId(device.id), JSON.stringify(device));
       console.log('saveDeviceWorker: AsyncStorage success');
-      yield put(saveDevice.success(device));
+      yield put(saveDevice.success({device}));
     } else {
-      console.log('saveDeviceWorker: AsyncStorage failure');
-      yield put(saveDevice.failure(device));
+      console.log('saveDeviceWorker: invalid device, must have id, name and key');
+      yield put(saveDevice.failure({device}));
     }
   } catch (error) {
-    yield call(console.error, `saveDeviceWorker: error`);
-    yield put(saveDevice.failure(device));
+    yield call(console.error, `saveDeviceWorker: ${JSON.stringify(error)}`);
+    yield put(saveDevice.failure({device, error}));
   }
 }
 
-function* toggleDoorWorker(action): Generator<*,*,*> {
-  const { id } = action.payload;
-  yield call(console.log, `toggleDoorWorker: ${id}`);
+function* toggleDoorWorker(action: Action<ToggleDoorPayload>): Generator<*,*,*> {
+  const { device } = action.payload;
+  yield call(console.log, `toggleDoorWorker: ${device.id}`);
 
   try {
     // TODO: get a serial number
@@ -93,7 +100,7 @@ function* toggleDoorWorker(action): Generator<*,*,*> {
 
     const result = yield call(
       bleWriteCharacteristic.call, {
-        deviceId: id,
+        deviceId: device.id,
         serviceUuid: GARAGE_SERVICE_UUID,
         characteristicUuid: GARAGE_DOOR_CHARACTERISTIC_UUID,
         message: msg
@@ -107,22 +114,20 @@ function* toggleDoorWorker(action): Generator<*,*,*> {
   } catch (error) {
     yield call(console.error, `toggleDoorWorker exception: ${error}`);
     yield put(toggleDoor.failure({
-      device: {
-        id,
-      },
+      device,
       errorMessage: error,
     }));
     yield call(console.log, error);
   }
 }
 
-function* removeDeviceWorker(action): Generator<*,*,*> {
-  const device: BleDevice = action.payload;
+function* removeDeviceWorker(action: Action<RemoveDevicePayload>): Generator<*,*,*> {
+  const {device} = action.payload;
   yield call(console.log,`removeDeviceWorker: ${device.id} - ${device.name ? device.name : ''}`);
 
   try {
     if(device && device.id) {
-      yield put(bleDeviceDisconnect.request({ id: device.id }));
+      yield put(bleDeviceDisconnect.request({device}));
       yield call(AsyncStorage.removeItem, deviceKeyId(device.id));
       yield put(removeDevice.success({ device }));
     } else {
@@ -133,7 +138,7 @@ function* removeDeviceWorker(action): Generator<*,*,*> {
     }
     yield put(removeDevice.success({ device }));
   } catch (error) {
-    yield call(console.error, `removeDeviceWorker: error`);
+    yield call(console.error, `removeDeviceWorker error: ${error}`);
     yield put(removeDevice.failure({
       device,
       errorMessage: 'need a device id to remove'
@@ -146,7 +151,6 @@ export function* saga(): Generator<*,*,*> {
   yield takeLatest(loadDevices.SUCCESS, connectLoadedDevicesWorker);
   yield takeLatest(saveDevice.REQUEST, saveDeviceWorker);
   yield takeLatest(removeDevice.REQUEST, removeDeviceWorker);
-
   // only allow door toggle once per second
   yield throttle(1000, toggleDoor.REQUEST, toggleDoorWorker);
 }

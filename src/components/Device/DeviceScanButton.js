@@ -1,5 +1,7 @@
+// @flow
 import React from 'react';
 import styled from 'styled-components/native';
+import type { ActionFunc } from '../../store';
 
 const DeviceScanTouchable = styled.TouchableOpacity`
   width: 98%;
@@ -21,7 +23,13 @@ const DeviceScanText = styled.Text`
   padding-bottom: 6%;
 `;
 
-const DeviceScanButton = ({ scanning, startScanning, stopScanning }) => {
+type props = {
+  scanning: boolean;
+  startScanning: ActionFunc<>;
+  stopScanning: ActionFunc<>;
+};
+
+const DeviceScanButton = ({ scanning, startScanning, stopScanning }: props) => {
   let text = '';
   let onPress;
   if (scanning) {

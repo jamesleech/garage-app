@@ -1,15 +1,19 @@
 // @flow
 import { combineReducers } from 'redux';
-import { splashReducer } from './splash';
-import { signInReducer } from './signIn';
-import { navReducer } from './navigation';
-import { bleReducer } from './ble';
-import { knownDevicesReducer } from './knownDevices';
+import {
+  navReducer,
+  splashReducer,
+  signInReducer,
+  bleReducer,
+  linkDeviceReducer,
+  knownDevicesReducer,
+} from './index';
 
 export const getRootReducer = () => combineReducers({
   nav: navReducer,
   splash: splashReducer,
   signIn: signInReducer,
   ble: bleReducer,
+  linkDevice: linkDeviceReducer,
   knownDevices: knownDevicesReducer,
 });

@@ -1,8 +1,13 @@
+// @flow
 import React from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { RowView, RowRightItem, RowText } from './index';
 
-const RowBluetooth = ( { on }) => (
+type Props = {
+  on: boolean;
+}
+
+const RowBluetooth = ( { on }: Props) => (
     <View>
       {!on
         ?

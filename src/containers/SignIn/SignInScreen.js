@@ -1,16 +1,25 @@
+// @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { SignInView, SignInLogo, SignInForm } from '../../components';
-import { signIn } from '../../store/modules/signIn';
+import { signIn } from '../../store/signIn/actions';
+import type { ActionFunc, SignInPayload } from '../../store';
 
-class SignInScreen extends Component {
+type Props = {
+  doSignIn: ActionFunc<SignInPayload>
+}
+
+class SignInScreen extends Component<Props> {
   static navigationOptions = {
     header: null,
     headerLeft: null
   };
 
-  static mapDispatchToProps = {
-    doSignIn: signIn.request
+  static mapDispatchToProps = () => {
+    console.log(`${signIn.REQUEST}`);
+    return {
+      doSignIn: signIn.request
+    };
   };
 
   render() {
@@ -24,6 +33,6 @@ class SignInScreen extends Component {
   }
 }
 
-const screen = connect(null, SignInScreen.mapDispatchToProps)(SignInScreen);
+const screen = connect(null, SignInScreen.mapDispatchToProps())(SignInScreen);
 
 export { screen as SignInScreen };

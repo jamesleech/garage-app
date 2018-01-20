@@ -1,8 +1,10 @@
+// @flow
 import React, {Component} from 'react';
 import { FlatList, View, ActivityIndicator } from 'react-native';
 import styled from 'styled-components/native';
 import { RowView, RowText } from '../Common';
 import { DeviceListItem } from './index';
+import type { ActionFunc, BleDevice } from '../../store';
 
 const StyledView = styled.View`
   flex: 1;
@@ -13,10 +15,16 @@ const ActivityIndicatorWrapper = styled.View`
   padding-left: 10px;
 `;
 
-class DeviceList extends Component {
-  keyExtractor = (device) => device.id || device.uuid;
+type props = {
+  scanning: boolean;
+  devices: Array<BleDevice>;
+  onLinkDevice: ActionFunc<BleDevice>;
+}
 
-  foundText = (length) => `Found ${length} ${length === 1 ? 'device' : 'devices'}`;
+class DeviceList extends Component<props> {
+  keyExtractor = (device: BleDevice) => device.id;
+
+  foundText = (length: number) => `Found ${length} ${length === 1 ? 'device' : 'devices'}`;
 
   render() {
     const { scanning, devices, onLinkDevice } = this.props;
@@ -37,7 +45,7 @@ class DeviceList extends Component {
         <FlatList
           data={ devices }
           keyExtractor={this.keyExtractor}
-          renderItem={({item}) => <DeviceListItem item={item} onLinkPress={onLinkDevice}/>}
+          renderItem={({item}) => <DeviceListItem device={item} onLinkPress={onLinkDevice}/>}
         />
       </StyledView>
     );

@@ -1,9 +1,12 @@
+// @flow
 import React from 'react';
+import type { Node } from 'react';
 import { connect } from 'react-redux';
 import { StatusBar } from 'react-native';
 import styled from 'styled-components/native/index';
 import { CommonInput, CommonButton } from '../../components';
-import { linkDevice } from '../../store/modules/linkDevice';
+import { linkDevice } from '../../store';
+import type { ActionFunc, LinkDevicePayload, BleDevice } from '../../store';
 
 const Wrapper = styled.KeyboardAvoidingView`
   flex: 1;
@@ -11,44 +14,64 @@ const Wrapper = styled.KeyboardAvoidingView`
   padding: 20px;
 `;
 
-const LinkDeviceView = ({ children }) => (
+const DeviceName = styled.Text`
+  color: white;
+`;
+
+type LinkDeviceViewProps = { children: Node }
+const LinkDeviceView = ({ children }: LinkDeviceViewProps) => (
     <Wrapper behavior='padding'>
       <StatusBar barStyle='dark-content' />
       {children}
     </Wrapper>
   );
 
-class LinkDeviceScreen extends React.Component {
+type Props = {
+  device: BleDevice;
+  doLink: ActionFunc<LinkDevicePayload>;
+}
 
-  static navigationOptions = ({navigation}) => {
-    const {params = {}} = navigation.state;
-    return {
-      title: `${params.device.name}`,
-    };
+type State = {
+  alias: string;
+  deviceKey: string;
+}
+
+class LinkDeviceScreen extends React.Component<Props, State> {
+
+  static navigationOptions = () => ({
+    title: `Link Device`,
+  });
+
+  static mapStateToProps = (state) => ({
+    device: state.linkDevice.device,
+  });
+
+  static mapDispatchToProps = {
+    doLink: linkDevice.request
   };
 
-  doLinkDevice = () => {
-    const { params = {} } = this.props.navigation.state;
-    const { device } = params;
-    const { doLink } = this.props;
+  deviceKey: ?CommonInput;
 
+  doLinkDevice = () => {
+    const { device, doLink } = this.props;
     device.alias = this.state.alias;
     device.key = this.state.deviceKey;
-    console.log(`Link Device: ${JSON.stringify(device)}`);
-
-    doLink(device);
+    console.log(`doLinkDevice: ${JSON.stringify(device)}`);
+    doLink({device});
   };
 
   render() {
+    const { device } = this.props;
     return (
       <LinkDeviceView>
+        <DeviceName>{device.name}</DeviceName>
         <CommonInput
           autoCapitalize='none'
           autoCorrect={false}
           returnKeyType='next'
           placeholder='alias'
           placeholderTextColor='rgba(255,255,255,0.5)'
-          onSubmitEditing={() => this.deviceKey.focus()}
+          onSubmitEditing={() => this.deviceKey && this.deviceKey.focus()}
           onChangeText={alias => this.setState({alias})}
         />
         <CommonInput
@@ -68,10 +91,6 @@ class LinkDeviceScreen extends React.Component {
   }
 }
 
-const screen = connect(null,
-  {
-    doLink: linkDevice.request
-  }
-)(LinkDeviceScreen);
+const screen = connect(LinkDeviceScreen.mapStateToProps,LinkDeviceScreen.mapDispatchToProps)(LinkDeviceScreen);
 
 export { screen as LinkDeviceScreen };

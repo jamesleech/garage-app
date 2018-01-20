@@ -2,8 +2,7 @@
 import React, { Component } from "react";
 import styled from "styled-components/native";
 import { CommonInput, CommonButton } from '../index';
-import type { ActionFunc } from '../../store/Action';
-import type { SignInPayload } from '../../store/modules/signIn/actions';
+import type { ActionFunc, SignInPayload } from '../../store/';
 
 const Wrapper = styled.View`
   padding: 20px;

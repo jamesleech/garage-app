@@ -1,20 +1,35 @@
+// @flow
 import React from 'react';
 import { connect } from 'react-redux';
 import { TabNavigator } from 'react-navigation';
+import type { NavigationContainer } from 'react-navigation';
 import { ScanDevicesScreen, KnownDevicesScreen } from '../index';
 import { StatusBarWrapper } from '../../components';
 
-let HomeScreenNavigator = {};
+type Props = {
+  username: string;
+  navigation: any; // TODO:
+}
 
-class HomeScreen extends React.Component {
+let HomeScreenNavigator: NavigationContainer<*,*,*>;
+
+class HomeScreen extends React.Component<Props> {
+
+  static router: any; // TODO:
 
   static navigationOptions = ({navigation}) => {
     const {params = {}} = navigation.state;
+    console.log(`HomeScreen.navigationOptions: params ${JSON.stringify(params)}`);
     return {
       title: `${params.username}' Garage`,
       headerLeft: null
     };
   };
+
+  static mapStateToProps = (state) => ({
+    username: state.signIn.username,
+    linkedDevice: state.ble.linkedDevice,
+  });
 
   constructor() {
     super();
@@ -27,13 +42,13 @@ class HomeScreen extends React.Component {
     HomeScreenNavigator.router = HomeScreen.router;
   }
 
-  componentDidMount() {
-    // grab the username from the store
-    // give it to the navigator so that it can be used in navigationOptions above
-    this.props.navigation.setParams({
-      username: this.props.username
-    });
-  }
+  // componentDidMount() {
+  //   // grab the username from the store
+  //   // give it to the navigator so that it can be used in navigationOptions above
+  //   this.props.navigation.setParams({
+  //     username: this.props.username
+  //   });
+  // }
 
   render() {
     return (
@@ -44,13 +59,5 @@ class HomeScreen extends React.Component {
   }
 }
 
-function mapStateToProps(state) {
-  return {
-    username: state.signIn.username,
-    linkedDevice: state.ble.linkedDevice,
-  };
-}
-
-const screen = connect(mapStateToProps)(HomeScreen);
-
+const screen = connect(HomeScreen.mapStateToProps, {})(HomeScreen);
 export { screen as HomeScreen };

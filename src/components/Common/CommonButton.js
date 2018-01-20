@@ -1,5 +1,7 @@
+// @flow
 import React from 'react';
 import styled from 'styled-components/native/index';
+import type { ActionFunc } from '../../store';
 
 const CommonTouchable = styled.TouchableOpacity`
   background-color: #3498db;
@@ -13,7 +15,12 @@ const CommonText = styled.Text`
   font-weight: 700;
 `;
 
-const CommonButton = ({ onPress, label }) => (
+type Props = {
+  onPress: ActionFunc<>;
+  label: string;
+}
+
+const CommonButton = ({ onPress, label }: Props) => (
     <CommonTouchable onPress={onPress}>
       <CommonText>{label}</CommonText>
     </CommonTouchable>

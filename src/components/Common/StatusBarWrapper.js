@@ -1,5 +1,7 @@
+// @flow
 import React from 'react';
-import { StatusBar } from "react-native";
+import type { Node } from 'react';
+import { StatusBar } from 'react-native';
 import styled from 'styled-components/native/index';
 
 const Wrapper = styled.View`
@@ -7,7 +9,13 @@ const Wrapper = styled.View`
   background-color: #2980b9;
 `;
 
-const StatusBarWrapper = ( { className, barStyle, children }) =>
+type Props = {
+  className: string;
+  barStyle: 'default' | 'light-content' | 'dark-content';
+  children: Node;
+}
+
+const StatusBarWrapper = ( { className, barStyle, children }: Props) =>
   <Wrapper className={ className}>
     <StatusBar barStyle={barStyle || 'dark-content' } />
     {children}

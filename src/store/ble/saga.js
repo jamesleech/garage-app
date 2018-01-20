@@ -23,13 +23,20 @@ import {
   bleWriteCharacteristic,
 } from './actions';
 import { BleWrapper } from './BleWrapper';
-import { linkDevice } from '../linkDevice';
-import type { Action } from '../../Action';
-import type { LinkDevicePayload } from '../linkDevice';
-import type { bleDeviceDisconnectPayload, bleDeviceConnectPayload } from './actions';
+import { linkDevice } from '../linkDevice/index';
+import type { Action } from '../Action';
+import type { LinkDevicePayload } from '../linkDevice/index';
+import type {
+  bleDeviceDisconnectPayload,
+  bleDeviceConnectPayload,
+  bleScanStopPayload,
+  bleDeviceGetServicesPayload, bleUpdateStatePayload,
+} from './actions';
 
-const getBleState = state => state.ble.on;
+const getBleState = (state): boolean => state.ble.on;
 const getKnownDevices = state => state.knownDevices.devices;
+
+const GARAGE_SERVICE_UUIDS = "321CCACA-29A6-4D46-B2DB-9B5639948751";
 
 // pipe ble channel messages
 // HACK? is there a better way?
@@ -67,7 +74,7 @@ function* stopBluetoothSaga(bleWrapper): Generator<*,*,*> {
 function* scanningSaga(bleWrapper): Generator<*,*,*> {
   // wait for a start scan request
   while (yield take(bleScanStart.REQUEST)) {
-    const on = yield select(getBleState); // check to see if bluetooth is actually on
+    const on: boolean = yield select(getBleState); // check to see if bluetooth is actually on
 
     if(!on) {
       yield put(bleScanStart.failure());
@@ -77,7 +84,7 @@ function* scanningSaga(bleWrapper): Generator<*,*,*> {
       // yield call(bleWrapper.startScan, [GARAGE_SERVICE_UUIDS], 10); // returns immediately
       yield call(bleWrapper.startScan, null, 10); // returns immediately
       // let the scanning run until a scan stop request or timed out
-      const action = yield take([bleScanStop.REQUEST, bleScanStop.SUCCESS]);
+      const action: Action<bleScanStopPayload> = yield take([bleScanStop.REQUEST, bleScanStop.SUCCESS]);
       // if a stop request, cancel the scanning task.
       if(action.type === bleScanStop.REQUEST) {
         yield call(bleWrapper.stopScan);
@@ -89,68 +96,58 @@ function* scanningSaga(bleWrapper): Generator<*,*,*> {
 
 // device connect
 function* connectDeviceWorker(bleWrapper, action: Action<LinkDevicePayload | bleDeviceConnectPayload>): Generator<*,*,*> {
-  const { device } = (action.payload: LinkDevicePayload | any);
-  let deviceId: string;
-
-  if(device) {
-    const { id } = device;
-    deviceId = id;
-  } else {
-    const { id } = (action.payload: bleDeviceConnectPayload | any);
-    deviceId = id;
-  }
-
-  yield call(console.log, `connectDeviceWorker: ${deviceId}`);
+  const { device } = action.payload;
+  yield call(console.log, `connectDeviceWorker: ${JSON.stringify(device)}`);
   try {
     const bleOn = yield select(getBleState);
     if(bleOn) {
-      yield call(bleWrapper.connect, deviceId);
+      yield call(bleWrapper.connect, device.id);
     } else {
-      yield call(console.log,`connectDeviceWorker can NOT connect ${JSON.stringify(deviceId)}, as bluetooth is not on.`);
+      yield call(console.log,`connectDeviceWorker can NOT connect ${JSON.stringify(device)}, as bluetooth is not on.`);
     }
   } catch (error) {
     yield call(console.error, `connectDeviceWorker exception: ${error}`);
-    yield put(bleDeviceConnect.failure({ id: deviceId, error }));
+    yield put(bleDeviceConnect.failure({ device, error }));
   }
 }
 
 function* disconnectDeviceWorker(bleWrapper, action: Action<bleDeviceDisconnectPayload>): Generator<*,*,*> {
-  const { id } = action.payload;
-  yield call(console.log, `disconnectDeviceWorker ${JSON.stringify(id)}`);
+  const { device } = action.payload;
+  yield call(console.log, `disconnectDeviceWorker ${JSON.stringify(device)}`);
 
   try {
-    yield call(bleWrapper.disconnect, id);
+    yield call(bleWrapper.disconnect, device.id);
   } catch (error) {
     yield call(console.error, `disconnectDeviceWorker exception: ${error}`);
     yield put(bleDeviceDisconnect.failure({
-      id,
+      device,
       errorMessage: JSON.stringify(error),
     }));
   }
 }
 
 function* connectedDeviceWorker(bleWrapper, action: Action<bleDeviceConnectPayload>): Generator<*,*,*> {
-  const { id } = action.payload;
-  yield call(console.log, `connectedDeviceWorker: ${id}`);
-  yield put(bleDeviceGetServices.request({ id }));
+  const { device } = action.payload;
+  yield call(console.log, `connectedDeviceWorker: ${device.id}`);
+  yield put(bleDeviceGetServices.request({device}));
 }
 
-function* getDeviceServicesWorker(bleWrapper, action): Generator<*,*,*> {
-  const { id } = action.payload;
-  yield call(console.log, `getDeviceServicesWorker: ${JSON.stringify(id)}`);
+function* getDeviceServicesWorker(bleWrapper, action: Action<bleDeviceGetServicesPayload>): Generator<*,*,*> {
+  const { device } = action.payload;
+  yield call(console.log, `getDeviceServicesWorker: ${JSON.stringify(device)}`);
   try {
-    const services = yield call(bleWrapper.getServicesForDeviceId, id);
-    yield put(bleDeviceGetServices.success({ id, services }));
+    const services = yield call(bleWrapper.getServicesForDeviceId, device.id);
+    yield put(bleDeviceGetServices.success({ device, services }));
     yield call(console.log, `getDeviceServicesWorker: ${JSON.stringify(services)}`);
   } catch (error){
     yield call(console.error, `getDeviceServicesWorker exception: ${error}`);
-    yield put(bleDeviceGetServices.failure({ id, error }));
+    yield put(bleDeviceGetServices.failure({ device, error }));
   }
 }
 
-function* updateStateWorker(action): Generator<*,*,*> {
-  const { payload } = action;
-  if(payload === 'on') { // TODO: remove magic string
+function* updateStateWorker(action: Action<bleUpdateStatePayload>): Generator<*,*,*> {
+  const { state } = action.payload;
+  if(state === 'on') { // TODO: remove magic string
     yield put(bleDeviceConnectKnown.request());
   }
 }
@@ -204,9 +201,9 @@ function* writeCharacteristic(bleWrapper, action): Generator<*,*,*> {
 // }
 
 function* connectKnownDevicesWorker(): Generator<*,*,*> {
-  yield call(console.log, 'connectKnownDevices: trying to connect all known devices...');
   const devices = yield select(getKnownDevices);
-  yield all(devices.map(device => put(bleDeviceConnect.request({ id: device.id }))));
+  yield call(console.log, `connectKnownDevices: trying to connect all known devices: ${JSON.stringify(devices)}`);
+  yield all(devices.map(device => put(bleDeviceConnect.request({device}))));
   yield put(bleDeviceConnectKnown.success());
 }
 

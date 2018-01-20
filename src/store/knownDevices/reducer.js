@@ -13,10 +13,10 @@ import { bleDeviceConnect, bleDeviceDisconnect, bleUpdateState } from '../ble/ac
 import type { RemoveDevicePayload, LoadDevicesPayload } from './index';
 import { removeDevice, loadDevices } from './index';
 
-import type { LinkDevicePayload } from '../linkDevice';
-import { linkDevice } from '../linkDevice';
+import type { LinkDevicePayload } from '../linkDevice/index';
+import { linkDevice } from '../linkDevice/index';
 
-import type { Action } from '../../Action';
+import type { Action } from '../Action';
 
 type State = {
   +devices: Map<string, BleDevice>;
@@ -53,7 +53,6 @@ export const reducer = (state: State = initialState, action: Actions) => {
     case loadDevices.SUCCESS: {
       const { devices } = (action.payload: LoadDevicesPayload | any);
       const devicesMap = Map(devices.map((item) => [ item.id, item ]));
-      console.log(`loadDevices.SUCCESS: ${JSON.stringify(devices)}`);
       return {
         ...state,
         devices: state.devices.merge(devicesMap),
@@ -77,43 +76,58 @@ export const reducer = (state: State = initialState, action: Actions) => {
       };
     }
     case bleDeviceConnect.REQUEST: {
-      const { id } = (action.payload: bleDeviceConnectPayload | any);
+      const { device } = (action.payload: bleDeviceConnectPayload | any);
       return {
         ...state,
-        devices: state.devices.setIn([id, 'status'], 'connecting'),
+        devices: state.devices.set(device.id, {
+          ...state.devices.get(device.id),
+          status: 'connecting'
+        }),
       };
     }
     case bleDeviceConnect.SUCCESS: {
-      const { id } = (action.payload: bleDeviceConnectPayload | any);
+      const { device } = (action.payload: bleDeviceConnectPayload | any);
       return {
         ...state,
-        devices: state.devices.setIn([id, 'status'], 'connected'),
+        devices: state.devices.set(device.id, {
+          ...state.devices.get(device.id),
+          status: 'connected'
+        }),
       };
     }
     case bleDeviceConnect.FAILURE: {
-      const { id } = (action.payload: bleDeviceConnectPayload | any);
+      const { device } = (action.payload: bleDeviceConnectPayload | any);
       return {
         ...state,
-        devices: state.devices.setIn([id, 'status'], 'notConnected'),
+        devices: state.devices.set(device.id, {
+          ...state.devices.get(device.id),
+          status: 'notConnected'
+        }),
       };
     }
     case bleDeviceDisconnect.REQUEST: {
-      const { id } = (action.payload: bleDeviceDisconnectPayload | any);
-      if (id && state.devices.has(id)) {
+      const { device } = (action.payload: bleDeviceDisconnectPayload | any);
+      if (device.id && state.devices.has(device.id)) {
         return {
           ...state,
-          devices: state.devices.setIn([id, 'status'], 'disconnecting'),
+          devices: state.devices.set(device.id, {
+            ...state.devices.get(device.id),
+            status: 'disconnecting'
+          }),
         };
       }
       return state;
     }
     case bleDeviceDisconnect.SUCCESS: {
-      const { id } = (action.payload: bleDeviceDisconnectPayload | any);
+      const { device } = (action.payload: bleDeviceDisconnectPayload | any);
       // need to test if the device is still a known device, could have just been removed and disconnected.
-      if (id && state.devices.has(id)) {
+      if (device.id && state.devices.has(device.id)) {
         return {
           ...state,
-          devices: state.devices.setIn([id, 'status'], 'notConnected'),
+          devices: state.devices.set(device.id, {
+            ...state.devices.get(device.id),
+            status: 'notConnected'
+          }),
         };
       }
       return state;

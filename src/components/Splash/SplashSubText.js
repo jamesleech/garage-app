@@ -1,3 +1,4 @@
+// @flow
 import styled from "styled-components/native";
 
 const SplashSubText = styled.Text`

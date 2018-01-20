@@ -1,18 +1,6 @@
-// @flow
-import { createStore, applyMiddleware } from 'redux';
-import createSagaMiddleware from 'redux-saga';
-import { getRootReducer, rootSaga } from './modules';
-
-const sagaMiddleware = createSagaMiddleware();
-
-const configureStore = (navReducer: any) => {
-  const store = createStore(
-    getRootReducer(navReducer),
-    applyMiddleware(sagaMiddleware)
-  );
-
-  sagaMiddleware.run(rootSaga);
-  return store;
-};
-
-export default configureStore;
+/* eslint-disable global-require,no-underscore-dangle */
+if (__DEV__ === true) {
+  module.exports = require('./configureStore.dev');
+} else {
+  module.exports = require('./configureStore.prod');
+}

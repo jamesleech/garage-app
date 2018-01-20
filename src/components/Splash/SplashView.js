@@ -1,4 +1,6 @@
+// @flow
 import React from 'react';
+import type { Node } from 'react';
 import { StatusBar } from 'react-native';
 import styled from 'styled-components/native';
 
@@ -9,7 +11,11 @@ const Wrapper = styled.View`
   align-items: center;  
 `;
 
-const SplashView = ({ children }) => (
+type Props = {
+  children: Node;
+}
+
+const SplashView = ({ children }: Props) => (
     <Wrapper behavior='padding'>
       <StatusBar barStyle='light-content' />
       {children}

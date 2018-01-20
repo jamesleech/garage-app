@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react';
 import styled from 'styled-components/native';
 
@@ -5,7 +6,11 @@ const StyledText = styled.Text`
   color: white;
 `;
 
-class GarageStatus extends Component {
+type Props = {
+  status: 'occupied' | 'unoccupied' | 'unknown';
+}
+
+class GarageStatus extends Component<Props> {
   renderGraphic = () => {
     switch (this.props.status) {
       case 'occupied':

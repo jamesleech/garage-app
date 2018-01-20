@@ -2,7 +2,7 @@
 import { NavigationActions } from 'react-navigation';
 import { AsyncStorage } from "react-native";
 import { takeLatest, takeEvery, put, call } from 'redux-saga/effects';
-import type { Action } from '../../Action';
+import type { Action } from '../Action';
 import type { SignInPayload, User } from './actions';
 import {
   loadUser, signIn, signOut, bcryptPassword,
@@ -89,8 +89,9 @@ function* saveUserWorker(action: Action<SignInPayload>): Generator<*,*,*> {
   const { user } = action.payload;
   if(!user.loaded) {
     yield call(console.log, `saveUserWorker: saving ${JSON.stringify(user)}`);
-    const result = yield call(bcryptPassword.call, user.password);
+    const result = yield call(bcryptPassword.call, { password: user.password || ''});
     if(result.type === bcryptPassword.SUCCESS) {
+      yield call(console.log, `saveUserWorker: bcrypt password success ${JSON.stringify(result)}`);
       user.password = result.payload.password;
       yield call(AsyncStorage.setItem, 'user', JSON.stringify(user));
     }
@@ -99,6 +100,7 @@ function* saveUserWorker(action: Action<SignInPayload>): Generator<*,*,*> {
 
 function* bcryptPasswordWorker(action): Generator<*,*,*> {
   // TODO: bcrypt password, for now just return the password
+  yield call(console.log, `bcryptPasswordWorker: action ${JSON.stringify(action)}`);
   yield put(bcryptPassword.success(action.payload));
 }
 

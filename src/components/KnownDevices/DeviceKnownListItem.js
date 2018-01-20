@@ -1,3 +1,4 @@
+// @flow
 import React from 'react';
 import styled from 'styled-components/native';
 import { View } from 'react-native';
@@ -6,6 +7,10 @@ import {
   RowText,
   DeviceStatus
 } from '../index';
+import type { ActionFunc } from '../../store/Action';
+import type { BleDevice } from '../../store/ble';
+import type { RemoveDevicePayload, ToggleDoorPayload } from '../../store/knownDevices/actions';
+
 
 const StyledTouchableOpacity = styled.TouchableOpacity`
   display: flex;
@@ -22,26 +27,38 @@ const ItemView = styled.View`
   margin: 4px 4px;
 `;
 
-const handlePress = (onPress, item) => () => onPress(item);
+type Props = {
+  device: BleDevice,
+  onPress: ActionFunc<ToggleDoorPayload>,
+  onRemove: ActionFunc<RemoveDevicePayload>
+}
 
-const handleRemove = (onRemove, item) => () => onRemove(item);
+const handlePress = (onPress, device) => () => {
+  console.log(`DeviceKnownListItem.handlePress: ${device.id}`);
+  onPress({device});
+};
 
-const DeviceKnownListItem = ({item, onPress, onRemove}) => {
-  const disabled = item.status!=='connected';
+const handleRemove = (onRemove, device) => () => {
+  console.log(`DeviceKnownListItem.handleRemove: ${device.id}`);
+  onRemove({device});
+};
+
+const DeviceKnownListItem = ({device, onPress, onRemove}: Props) => {
+  const disabled = device.status!=='connected';
   const removeBtn = {
     text: 'Remove',
     type: 'delete',
-    onPress: handleRemove(onRemove, item),
+    onPress: handleRemove(onRemove, device),
   };
 
   return (
     <Swipeout backgroundColor='transparent' right={[removeBtn]} autoClose>
-      <StyledTouchableOpacity onPress={handlePress(onPress, item)} disabled={disabled}>
+      <StyledTouchableOpacity onPress={handlePress(onPress, device)} disabled={disabled}>
         <View>
           <ItemView>
-            <RowText>{item.alias || item.name}</RowText>
+            <RowText>{device.alias || device.name}</RowText>
           </ItemView>
-          <DeviceStatus status={item.status}/>
+          <DeviceStatus status={device.status}/>
         </View>
       </StyledTouchableOpacity>
     </Swipeout>

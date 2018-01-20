@@ -164,7 +164,8 @@ export class BleWrapper {
 
   handleDiscoverPeripheral = ( { id, name, rssi}: BleDevice) => {
     // message discovered peripheral
-    this.channel.put(bleDeviceFound.success({ id, name, rssi }));
+    const device: BleDevice = { id, name, rssi };
+    this.channel.put(bleDeviceFound.success({device}));
   };
 
   handleStopScan = () => {
@@ -183,12 +184,14 @@ export class BleWrapper {
 
   handleConnectPeripheral = (data: BlePeripheral) => {
     console.log(`handleConnectPeripheral: Connected to ${JSON.stringify(data)}`);
-    this.channel.put(bleDeviceConnect.success({ id: data.peripheral }));
+    const device: BleDevice = { id: data.peripheral };
+    this.channel.put(bleDeviceConnect.success({ device }));
   };
 
-  handleDisconnectedPeripheral = (data: BlePeripheral ) => {
+  handleDisconnectedPeripheral = (data: BlePeripheral) => {
     console.log(`Disconnected from ${JSON.stringify(data)}`);
-    this.channel.put(bleDeviceDisconnect.success({ id: data.peripheral }));
+    const device: BleDevice = { id: data.peripheral };
+    this.channel.put(bleDeviceDisconnect.success({ device }));
     // TODO: message that peripheral disconnected
   };
 

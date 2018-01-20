@@ -1,3 +1,4 @@
+// @flow
 import React from 'react';
 import styled from 'styled-components/native';
 import { View } from 'react-native';
@@ -5,6 +6,10 @@ import {
   RowText,
   DeviceSignalStrength
 } from '../index';
+import type {
+  ActionFunc,
+  BleDevice,
+} from '../../store';
 
 const StyledTouchableOpacity = styled.TouchableOpacity`
   display: flex;
@@ -21,18 +26,25 @@ const ItemView = styled.View`
   margin: 4px 4px;
 `;
 
-const DeviceListItem = ({ item, onLinkPress }) => {
-  const pressed = () => {
-    onLinkPress(item);
+type Props = {
+  device: BleDevice;
+  onLinkPress: ActionFunc<BleDevice>;
+}
+
+const DeviceListItem = ({ device, onLinkPress }: Props) => {
+
+  const handlePress = () => {
+    console.log(`DeviceListItem.handlePress: ${JSON.stringify(device)}`);
+    onLinkPress(device);
   };
 
   return (
-    <StyledTouchableOpacity onPress={pressed}>
+    <StyledTouchableOpacity onPress={handlePress}>
       <View>
         <ItemView>
-          <RowText>{item.name || item.id}</RowText>
+          <RowText>{device.name || device.id}</RowText>
         </ItemView>
-        <DeviceSignalStrength strength={item.rssi}/>
+        <DeviceSignalStrength strength={device.rssi}/>
       </View>
     </StyledTouchableOpacity>
   );

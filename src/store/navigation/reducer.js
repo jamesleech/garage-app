@@ -1,7 +1,6 @@
 // TODO: @ flow
-
 import type { NavigationAction } from 'react-navigation/lib/TypeDefinition';
-import { AppNavigator } from '../../../AppNavigator';
+import { AppNavigator } from '../../AppNavigator';
 
 // initial nav state needs to get the action for a path in the AppNavigator
 const initialNavState =

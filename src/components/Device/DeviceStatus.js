@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react';
 import styled from 'styled-components/native';
 import { RowView } from '../index';
@@ -6,7 +7,11 @@ const StyledText = styled.Text`
   color: white;
 `;
 
-class DeviceStatus extends Component {
+type props = {
+  status: string
+};
+
+class DeviceStatus extends Component<props> {
   renderGraphic = () => {
     switch (this.props.status) {
       case 'connected':

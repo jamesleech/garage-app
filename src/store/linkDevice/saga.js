@@ -5,7 +5,7 @@ import { linkDevice, startLinkDevice } from './index';
 import { saveDevice } from '../knownDevices';
 import { bleScanStop } from '../ble';
 import type { StartLinkDevicePayload, LinkDevicePayload } from './actions';
-import type { Action } from '../../Action';
+import type { Action } from '../Action';
 
 function* linkDeviceWorker(action: Action<StartLinkDevicePayload>): Generator<*,*,*> {
   yield put(bleScanStop.request());
@@ -29,13 +29,14 @@ function* requestSaveDeviceWorker(action: Action<LinkDevicePayload>): Generator<
 
   try {
     // add to persistent store
-    const saveResult = yield call(saveDevice.call, device);
+    yield call(console.log, `requestSaveDeviceWorker.saveDevice: ${JSON.stringify(device)}`);
+    const saveResult = yield call(saveDevice.call, {device});
     yield call(console.log, `requestSaveDeviceWorker - saveResult: ${JSON.stringify(saveResult)}`);
     yield put(linkDevice.success({ device }));
     yield put(NavigationActions.back());
   } catch (error) {
-    yield call(console.log, `requestSaveDeviceWorker error: ${error}`);
-    yield put(linkDevice.failure({ device }));
+    yield call(console.log, `requestSaveDeviceWorker error: ${JSON.stringify(error)}`);
+    yield put(linkDevice.failure({ device, error }));
   }
 }
 

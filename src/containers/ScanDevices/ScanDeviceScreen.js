@@ -1,32 +1,60 @@
+// @flow
 import React from 'react';
 import { connect } from 'react-redux';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {
-  bleScanStart,
-  bleScanStop,
-} from '../../store/modules/ble';
-import { startLinkDevice } from '../../store/modules/linkDevice';
 import {
   DeviceScanButton,
   DeviceList,
   TabContainer,
   RowBluetooth,
 } from '../../components';
+import {
+  bleScanStart,
+  bleScanStop,
+  startLinkDevice,
+} from '../../store';
+import type {
+  ActionFunc,
+  BleDevice,
+  LinkDevicePayload,
+} from '../../store';
 
-class ScanDevicesScreen extends React.Component {
+type Props = {
+  linkDevice: ActionFunc<LinkDevicePayload>;
+  bluetoothPower: boolean;
+  startScan: ActionFunc<>;
+  stopScan: ActionFunc<>;
+  scanning: boolean;
+  devices: Array<BleDevice>;
+}
+
+class ScanDevicesScreen extends React.Component<Props> {
 
   static navigationOptions = () => ({
-      tabBarLabel: 'Scan',
-      tabBarIcon: ({ tintColor, focused }) => (
-        <Ionicons
-          name={focused ? 'ios-add' : 'ios-add-outline'}
-          size={26}
-          style={{ color: tintColor }}
-        />
-      ),
-    });
+    tabBarLabel: 'Scan',
+    tabBarIcon: ({ tintColor, focused }) => (
+      <Ionicons
+        name={focused ? 'ios-add' : 'ios-add-outline'}
+        size={26}
+        style={{ color: tintColor }}
+      />
+    ),
+  });
 
-  onLinkDevice = (device) => {
+  static mapStateToProps = (state) => ({
+      bluetoothPower: state.ble.on,
+      scanning: state.ble.scanning,
+      devices: state.ble.devices.toList().toJS(),
+      selectedDevice: state.ble.selectedDevice,
+  });
+
+  static mapDispatchToProps = {
+    startScan: bleScanStart.request,
+    stopScan: bleScanStop.request,
+    linkDevice: startLinkDevice.request,
+  };
+
+  onLinkDevice = (device: BleDevice) => {
     const { linkDevice } = this.props;
     linkDevice({ device });
   };
@@ -50,21 +78,6 @@ class ScanDevicesScreen extends React.Component {
   }
 }
 
-function mapStateToProps(state) {
-  return {
-    bluetoothPower: state.ble.on,
-    scanning: state.ble.scanning,
-    devices: state.ble.devices.toList().toJS(),
-    selectedDevice: state.ble.selectedDevice,
-  };
-}
-
-const screen = connect(mapStateToProps,
-  {
-    startScan: bleScanStart.request,
-    stopScan: bleScanStop.request,
-    linkDevice: startLinkDevice.request,
-  }
-)(ScanDevicesScreen);
+const screen = connect(ScanDevicesScreen.mapStateToProps, ScanDevicesScreen.mapDispatchToProps)(ScanDevicesScreen);
 
 export { screen as ScanDevicesScreen };

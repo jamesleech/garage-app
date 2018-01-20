@@ -1,6 +1,7 @@
-import React from "react";
-import styled from "styled-components/native";
-
+// @flow
+import React from 'react';
+import type { Node } from 'react';
+import styled from 'styled-components/native';
 
 const Wrapper = styled.View`
   flex: 1;
@@ -14,7 +15,11 @@ const FormattedText = styled.Text`
   font-weight: bold;
 `;
 
-const SplashText = ({ children }) => (
+type Props = {
+  children: Node;
+}
+
+const SplashText = ({ children }: Props) => (
     <Wrapper>
       <FormattedText>{children}</FormattedText>
     </Wrapper>

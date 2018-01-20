@@ -9,7 +9,7 @@ import {
 import type {
   BleDevice, bleScanStartPayload, bleScanStopPayload, bleDeviceFoundPayload, bleUpdateStatePayload,
 } from './actions';
-import type {Action} from '../../Action';
+import type {Action} from '../Action';
 
 type State = {
   +on: boolean,
