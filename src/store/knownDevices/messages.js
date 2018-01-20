@@ -27,10 +27,8 @@ export function createMsg(serialNumber: number, counter: number, command: number
     msg[i] = bytes.getUint8(i);
   }
   msg[8] = command; // 1 byte command
-  console.log(msg);
 
   const hmac = getMsgHMAC(key, msg);
-  console.log(hmac);
   const msgWithHmac = new Uint8ClampedArray(20); // MAX bluetooth characteristic message size
   msgWithHmac.set(msg, 0);
   for (let i = 0; i<11; i++) {

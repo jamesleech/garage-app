@@ -32,9 +32,9 @@ import type {
   bleScanStopPayload,
   bleDeviceGetServicesPayload, bleUpdateStatePayload,
 } from './actions';
+import type {LoadDevicesPayload} from '../index';
 
 const getBleState = (state): boolean => state.ble.on;
-const getKnownDevices = state => state.knownDevices.devices;
 
 const GARAGE_SERVICE_UUIDS = "321CCACA-29A6-4D46-B2DB-9B5639948751";
 
@@ -134,7 +134,6 @@ function* connectedDeviceWorker(bleWrapper, action: Action<bleDeviceConnectPaylo
 
 function* getDeviceServicesWorker(bleWrapper, action: Action<bleDeviceGetServicesPayload>): Generator<*,*,*> {
   const { device } = action.payload;
-  yield call(console.log, `getDeviceServicesWorker: ${JSON.stringify(device)}`);
   try {
     const services = yield call(bleWrapper.getServicesForDeviceId, device.id);
     yield put(bleDeviceGetServices.success({ device, services }));
@@ -200,13 +199,6 @@ function* writeCharacteristic(bleWrapper, action): Generator<*,*,*> {
 //   }
 // }
 
-function* connectKnownDevicesWorker(): Generator<*,*,*> {
-  const devices = yield select(getKnownDevices);
-  yield call(console.log, `connectKnownDevices: trying to connect all known devices: ${JSON.stringify(devices)}`);
-  yield all(devices.map(device => put(bleDeviceConnect.request({device}))));
-  yield put(bleDeviceConnectKnown.success());
-}
-
 // ble saga
 export function* saga(): Generator<*,*,*> {
   // create a channel onto which the bleWrapper will emit actions
@@ -221,9 +213,6 @@ export function* saga(): Generator<*,*,*> {
   yield takeEvery(bleDeviceConnect.SUCCESS, connectedDeviceWorker, bleWrapper);
   yield takeEvery(bleDeviceGetServices.REQUEST, getDeviceServicesWorker, bleWrapper);
   yield takeEvery(bleDeviceDisconnect.REQUEST, disconnectDeviceWorker, bleWrapper);
-
-  // connect known devices, every time bluetooth is turned on (at start up) and also every request to do so
-  yield takeEvery(bleDeviceConnectKnown.REQUEST, connectKnownDevicesWorker);
 
   // handle bluetooth state changes
   yield takeLatest(bleUpdateState.SUCCESS, updateStateWorker);

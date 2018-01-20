@@ -29,18 +29,16 @@ const ItemView = styled.View`
 
 type Props = {
   device: BleDevice,
-  onPress: ActionFunc<ToggleDoorPayload>,
-  onRemove: ActionFunc<RemoveDevicePayload>
+  onPress: ActionFunc<BleDevice>,
+  onRemove: ActionFunc<BleDevice>
 }
 
 const handlePress = (onPress, device) => () => {
-  console.log(`DeviceKnownListItem.handlePress: ${device.id}`);
-  onPress({device});
+  onPress(device);
 };
 
 const handleRemove = (onRemove, device) => () => {
-  console.log(`DeviceKnownListItem.handleRemove: ${device.id}`);
-  onRemove({device});
+  onRemove(device);
 };
 
 const DeviceKnownListItem = ({device, onPress, onRemove}: Props) => {

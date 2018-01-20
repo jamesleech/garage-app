@@ -1,7 +1,7 @@
 // @flow
-import { takeLatest, all, call, put, throttle } from 'redux-saga/effects';
+import {takeLatest, all, call, put, throttle, takeEvery, select} from 'redux-saga/effects';
 import { AsyncStorage } from 'react-native';
-import { bleDeviceDisconnect, bleDeviceConnect, bleWriteCharacteristic} from '../ble';
+import { bleDeviceDisconnect, bleDeviceConnect, bleWriteCharacteristic, bleDeviceConnectKnown} from '../ble';
 import { loadDevices, saveDevice, removeDevice, toggleDoor } from './index';
 import { createMsg } from './messages';
 import type {
@@ -20,18 +20,14 @@ const COMMAND_TOGGLE_DOOR = 0x01;
 const deviceKey = 'DEVICE:';
 const deviceKeyId = id => `${deviceKey}${id}`;
 
+const getKnownDevices = state => state.knownDevices.devices.toList().toJS();
+
 function* loadDevicesWorker(): Generator<*,*,*> {
-  yield call(console.log, `loadDevicesWorker`);
   const keysResult = yield call(AsyncStorage.getAllKeys);
-  yield call(console.log, `loadDevicesWorker.getAllKeys: ${keysResult}`);
   try {
     const deviceKeys = keysResult.filter(key => key.startsWith(deviceKey));
-    yield call(console.log, `loadDevicesWorker.filtered keys: ${deviceKeys}`);
-
     const devices: Array<BleDevice> = [];
-
     if(deviceKeys.length > 0) {
-      yield call(console.log, `loadDevicesWorker: loading (${deviceKeys.length}) devices`);
       // const devices = yield call(AsyncStorage.multiGet, deviceKeys); //doesn't workie
       // maybe 10 max in a single app... so lets go one at a time.
       for(let i = 0; i < deviceKeys.length; i++) {
@@ -42,8 +38,6 @@ function* loadDevicesWorker(): Generator<*,*,*> {
         devices.push(device);
       }
     }
-
-    yield call(console.log, `loadDevicesWorker: load devices success ${JSON.stringify(devices)}`);
     yield put(loadDevices.success({ devices }));
 
   } catch (error){
@@ -55,15 +49,25 @@ function* loadDevicesWorker(): Generator<*,*,*> {
   }
 }
 
-function* connectLoadedDevicesWorker(action: Action<LoadDevicesPayload>): Generator<*,*,*> {
+function* connectDevices(devices: Array<BleDevice>): Generator<*,*,*> {
   try {
-    const {devices} = action.payload;
-    yield call(console.log, `connectLoadedDevicesWorker ${JSON.stringify(devices)}`);
     yield all(devices.map(device => put(bleDeviceConnect.request({device}))));
   } catch (error) {
-    yield call(console.log, `connectLoadedDevicesWorker error: ${error}`);
+    yield call(console.log, `connectDevices error: ${error}`);
   }
 }
+
+function* connectLoadedDevicesWorker(action: Action<LoadDevicesPayload>): Generator<*,*,*> {
+  const {devices} = action.payload;
+  yield call(connectDevices, devices);
+}
+
+function* connectKnownDevicesWorker(): Generator<*,*,*> {
+  const devices = yield select(getKnownDevices);
+  yield call(connectDevices, devices);
+  yield put(bleDeviceConnectKnown.success());
+}
+
 
 function* saveDeviceWorker(action: Action<SaveDevicePayload>): Generator<*,*,*> {
   const {device} = action.payload;
@@ -89,8 +93,6 @@ function* saveDeviceWorker(action: Action<SaveDevicePayload>): Generator<*,*,*> 
 
 function* toggleDoorWorker(action: Action<ToggleDoorPayload>): Generator<*,*,*> {
   const { device } = action.payload;
-  yield call(console.log, `toggleDoorWorker: ${device.id}`);
-
   try {
     // TODO: get a serial number
     // TODO: manage rolling counter
@@ -117,7 +119,6 @@ function* toggleDoorWorker(action: Action<ToggleDoorPayload>): Generator<*,*,*> 
       device,
       errorMessage: error,
     }));
-    yield call(console.log, error);
   }
 }
 
@@ -148,7 +149,12 @@ function* removeDeviceWorker(action: Action<RemoveDevicePayload>): Generator<*,*
 
 export function* saga(): Generator<*,*,*> {
   yield takeLatest(loadDevices.REQUEST, loadDevicesWorker);
+
   yield takeLatest(loadDevices.SUCCESS, connectLoadedDevicesWorker);
+
+  // connect known devices
+  yield takeLatest(bleDeviceConnectKnown.REQUEST, connectKnownDevicesWorker);
+
   yield takeLatest(saveDevice.REQUEST, saveDeviceWorker);
   yield takeLatest(removeDevice.REQUEST, removeDeviceWorker);
   // only allow door toggle once per second

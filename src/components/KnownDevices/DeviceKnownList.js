@@ -23,6 +23,7 @@ type Props = {
 }
 
 class DeviceKnownList extends Component<Props> {
+
   keyExtractor = (device: BleDevice) => device.id;
 
   render() {
