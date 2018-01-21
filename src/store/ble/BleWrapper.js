@@ -30,6 +30,13 @@ type BlePeripheral = {
   peripheral: string;
 }
 
+export type WriteCommand = {
+  id: string,
+  serviceUuid: string,
+  characteristicUuid: string,
+  data: Array<number>
+}
+
 export class BleWrapper {
   appState: string;
   scanning: boolean;
@@ -119,8 +126,8 @@ export class BleWrapper {
   };
 
   connect = async (id: string) => {
-    // const isConnected = await BleManager.isPeripheralConnected(id, []);
-    // console.log(`bleWrapper.connect: ${id} isConnected: ${isConnected}`);
+    const isConnected = await BleManager.isPeripheralConnected(id, []);
+    console.log(`bleWrapper.connect: ${id} isConnected: ${isConnected}`);
     // if(isConnected) {
     //   this.channel.put(bleDeviceConnect.success({ id }));
     // } else {
@@ -140,7 +147,13 @@ export class BleWrapper {
     return undefined;
   };
 
-  getServicesForDeviceId = async (id: string) => BleManager.retrieveServices(id);
+  getServicesForDeviceId = async (id: string) => {
+    const isConnected = await BleManager.isPeripheralConnected(id, []);
+    if(isConnected) {
+      return BleManager.retrieveServices(id);
+    }
+    return null;
+  };
 
   getSignalStrength = async (id: string) => {
     try {
@@ -154,8 +167,8 @@ export class BleWrapper {
     return 0;
   };
 
-  write = async (id: string, serviceUUID: string, characteristicUUID: string, data: []) =>
-    BleManager.write(id, serviceUUID, characteristicUUID, data);
+  write = async ({id, serviceUuid, characteristicUuid, data}: WriteCommand) =>
+    BleManager.write(id, serviceUuid, characteristicUuid, data);
 
   handleUpdateState = ( { state }: BleUpdateState ) => {
     console.log(`bleWrapper.handleUpdateState: ${state}`);

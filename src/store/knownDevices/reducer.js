@@ -1,22 +1,25 @@
 // @flow
 import { Map } from "immutable";
+import type { Action } from '../Action';
 import type {
   BleDevice,
   bleUpdateStatePayload,
   bleDeviceConnectPayload,
+  bleDeviceGetServicesPayload,
   bleDeviceDisconnectPayload,
   bleDeviceSignalStrengthPayload,
-} from '../ble/actions';
-import { bleDeviceConnect, bleDeviceDisconnect, bleUpdateState } from '../ble/actions';
-
+  LinkDevicePayload,
+} from '../index';
+import {
+  bleDeviceConnect,
+  bleDeviceGetServices,
+  bleDeviceDisconnect,
+  bleUpdateState,
+  linkDevice
+} from '../index';
 
 import type { RemoveDevicePayload, LoadDevicesPayload } from './index';
 import { removeDevice, loadDevices } from './index';
-
-import type { LinkDevicePayload } from '../linkDevice/index';
-import { linkDevice } from '../linkDevice/index';
-
-import type { Action } from '../Action';
 
 type State = {
   +devices: Map<string, BleDevice>;
@@ -45,7 +48,7 @@ const initialState: State = {
 };
 
 export type Actions = Action<
-  bleUpdateStatePayload | bleDeviceConnectPayload | bleDeviceDisconnectPayload | bleDeviceSignalStrengthPayload
+  bleUpdateStatePayload | bleDeviceConnectPayload | bleDeviceGetServicesPayload | bleDeviceDisconnectPayload | bleDeviceSignalStrengthPayload
   | LinkDevicePayload | RemoveDevicePayload | LoadDevicesPayload>;
 
 export const reducer = (state: State = initialState, action: Actions) => {
@@ -77,34 +80,58 @@ export const reducer = (state: State = initialState, action: Actions) => {
     }
     case bleDeviceConnect.REQUEST: {
       const { device } = (action.payload: bleDeviceConnectPayload | any);
-      return {
-        ...state,
-        devices: state.devices.set(device.id, {
-          ...state.devices.get(device.id),
-          status: 'connecting'
-        }),
-      };
+      const existing = state.devices.get(device.id);
+      if(existing && existing.id) {
+        return {
+          ...state,
+          devices: state.devices.set(device.id, {
+            ...existing,
+            status: 'connecting'
+          }),
+        };
+      }
+      return state;
     }
     case bleDeviceConnect.SUCCESS: {
       const { device } = (action.payload: bleDeviceConnectPayload | any);
-      return {
-        ...state,
-        devices: state.devices.set(device.id, {
-          ...state.devices.get(device.id),
-          status: 'connected'
-        }),
-      };
+      const existing = state.devices.get(device.id);
+      if(existing && existing.id) {
+        return {
+          ...state,
+          devices: state.devices.set(device.id, {
+            ...existing,
+            status: 'connected'
+          }),
+        };
+      }
+      return state;
     }
     case bleDeviceConnect.FAILURE: {
       const { device } = (action.payload: bleDeviceConnectPayload | any);
-      return {
-        ...state,
-        devices: state.devices.set(device.id, {
-          ...state.devices.get(device.id),
-          status: 'notConnected'
-        }),
-      };
+      const existing = state.devices.get(device.id);
+      if(existing && existing.id) {
+        return {
+          ...state,
+          devices: state.devices.set(device.id, {
+            ...state.devices.get(device.id),
+            status: 'notConnected'
+          }),
+        };
+      }
+      return state;
     }
+    // case bleDeviceGetServices.SUCCESS: {
+    //   const { device } = (action.payload: bleDeviceGetServicesPayload | any);
+    //   const { existing } = state.devices.get(device.id);
+    //   console.log(`knownDevices reducer: bleDeviceGetServices.SUCCESS: new ${JSON.stringify(device)}`);
+    //   console.log(`knownDevices reducer: bleDeviceGetServices.SUCCESS: existing ${JSON.stringify(existing)}`);
+    //   return {
+    //     ...state,
+    //     devices: state.devices.set(device.id, {
+    //
+    //     }),
+    //   };
+    // }
     case bleDeviceDisconnect.REQUEST: {
       const { device } = (action.payload: bleDeviceDisconnectPayload | any);
       if (device.id && state.devices.has(device.id)) {

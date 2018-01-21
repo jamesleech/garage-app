@@ -1,16 +1,27 @@
 // @flow
 import {takeLatest, all, call, put, throttle, takeEvery, select} from 'redux-saga/effects';
 import { AsyncStorage } from 'react-native';
-import { bleDeviceDisconnect, bleDeviceConnect, bleWriteCharacteristic, bleDeviceConnectKnown} from '../ble';
-import { loadDevices, saveDevice, removeDevice, toggleDoor } from './index';
 import { createMsg } from './messages';
+import {
+  bleDeviceDisconnect,
+  bleDeviceConnect,
+  bleWriteCharacteristic,
+  bleDeviceConnectKnown,
+  bleDeviceGetServices,
+  loadDevices,
+  saveDevice,
+  removeDevice,
+  toggleDoor,
+} from '../index';
 import type {
   Action,
   BleDevice,
   LoadDevicesPayload,
-  RemoveDevicePayload
+  RemoveDevicePayload,
+  bleDeviceGetServicesPayload,
+  SaveDevicePayload,
+  ToggleDoorPayload,
 } from '../index';
-import type {SaveDevicePayload, ToggleDoorPayload} from './actions';
 
 const GARAGE_SERVICE_UUID = "321CCACA-29A6-4D46-B2DB-9B5639948751";
 const GARAGE_DOOR_CHARACTERISTIC_UUID = "D7C7B570-EEDA-11E7-BD5D-FB4762172F1A";
@@ -68,7 +79,6 @@ function* connectKnownDevicesWorker(): Generator<*,*,*> {
   yield put(bleDeviceConnectKnown.success());
 }
 
-
 function* saveDeviceWorker(action: Action<SaveDevicePayload>): Generator<*,*,*> {
   const {device} = action.payload;
   yield call(console.log, `saveDeviceWorker: ${JSON.stringify(action.payload)}`);
@@ -88,6 +98,17 @@ function* saveDeviceWorker(action: Action<SaveDevicePayload>): Generator<*,*,*> 
   } catch (error) {
     yield call(console.error, `saveDeviceWorker: ${JSON.stringify(error)}`);
     yield put(saveDevice.failure({device, error}));
+  }
+}
+
+function* saveDeviceServicesWorker(action: Action<bleDeviceGetServicesPayload>): Generator<*,*,*> {
+  const { device } = action.payload;
+  if(device.services) {
+    const existingDevice = {
+      ...JSON.parse(yield call(AsyncStorage.getItem, deviceKeyId(device.id))),
+      ...device,
+    };
+    yield call(AsyncStorage.setItem, deviceKeyId(device.id), JSON.stringify(existingDevice));
   }
 }
 
@@ -154,9 +175,12 @@ export function* saga(): Generator<*,*,*> {
 
   // connect known devices
   yield takeLatest(bleDeviceConnectKnown.REQUEST, connectKnownDevicesWorker);
-
   yield takeLatest(saveDevice.REQUEST, saveDeviceWorker);
   yield takeLatest(removeDevice.REQUEST, removeDeviceWorker);
+
+  // save services info
+  yield takeEvery(bleDeviceGetServices.SUCCESS, saveDeviceServicesWorker);
+
   // only allow door toggle once per second
   yield throttle(1000, toggleDoor.REQUEST, toggleDoorWorker);
 }

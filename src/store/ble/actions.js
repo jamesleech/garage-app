@@ -3,6 +3,22 @@ import { ActionCreator } from '../ActionCreator';
 
 const ActionPrefix = 'jg/ble/';
 
+export type BleProperty = 'Broadcast' | 'Read' | 'WriteWithoutResponse' | 'Write' | 'Notify' | 'Indicate';
+
+export type BleCharacteristic = {
+  characteristic: string,
+  isNotifying: boolean,
+  properties: Array<BleProperty>,
+  service: string,
+};
+
+export type BleDeviceServices = {
+  +id: string,
+  name?: string,
+  services: Array<string>,
+  characteristics: Array<BleCharacteristic>,
+}
+
 export type BleDevice = {
   +id: string,
   name?: string,
@@ -10,7 +26,8 @@ export type BleDevice = {
   rssi?: string,
   key?: string,
   alias?: string,
-}
+  details?: BleDeviceServices,
+};
 
 export type bleUpdateStatePayload = {
   state: string;
@@ -33,12 +50,19 @@ export type bleDeviceDisconnectPayload = {
 };
 export type bleDeviceGetServicesPayload = {
   device: BleDevice,
-  services?: Array<any>; // TODO: define this
 }
 
 export type bleDeviceSignalStrengthPayload = {
   // device: BleDevice,
 };
+
+export type bleWriteCharacteristicPayload = {
+  deviceId: string,
+  serviceUuid: string,
+  characteristicUuid: string,
+  message?: Array<number>,
+  error?: any,
+}
 
 const bleStart: ActionCreator<bleStartPayload> = new ActionCreator(ActionPrefix, 'START');
 const bleStop: ActionCreator<bleStopPayload> = new ActionCreator(ActionPrefix, 'STOP');
@@ -60,7 +84,7 @@ const bleDeviceDisconnectKnown = new ActionCreator(ActionPrefix, 'DEVICE_CONNECT
 
 const bleDeviceSignalStrength: ActionCreator<bleDeviceSignalStrengthPayload> = new ActionCreator(ActionPrefix, 'DEVICE_SIGNAL_STRENGTH');
 
-const bleWriteCharacteristic = new ActionCreator(ActionPrefix, 'WRITE_CHAR');
+const bleWriteCharacteristic: ActionCreator<bleWriteCharacteristicPayload> = new ActionCreator(ActionPrefix, 'WRITE_CHAR');
 
 export {
   bleStart,

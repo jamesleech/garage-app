@@ -1,7 +1,6 @@
 // @flow
 import { channel } from 'redux-saga';
 import {
-  all,
   put,
   fork,
   call,
@@ -23,20 +22,21 @@ import {
   bleWriteCharacteristic,
 } from './actions';
 import { BleWrapper } from './BleWrapper';
-import { linkDevice } from '../linkDevice/index';
+import type { WriteCommand } from './BleWrapper';
 import type { Action } from '../Action';
 import type { LinkDevicePayload } from '../linkDevice/index';
 import type {
   bleDeviceDisconnectPayload,
   bleDeviceConnectPayload,
   bleScanStopPayload,
-  bleDeviceGetServicesPayload, bleUpdateStatePayload,
+  bleDeviceGetServicesPayload,
+  bleUpdateStatePayload,
+  bleWriteCharacteristicPayload,
 } from './actions';
-import type {LoadDevicesPayload} from '../index';
 
 const getBleState = (state): boolean => state.ble.on;
 
-const GARAGE_SERVICE_UUIDS = "321CCACA-29A6-4D46-B2DB-9B5639948751";
+// const GARAGE_SERVICE_UUIDS = "321CCACA-29A6-4D46-B2DB-9B5639948751";
 
 // pipe ble channel messages
 // HACK? is there a better way?
@@ -101,6 +101,7 @@ function* connectDeviceWorker(bleWrapper, action: Action<LinkDevicePayload | ble
   try {
     const bleOn = yield select(getBleState);
     if(bleOn) {
+      yield call(console.log,`connectDeviceWorker bluetooth on attempting to connect.`);
       yield call(bleWrapper.connect, device.id);
     } else {
       yield call(console.log,`connectDeviceWorker can NOT connect ${JSON.stringify(device)}, as bluetooth is not on.`);
@@ -108,6 +109,16 @@ function* connectDeviceWorker(bleWrapper, action: Action<LinkDevicePayload | ble
   } catch (error) {
     yield call(console.error, `connectDeviceWorker exception: ${error}`);
     yield put(bleDeviceConnect.failure({ device, error }));
+  }
+}
+
+function* connectedDeviceWorker(bleWrapper, action: Action<bleDeviceConnectPayload>): Generator<*,*,*> {
+  const { device } = action.payload;
+  yield call(console.log, `connectedDeviceWorker: ${JSON.stringify(device)}`);
+  // only get services if they have not been previously stored / loaded.
+  if(!device.services) {
+    yield call(console.log, `connectedDeviceWorker calling bleDeviceGetServies.request`);
+    yield put(bleDeviceGetServices.request({device}));
   }
 }
 
@@ -126,18 +137,17 @@ function* disconnectDeviceWorker(bleWrapper, action: Action<bleDeviceDisconnectP
   }
 }
 
-function* connectedDeviceWorker(bleWrapper, action: Action<bleDeviceConnectPayload>): Generator<*,*,*> {
-  const { device } = action.payload;
-  yield call(console.log, `connectedDeviceWorker: ${device.id}`);
-  yield put(bleDeviceGetServices.request({device}));
-}
-
 function* getDeviceServicesWorker(bleWrapper, action: Action<bleDeviceGetServicesPayload>): Generator<*,*,*> {
   const { device } = action.payload;
   try {
     const services = yield call(bleWrapper.getServicesForDeviceId, device.id);
-    yield put(bleDeviceGetServices.success({ device, services }));
     yield call(console.log, `getDeviceServicesWorker: ${JSON.stringify(services)}`);
+    if(services){
+      const deviceWithServices = {...device, ...services};
+      yield put(bleDeviceGetServices.success({ device: deviceWithServices }));
+    } else {
+      yield put(bleDeviceGetServices.failure({ device }));
+    }
   } catch (error){
     yield call(console.error, `getDeviceServicesWorker exception: ${error}`);
     yield put(bleDeviceGetServices.failure({ device, error }));
@@ -151,16 +161,17 @@ function* updateStateWorker(action: Action<bleUpdateStatePayload>): Generator<*,
   }
 }
 
-function* writeCharacteristic(bleWrapper, action): Generator<*,*,*> {
+function* writeCharacteristic(bleWrapper, action: Action<bleWriteCharacteristicPayload>): Generator<*,*,*> {
   const { deviceId, serviceUuid, characteristicUuid, message } = action.payload;
   try {
-    yield call(
-      bleWrapper.write,
-      deviceId,
+    const command: WriteCommand = {
+      id: deviceId,
       serviceUuid,
       characteristicUuid,
-      message
-    );
+      data: message ? (message: Array<number>) : [],
+    };
+
+    yield call(bleWrapper.write, command);
     yield put(bleWriteCharacteristic.success({ deviceId, serviceUuid, characteristicUuid }));
   } catch (error) {
     yield call(console.error, `writeCharacteristic exception: ${error}`);
@@ -209,9 +220,10 @@ export function* saga(): Generator<*,*,*> {
   const bleWrapper = new BleWrapper(fromBleChannel);
 
   // setup listener sagas
-  yield takeEvery([bleDeviceConnect.REQUEST, linkDevice.SUCCESS], connectDeviceWorker, bleWrapper);
+  yield takeEvery(bleDeviceConnect.REQUEST, connectDeviceWorker, bleWrapper);
   yield takeEvery(bleDeviceConnect.SUCCESS, connectedDeviceWorker, bleWrapper);
-  yield takeEvery(bleDeviceGetServices.REQUEST, getDeviceServicesWorker, bleWrapper);
+
+  yield takeEvery([bleDeviceGetServices.REQUEST,bleDeviceConnect.SUCCESS], getDeviceServicesWorker, bleWrapper);
   yield takeEvery(bleDeviceDisconnect.REQUEST, disconnectDeviceWorker, bleWrapper);
 
   // handle bluetooth state changes

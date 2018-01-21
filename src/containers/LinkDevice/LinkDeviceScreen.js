@@ -4,7 +4,7 @@ import type { Node } from 'react';
 import { connect } from 'react-redux';
 import { StatusBar } from 'react-native';
 import styled from 'styled-components/native/index';
-import { CommonInput, CommonButton } from '../../components';
+import { CommonInput, CommonButton, DeviceStatus } from '../../components';
 import { linkDevice } from '../../store';
 import type { ActionFunc, LinkDevicePayload, BleDevice } from '../../store';
 
@@ -39,7 +39,7 @@ type State = {
 class LinkDeviceScreen extends React.Component<Props, State> {
 
   static navigationOptions = () => ({
-    title: `Link Device`,
+    title: `Link`,
   });
 
   static mapStateToProps = (state) => ({
@@ -65,6 +65,7 @@ class LinkDeviceScreen extends React.Component<Props, State> {
     return (
       <LinkDeviceView>
         <DeviceName>{device.name}</DeviceName>
+        <DeviceStatus status={device.status}/>
         <CommonInput
           autoCapitalize='none'
           autoCorrect={false}

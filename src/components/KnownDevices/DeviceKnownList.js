@@ -24,7 +24,9 @@ type Props = {
 
 class DeviceKnownList extends Component<Props> {
 
-  keyExtractor = (device: BleDevice) => device.id;
+  keyExtractor = (device: BleDevice) => {
+    return device.id;
+  };
 
   render() {
     const { devices, onPressDevice, onRemoveDevice } = this.props;

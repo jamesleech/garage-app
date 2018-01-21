@@ -45,12 +45,12 @@ class KnownDevicesScreen extends React.Component<Props> {
     onRemoveDevice: removeDevice.request
   };
 
-  onPressDevice = (device: BleDevice) => {
+  handlePressDevice = (device: BleDevice) => {
     const { onToggleDoor } = this.props;
     onToggleDoor({ device });
   };
 
-  onRemoveDevice = (device: BleDevice) => {
+  handleRemoveDevice = (device: BleDevice) => {
     Alert.alert(
       'Remove Device',
       'Removing the linked device will also remove it\'s key',
@@ -60,10 +60,11 @@ class KnownDevicesScreen extends React.Component<Props> {
           text: 'OK',
           onPress: () => {
             const { onRemoveDevice } = this.props;
-            onRemoveDevice(device);
+            onRemoveDevice({device});
           }
         }
-      ]);
+      ]
+    );
   };
 
   render() {
@@ -73,8 +74,8 @@ class KnownDevicesScreen extends React.Component<Props> {
         <RowBluetooth on={ bluetoothPower }/>
           <DeviceKnownList
             devices={devices}
-            onPressDevice={this.onPressDevice}
-            onRemoveDevice={this.onRemoveDevice}/>
+            onPressDevice={this.handlePressDevice}
+            onRemoveDevice={this.handleRemoveDevice}/>
       </TabContainer>
     );
   }
